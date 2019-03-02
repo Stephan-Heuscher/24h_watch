@@ -1,40 +1,10 @@
-Android Wear watch face codelab
-===============================
+24h Watchface on the Basis of Android Wear watch face codelab
+=============================================================
 
-In this codelab you'll learn how to create an analog watch face
-and customize it to our needs, keeping best practices for the platform in mind.
+A 24h watchface for my needs (Huawei Watch 2). 
 
-This is the code part of the watch face codelab.
-The code lab consists of 5 steps.
 
-A [site](https://watchface-codelab.appspot.com) to guide you through
-the code lab is available.
-
-To get started open the site and follow the instructions.
-
-Pre-requisites
---------------
-
-- Android SDK v23
-- Android Build Tools v23.3.0
-- Android Support Repository
-
-Getting Started
----------------
-
-This code lab uses the Gradle build system. To build this project, use the
-"./gradlew build" command or use "Import Project" in Android Studio.
-
-Support
--------
-
-- [Stack Overflow](http://stackoverflow.com/questions/tagged/android)
-
-If you've found an error in this code lab, please file
-an [issue](https://github.com/googlesamples/android-codelab-watchface)
-
-Patches are encouraged, and may be submitted by forking this project and
-submitting a pull request through GitHub. Please see CONTRIB.md for more details.
+Codelab see [site](https://watchface-codelab.appspot.com)
 
 License
 -------
