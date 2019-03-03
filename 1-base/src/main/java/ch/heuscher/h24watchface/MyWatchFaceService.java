@@ -117,6 +117,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
+        private float mDefaultMinLuminance = 0.1f;
+        private float mMinLuminance = mDefaultMinLuminance;
 
         private float mHourHandLength;
         private float mMinuteHandLength;
@@ -216,13 +218,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
 
                     if (x <= mCenterX / 2 ) {
-                        Context ctx=getBaseContext();
-                        /* herausfinder, wie wir den countdown-timer starten
-                        Intent intent = ctx.getPackageManager().getLaunchIntentForPackage("com.google.android.deskclock");
-                        if (intent != null) ctx.startActivity(intent); */
+                        mMinLuminance -= 0.025f;
+                    }
+                    if (x >= mCenterX / 2 * 3 ) {
+                        mMinLuminance += 0.025f;
                     }
                     invalidate();
                     break;
+                        /* herausfinder, wie wir den countdown-timer starten
+                        Context ctx=getBaseContext();
+                        Intent intent = ctx.getPackageManager().getLaunchIntentForPackage("com.google.android.deskclock");
+                        if (intent != null) ctx.startActivity(intent); */
 
                 case WatchFaceService.TAP_TYPE_TOUCH:
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
@@ -267,7 +273,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             float lux = mLightEventListener.getLux();
-            float lightFactor = Math.min(1f, lux /20f+0.1f);
+            float lightFactor = Math.min(1f, lux /20f+mMinLuminance);
             int handPaintColor = Color.WHITE;
             if (mAmbient && mDarkMode) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
@@ -286,8 +292,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
             if (mDarkMode && lightFactor < 1) {
-                mHourPaint.setTypeface(lightFactor > 0.15 ? mNormal : mLight);
-                mHourPaint.setStrokeWidth(lightFactor > 0.15 ? 3 : 1.5f);
+                mHourPaint.setTypeface(lightFactor > 1.5 * mMinLuminance ? mNormal : mLight);
+                mHourPaint.setStrokeWidth(lightFactor > 1.5 * mMinLuminance ? 3 : 1.5f);
             }
             else {
                 mHourPaint.setTypeface(mBold);
@@ -337,8 +343,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            float alarmDistanceFromCenter = mCenterX * 0.72f;
+            // luminanz zeigen
+            if (mMinLuminance != mDefaultMinLuminance) {
+                drawTextUprightFromCenter(80,mHourHandLength-40,
+                        String.format(Locale.getDefault(),"%.3f%n", mMinLuminance) , mHandPaint, canvas);
+            }
 
+            float alarmDistanceFromCenter = mCenterX * 0.72f;
             Calendar time = Calendar.getInstance();
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
