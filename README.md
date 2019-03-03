@@ -4,12 +4,10 @@
 A 24h watchface for my needs (Huawei Watch 2). 
 
 
-Codelab see [site](https://watchface-codelab.appspot.com)
+Codelab see https://watchface-codelab.appspot.com
 
 License
 -------
-
-Copyright 2016 The Android Open Source Project, Inc.
 
 Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements.  See the NOTICE file distributed with this work for

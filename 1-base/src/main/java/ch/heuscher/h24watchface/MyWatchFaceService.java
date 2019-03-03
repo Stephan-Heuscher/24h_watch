@@ -131,7 +131,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             super.onCreate(holder);
             setWatchFaceStyle(new WatchFaceStyle.Builder(MyWatchFaceService.this).
                     setAcceptsTapEvents(true).
-                    setShowUnreadCountIndicator(false).
+                    setShowUnreadCountIndicator(true). // so dass Unread-Punkt nicht mehr sichtbar
                     setHideStatusBar(true).build());
 
             mLightEventListener = new LightEventListener((SensorManager) getSystemService(SENSOR_SERVICE));
@@ -266,7 +266,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(0, 0, "Battery: " +batteryCharge + "% !", mHandPaint, canvas);
             }
 
-            float lightFactor = Math.min(1f, mLightEventListener.getLux()/20f+0.075f);
+            float lux = mLightEventListener.getLux();
+            float lightFactor = Math.min(1f, lux /20f+0.1f);
             int handPaintColor = Color.WHITE;
             if (mAmbient && mDarkMode) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
@@ -414,11 +415,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) + batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_FULL) > 0  ) {
                     specials += "↯";
                 }
-                ConnectivityManager connectivityManager =(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network activeNetwork = connectivityManager.getActiveNetwork();
-                if (activeNetwork == null) {
-                    specials += "✄";
-                }
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 if (wifiManager != null && wifiManager.isWifiEnabled()) {
                     specials += "W";
@@ -435,6 +431,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
                 if (Settings.System.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON)==1) {
                     specials += "✈";
+                }
+                else {
+                    ConnectivityManager connectivityManager =(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                    Network activeNetwork = connectivityManager.getActiveNetwork();
+                    if (activeNetwork == null) {
+                        specials += "✄";
+                    }
                 }
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
