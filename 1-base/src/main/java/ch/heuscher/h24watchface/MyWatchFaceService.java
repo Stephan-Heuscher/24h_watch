@@ -213,7 +213,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     if (y <= mCenterY / 2 ) {
                         mDarkMode = !mDarkMode;
-                        invalidate();
                     }
 
                     if (x <= mCenterX / 2 ) {
@@ -222,6 +221,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         Intent intent = ctx.getPackageManager().getLaunchIntentForPackage("com.google.android.deskclock");
                         if (intent != null) ctx.startActivity(intent); */
                     }
+                    invalidate();
                     break;
 
                 case WatchFaceService.TAP_TYPE_TOUCH:
