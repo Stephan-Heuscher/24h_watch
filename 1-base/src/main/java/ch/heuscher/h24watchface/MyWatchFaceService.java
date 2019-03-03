@@ -337,7 +337,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            float alarmDistanceFromCenter = mCenterX * 0.62f;
+            float alarmDistanceFromCenter = mCenterX * 0.72f;
 
             Calendar time = Calendar.getInstance();
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
