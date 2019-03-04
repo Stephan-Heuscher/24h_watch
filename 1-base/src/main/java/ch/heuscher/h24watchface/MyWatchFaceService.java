@@ -117,7 +117,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
-        private float mDefaultMinLuminance = 0.07f;
+        private float mDefaultMinLuminance = 0.06f;
         private float mMinLuminance = mDefaultMinLuminance;
 
         private float mHourHandLength;
@@ -404,19 +404,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            // "Helles" Ende für Stunden-Anzeige unabhängig von gemessenem Licht --> über alles
-            mHandPaint.setStrokeWidth(STROKE_WIDTH);
-            mHandPaint.setColor(Color.LTGRAY);
-            drawLineFromCenter(hoursRotation, mHourHandLength-60-60, mHourHandLength-60,
-                    mHandPaint, canvas);
-
             //"Helle" Stunde schreiben
+            mHandPaint.setColor(Color.LTGRAY);
             mHandPaint.setTypeface(mLight);
             drawTextUprightFromCenter(hour * 15f, radiusCenter,
                     "" + hour, mHandPaint, canvas);
             mHandPaint.setTypeface(mNormal);
 
             // "Heller" Minuten-Kreis (keine Füllung)
+            mHandPaint.setStrokeWidth(STROKE_WIDTH);
             mHandPaint.setStyle(Paint.Style.STROKE);
             drawCircle(minutesRotation, mMinuteHandLength-1, canvas, 5f, mHandPaint);
             drawCircle(minutesRotation, mMinuteHandLength-3, canvas, 8f, mHandPaint);
