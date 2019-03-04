@@ -311,8 +311,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float yFill = mCenterY + textSize/2 * (1-relativeHour);
             canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
                     mBackgroundPaint);
+
             // nochmals den Umriss nachziehen
-            mHourPaint.setAlpha(255);
+            mHourPaint.setAlpha(255-Math.min((int)lux,50));
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
