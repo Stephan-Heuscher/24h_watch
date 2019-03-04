@@ -117,7 +117,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
-        private float mDefaultMinLuminance = 0.1f;
+        private float mDefaultMinLuminance = 0.07f;
         private float mMinLuminance = mDefaultMinLuminance;
 
         private float mHourHandLength;
@@ -218,10 +218,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
 
                     if (x <= mCenterX / 2 ) {
-                        mMinLuminance -= 0.025f;
+                        mMinLuminance -= 0.01f;
                     }
                     if (x >= mCenterX / 2 * 3 ) {
-                        mMinLuminance += 0.025f;
+                        mMinLuminance += 0.01f;
                     }
                     invalidate();
                     break;
@@ -312,6 +312,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
                     mBackgroundPaint);
             // nochmals den Umriss nachziehen
+            mHourPaint.setAlpha(255);
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
@@ -346,7 +347,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // luminanz zeigen
             if (mMinLuminance != mDefaultMinLuminance) {
                 drawTextUprightFromCenter(80,mHourHandLength-40,
-                        String.format(Locale.getDefault(),"%.3f%n", mMinLuminance) , mHandPaint, canvas);
+                        String.format(Locale.getDefault(),"%.2f%n", mMinLuminance) , mHandPaint, canvas);
             }
 
             float alarmDistanceFromCenter = mCenterX * 0.72f;
@@ -374,7 +375,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Datum
             String dateDate = String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
-            currentY = getNextLine(currentY+0.25f*TEXT_SIZE);
+            currentY = getNextLine(currentY);
 
             List<CalendarEvent> events = getCalendarEvents();
             events.sort(new Comparator<CalendarEvent>()
@@ -571,7 +572,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     }
 
     private float getNextLine(float currentY) {
-        return currentY + 1.25f * TEXT_SIZE;
+        return currentY + 1.15f * TEXT_SIZE;
     }
 
     private float getDegreesFromNorth(@NotNull Calendar time) {
