@@ -400,8 +400,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         currentY = getNextLine(currentY);
                     }
                     else {
-                        drawTextUprightFromCenter(degreesFromNorth,
-                                alarmDistanceFromCenter, "◌", mHandPaint, canvas);
+                        mHandPaint.setStyle(Paint.Style.STROKE);
+                        drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, 6.5f, mHandPaint);
+                        mHandPaint.setStyle(Paint.Style.FILL);
                     }
                 }
             }
