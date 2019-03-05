@@ -273,8 +273,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(0, 0, "Battery: " +batteryCharge + "% !", mHandPaint, canvas);
             }
 
-            float lux = mLightEventListener.getLux();
-            float lightFactor = Math.min(1f, lux /20f+mMinLuminance);
+            float maxLuxSinceLastRead = mLightEventListener.getMaxLuxSinceLastRead();
+            float lightFactor = Math.min(1f, maxLuxSinceLastRead /20f+mMinLuminance);
             int handPaintColor = Color.WHITE;
             if (mAmbient && mDarkMode) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
@@ -314,7 +314,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     mBackgroundPaint);
 
             // nochmals den Umriss nachziehen
-            mHourPaint.setAlpha(255-Math.min((int)lux,50));
+            mHourPaint.setAlpha(255-Math.min((int)maxLuxSinceLastRead,50));
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
@@ -337,12 +337,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     drawTextUprightFromCenter(0, mMinuteHandLength - 10f,
                             (mDarkMode ? "☾" : "☼") + specials, mHandPaint, canvas);
                 }
-                else if(i==hour) {
-                    writeHourNumber(canvas, radiusCenter, hour, true, true);
-                    writeHourNumber(canvas, radiusCenter, hour + 1, false, false);
-                }
                 else if (!mAmbient) {
                     writeHourNumber(canvas, radiusCenter, i, i % 2 == 0, false);
+                }
+                if(i==hour) {
+                    writeHourNumber(canvas, radiusCenter, hour, false, true);
+                    writeHourNumber(canvas, radiusCenter, hour + 1, false, false);
                 }
             }
 
@@ -352,7 +352,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas);
             }
 
-            float alarmDistanceFromCenter = mCenterX * 0.72f;
+            float alarmDistanceFromCenter = mCenterX * 0.67f;
             Calendar time = Calendar.getInstance();
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
@@ -466,23 +466,19 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             return specials;
         }
 
-        private void writeHourNumber(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean isCurrentHour) {
+        private void writeHourNumber(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean writeQuarterDots) {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
-            if (writeNumber) {
-                if (isCurrentHour){
-                    mHandPaint.setTypeface(mBold);
+            if (writeQuarterDots) {
+                float quarterInDegrees = rotatePerHour / 4;
+                for (float rotate = quarterInDegrees; rotate < rotatePerHour; rotate = rotate + quarterInDegrees) {
+                    drawCircle(degreesFromNorth + rotate, mCenterX-RAND_RESERVE-1.5f, canvas, 1.5f, mHandPaint);
+                    //drawLineFromCenter(degreesFromNorth + rotate, mCenterX - 8, mCenterX, mHandPaint, canvas);
                 }
+            }
+            if (writeNumber) {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         "" + hour, mHandPaint, canvas);
-                mHandPaint.setTypeface(mNormal);
-                if (isCurrentHour) {
-                    float quarterInDegrees = rotatePerHour / 4;
-                    for (float rotate = quarterInDegrees; rotate < rotatePerHour; rotate = rotate + quarterInDegrees) {
-                        drawCircle(degreesFromNorth + rotate, mCenterX-RAND_RESERVE-1.5f, canvas, 1.5f, mHandPaint);
-                        //drawLineFromCenter(degreesFromNorth + rotate, mCenterX - 8, mCenterX, mHandPaint, canvas);
-                    }
-                }
             }
             drawCircle(degreesFromNorth, mCenterX-RAND_RESERVE-3, canvas, 3, mHandPaint);
             //drawLineFromCenter(degreesFromNorth, mCenterX - 15, mCenterX, mHandPaint, canvas);
