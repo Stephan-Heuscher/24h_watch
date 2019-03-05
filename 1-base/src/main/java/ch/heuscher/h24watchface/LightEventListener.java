@@ -17,9 +17,19 @@ public class LightEventListener implements SensorEventListener {
     }
 
     private float mLux = 100f;
+    private float mMaxLuxSinceLastRead = 0;
 
     public float getLux() {
         return mLux;
+    }
+
+    public float getMaxLuxSinceLastRead() {
+        if(mMaxLuxSinceLastRead == 0){
+            return getLux();
+        }
+        Float maxLuxSinceLastRead = mMaxLuxSinceLastRead;
+        mMaxLuxSinceLastRead = 0;
+        return maxLuxSinceLastRead;
     }
 
     public LightEventListener(SensorManager mSensorManager) {
@@ -38,6 +48,7 @@ public class LightEventListener implements SensorEventListener {
             return;
         // The light sensor returns a single value.
         mLux = event.values[0];
+        mMaxLuxSinceLastRead = Math.max(mMaxLuxSinceLastRead, mLux);
     }
 
 
