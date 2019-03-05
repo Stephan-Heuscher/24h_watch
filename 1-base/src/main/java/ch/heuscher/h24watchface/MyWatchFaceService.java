@@ -51,6 +51,7 @@ import android.view.SurfaceHolder;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -72,7 +73,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
      */
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(60);
     private static final float TEXT_SIZE = 30f;
-    private static final int RAND_RESERVE = 5;
+    private static final int RAND_RESERVE = 7;
 
     @Override
     public Engine onCreateEngine() {
@@ -117,7 +118,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
-        private float mDefaultMinLuminance = 0.06f;
+        private float mDefaultMinLuminance = 0.07f;
         private float mMinLuminance = mDefaultMinLuminance;
 
         private float mHourHandLength;
@@ -204,7 +205,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
              * Calculate the lengths of the watch hands and store them in member variables.
              */
             mHourHandLength = mCenterX;
-            mMinuteHandLength = mCenterX - 7;
+            mMinuteHandLength = mCenterX - RAND_RESERVE - 2;
             mHourPaint.setTextSize(mCenterY);
         }
 
@@ -330,10 +331,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String specials = getSpecials(batteryManager, canvas);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
-            float radiusCenter = mCenterX * 0.85f;
+            float radiusCenter = mCenterX * 0.82f;
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
-                    drawTextUprightFromCenter(0, mMinuteHandLength - 12.5f,
+                    drawTextUprightFromCenter(0, mMinuteHandLength - 10f,
                             (mDarkMode ? "☾" : "☼") + specials, mHandPaint, canvas);
                 }
                 else if(i==hour) {
@@ -348,7 +349,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // luminanz zeigen
             if (mMinLuminance != mDefaultMinLuminance) {
                 drawTextUprightFromCenter(80,mHourHandLength-40,
-                        String.format(Locale.getDefault(),"%.2f%n", mMinLuminance) , mHandPaint, canvas);
+                        new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas);
             }
 
             float alarmDistanceFromCenter = mCenterX * 0.72f;
@@ -405,6 +406,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
+/* dark mode sollte wirklich dark sein
             //"Helle" Stunde schreiben
             mHandPaint.setColor(Color.LTGRAY);
             mHandPaint.setTypeface(mLight);
@@ -419,6 +421,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawCircle(minutesRotation, mMinuteHandLength-3, canvas, 8f, mHandPaint);
             mHandPaint.setStyle(Paint.Style.FILL);
             mHandPaint.setColor(handPaintColor);
+*/
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
@@ -475,12 +478,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (isCurrentHour) {
                     float quarterInDegrees = rotatePerHour / 4;
                     for (float rotate = quarterInDegrees; rotate < rotatePerHour; rotate = rotate + quarterInDegrees) {
-                        drawCircle(degreesFromNorth + rotate, mCenterX-6, canvas, 1.5f, mHandPaint);
+                        drawCircle(degreesFromNorth + rotate, mCenterX-RAND_RESERVE-1.5f, canvas, 1.5f, mHandPaint);
                         //drawLineFromCenter(degreesFromNorth + rotate, mCenterX - 8, mCenterX, mHandPaint, canvas);
                     }
                 }
             }
-            drawCircle(degreesFromNorth, mCenterX-7, canvas, 3, mHandPaint);
+            drawCircle(degreesFromNorth, mCenterX-RAND_RESERVE-3, canvas, 3, mHandPaint);
             //drawLineFromCenter(degreesFromNorth, mCenterX - 15, mCenterX, mHandPaint, canvas);
         }
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
