@@ -320,12 +320,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
 
-            float startPoint = (1 - batteryCharge / 100f) * mHourHandLength;
+            float startPoint = (batteryCharge / 100f) * mHourHandLength;
             // dick für restl. Batterie
-            mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
+            mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
             drawLineFromCenter(hoursRotation, startPoint, mHourHandLength, mHandPaint, canvas);
             // dünn für verbrauchte Batterie
-            mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
+            mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
             drawLineFromCenter(hoursRotation, 0, startPoint, mHandPaint, canvas);
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
