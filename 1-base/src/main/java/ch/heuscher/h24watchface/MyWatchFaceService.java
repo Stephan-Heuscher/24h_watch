@@ -52,6 +52,7 @@ import android.view.SurfaceHolder;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -258,7 +259,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            /** These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
+            /* These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
             final float minutesRotation = minutes * 6f;
             final float hoursRotation = getDegreesFromNorth(mCalendar);
 
@@ -292,14 +293,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
-            if (mDarkMode && lightFactor < 1) {
+            if (lightFactor < 1) {
                 mHourPaint.setTypeface(lightFactor > 1.5 * mMinLuminance ? mNormal : mLight);
-                mHourPaint.setStrokeWidth(lightFactor > 1.5 * mMinLuminance ? 3 : 1.5f);
             }
             else {
                 mHourPaint.setTypeface(mBold);
-                mHourPaint.setStrokeWidth(6);
             }
+            float strokeWidth = Math.min(8, maxLuxSinceLastRead/7 + 1.5f);
+            mHourPaint.setStrokeWidth(strokeWidth);
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
 
@@ -346,8 +347,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            // luminanz zeigen
-            if (mMinLuminance != mDefaultMinLuminance) {
+            // luminanz zeigen wenn nötig
+            if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
                 drawTextUprightFromCenter(80,mHourHandLength-40,
                         new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas);
             }
@@ -375,7 +376,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Datum
-            String dateDate = String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
+            String dateDate = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
+            dateDate += new SimpleDateFormat(" d.M.yy", Locale.GERMAN).format(date);
+                    //String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
             currentY = getNextLine(currentY);
 
