@@ -404,7 +404,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-/* dark mode sollte wirklich dark sein
+/* dark mode sollte wirklich dark sein, darum nicht mehr angezeigt
             //"Helle" Stunde schreiben
             mHandPaint.setColor(Color.LTGRAY);
             mHandPaint.setTypeface(mLight);
@@ -438,18 +438,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 else if (getNotificationCount() > 0) { // oder noch andere
                     specials += "?";
                 }
-                int interruptionFilter = getInterruptionFilter();
-                if (interruptionFilter == INTERRUPTION_FILTER_PRIORITY) {
+                if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
                     specials += "Ø";
                 }
-                if (Settings.System.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON)==1) {
+                if (Settings.System.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
                     specials += "✈";
                 }
                 else {
                     ConnectivityManager connectivityManager =(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     Network activeNetwork = connectivityManager.getActiveNetwork();
                     if (activeNetwork == null) {
-                        specials += "✄";
+                        specials += "#";
                     }
                 }
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
