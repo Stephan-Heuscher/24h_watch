@@ -115,7 +115,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private Typeface mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
         private Typeface mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
-        private Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
+        //private Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
@@ -292,12 +292,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
             if (lightFactor < 1) {
-                mHourPaint.setTypeface(lightFactor > 1.5 * mMinLuminance ? mNormal : mLight);
+                mHourPaint.setTypeface(mLight);
             }
             else {
-                mHourPaint.setTypeface(mBold);
+                mHourPaint.setTypeface(mNormal);
             }
-            float strokeWidth = Math.min(8, maxLuxSinceLastRead/7 + 1.5f);
+            float strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
             mHourPaint.setStrokeWidth(strokeWidth);
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
@@ -334,14 +334,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             Date date = mCalendar.getTime();
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
-                    String text = (mDarkMode ? "☾" : "☼");
-                    if(mAmbient) {
-                        String dateDay = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
-                        text =  dateDay + text + specials;
-                    }
-                    else {
-                        text += String.format(Locale.GERMAN,"%tH:%tM", date, date) + text;
-                    }
+                    String text = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
+                    text += (mDarkMode ? "☾" : "☼") + specials;
                     drawTextUprightFromCenter(0, mMinuteHandLength - 15f,
                             text, mHandPaint, canvas);
                 }
@@ -380,6 +374,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     //String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
             currentY = getNextLine(currentY);
+
+            if (!mAmbient){
+                drawTextUprightFromCenter(0,mCenterY - currentY,
+                        String.format(Locale.GERMAN,"%tH:%tM", date, date), mHandPaint, canvas);
+                currentY = getNextLine(currentY);
+            }
 
             List<CalendarEvent> events = getCalendarEvents();
             events.sort(new Comparator<CalendarEvent>()
