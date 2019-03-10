@@ -205,7 +205,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             /*
              * Calculate the lengths of the watch hands and store them in member variables.
              */
-            mHourHandLength = mCenterX;
+            mHourHandLength = mCenterX - 25;
             mMinuteHandLength = mCenterX - RAND_RESERVE - 2;
             mHourPaint.setTextSize(mCenterY);
         }
@@ -321,18 +321,18 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     mHourPaint, canvas);
 
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
-            // dick für restl. Batterie
-            mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
-            drawLineFromCenter(hoursRotation, startPoint, mHourHandLength, mHandPaint, canvas);
             // dünn für verbrauchte Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
             drawLineFromCenter(hoursRotation, 0, startPoint, mHandPaint, canvas);
+            // dick für restl. Batterie
+            mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
+            drawLineFromCenter(hoursRotation, startPoint, mHourHandLength, mHandPaint, canvas);
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(batteryManager, canvas);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
-            float radiusCenter = mCenterX * 0.82f;
+            float radiusCenter = mCenterX * 0.73f;
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
                     drawTextUprightFromCenter(0, mMinuteHandLength - 10f,
@@ -343,7 +343,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
                 if(i==hour) {
                     writeHourNumber(canvas, radiusCenter, hour, false, true);
-                    writeHourNumber(canvas, radiusCenter, hour + 1, false, false);
                 }
             }
 
@@ -353,7 +352,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas);
             }
 
-            float alarmDistanceFromCenter = mCenterX * 0.67f;
+            float alarmDistanceFromCenter = mHourHandLength;
             Calendar time = Calendar.getInstance();
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
@@ -472,10 +471,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private void writeHourNumber(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean writeQuarterDots) {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
+            float dotDistance = mHourHandLength;
             if (writeQuarterDots) {
                 float quarterInDegrees = rotatePerHour / 4;
                 for (float rotate = quarterInDegrees; rotate < rotatePerHour; rotate = rotate + quarterInDegrees) {
-                    drawCircle(degreesFromNorth + rotate, mCenterX-RAND_RESERVE-1.5f, canvas, 1.5f, mHandPaint);
+                    drawCircle(degreesFromNorth + rotate, dotDistance, canvas, 1.5f, mHandPaint);
                     //drawLineFromCenter(degreesFromNorth + rotate, mCenterX - 8, mCenterX, mHandPaint, canvas);
                 }
             }
@@ -483,7 +483,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         "" + hour, mHandPaint, canvas);
             }
-            drawCircle(degreesFromNorth, mCenterX-RAND_RESERVE-3, canvas, 3, mHandPaint);
+            drawCircle(degreesFromNorth, dotDistance, canvas, 3, mHandPaint);
             //drawLineFromCenter(degreesFromNorth, mCenterX - 15, mCenterX, mHandPaint, canvas);
         }
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
