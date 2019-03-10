@@ -331,16 +331,26 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             float radiusCenter = mCenterX * 0.73f;
+            Date date = mCalendar.getTime();
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
+                    String text = (mDarkMode ? "☾" : "☼");
+                    if(mAmbient) {
+                        String dateDay = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
+                        text =  dateDay + text + specials;
+                    }
+                    else {
+                        text += String.format(Locale.GERMAN,"%tH:%tM", date, date) + text;
+                    }
                     drawTextUprightFromCenter(0, mMinuteHandLength - 15f,
-                            (mDarkMode ? "☾" : "☼") + specials, mHandPaint, canvas);
+                            text, mHandPaint, canvas);
                 }
                 else if (!mAmbient) {
-                    writeHourNumber(canvas, radiusCenter, i, i % 2 == 0, false);
+                    writeHourNumber(canvas, radiusCenter, i, i % 2 == 0 && ( i!=2 && i != 22), false);
                 }
                 if(i==hour) {
                     writeHourNumber(canvas, radiusCenter, hour, false, true);
+                    writeHourNumber(canvas, radiusCenter, hour+1, false, false);
                 }
             }
 
@@ -363,18 +373,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // Y für textzeilen
-            float currentY = RAND_RESERVE+3.12f*TEXT_SIZE;
-
-            Date date = mCalendar.getTime();
-            if(!mAmbient) {
-                String timeString = String.format(Locale.GERMAN,"%tH:%tM", date, date);
-                drawTextUprightFromCenter(0,mCenterY - currentY + 1.15f*TEXT_SIZE,
-                        timeString, mHandPaint, canvas);
-            }
+            float currentY = RAND_RESERVE+1.7f*TEXT_SIZE;
 
             // Datum
-            String dateDate = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
-            dateDate += new SimpleDateFormat(" d.M.yy", Locale.GERMAN).format(date);
+            String dateDate = new SimpleDateFormat(" YYYY-MM-dd", Locale.GERMAN).format(date);
                     //String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
             currentY = getNextLine(currentY);
@@ -388,21 +390,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (!event.isAllDay()) {
                     time.setTimeInMillis(event.getBegin().getTime());
                     float degreesFromNorth = getDegreesFromNorth(time);
+                    mHandPaint.setStyle(Paint.Style.STROKE);
+                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, 6.5f, mHandPaint);
+                    mHandPaint.setStyle(Paint.Style.FILL);
                     long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
                     if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
-                        drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, 3, mHandPaint);
                         String title = event.getTitle();
                         title = title != null && title.length() > 0 ? title.substring(0, Math.min(21, title.length())) : "(ohne Titel)";
-                        String eventHrTitle = String.format(Locale.GERMAN,
-                                "%tR " + title, event.getBegin());
-                        //canvas.drawText(eventHrTitle, mCenterX-100f, currentY ,mHandPaint);
+                        String eventHrTitle = String.format(Locale.GERMAN, "%tR " + title, event.getBegin());
                         drawTextUprightFromCenter(0,mCenterY - currentY, eventHrTitle, mHandPaint, canvas);
                         currentY = getNextLine(currentY);
-                    }
-                    else {
-                        mHandPaint.setStyle(Paint.Style.STROKE);
-                        drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, 6.5f, mHandPaint);
-                        mHandPaint.setStyle(Paint.Style.FILL);
                     }
                 }
             }
@@ -470,13 +467,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
             float dotDistance = mHourHandLength;
+/*
             if (writeQuarterDots) {
                 float quarterInDegrees = rotatePerHour / 4;
                 for (float rotate = quarterInDegrees; rotate < rotatePerHour; rotate = rotate + quarterInDegrees) {
                     drawCircle(degreesFromNorth + rotate, dotDistance, canvas, 1.5f, mHandPaint);
-                    //drawLineFromCenter(degreesFromNorth + rotate, mCenterX - 8, mCenterX, mHandPaint, canvas);
                 }
             }
+*/
             if (writeNumber) {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         "" + hour, mHandPaint, canvas);
