@@ -376,7 +376,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float currentY = RAND_RESERVE+1.7f*TEXT_SIZE;
 
             // Datum
-            String dateDate = new SimpleDateFormat(" YYYY-MM-dd", Locale.GERMAN).format(date);
+            String dateDate = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
                     //String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
             currentY = getNextLine(currentY);
