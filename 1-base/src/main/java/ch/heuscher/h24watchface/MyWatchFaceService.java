@@ -253,10 +253,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             int seconds = mCalendar.get(Calendar.SECOND);
 
             // Darkmode autom. umschaltung
-            if (minutes == 0 && seconds <=1) {
-                if (hour == 19) {
+            if (minutes == 0 && hour == 19 && seconds <=1) {
                     mDarkMode = true;
-                }
             }
 
             /* These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
@@ -335,7 +333,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float radiusCenter = mCenterX * 0.73f;
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
-                    drawTextUprightFromCenter(0, mMinuteHandLength - 10f,
+                    drawTextUprightFromCenter(0, mMinuteHandLength - 15f,
                             (mDarkMode ? "☾" : "☼") + specials, mHandPaint, canvas);
                 }
                 else if (!mAmbient) {
@@ -365,7 +363,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // Y für textzeilen
-            float currentY = RAND_RESERVE+2.75f*TEXT_SIZE;
+            float currentY = RAND_RESERVE+3.12f*TEXT_SIZE;
 
             Date date = mCalendar.getTime();
             if(!mAmbient) {
