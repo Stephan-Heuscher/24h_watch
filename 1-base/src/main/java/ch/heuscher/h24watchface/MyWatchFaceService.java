@@ -292,9 +292,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
             float strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
+            int alphaHour = 255 - Math.min((int) maxLuxSinceLastRead, 50);
             if(!mDarkMode) {
                 mHourPaint.setTypeface(mBold);
-                strokeWidth = 8;
+                strokeWidth = 6;
+                alphaHour = 192;
             }
             else {
                 if (lightFactor < 0.5) {
@@ -305,13 +307,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             mHourPaint.setStrokeWidth(strokeWidth);
-            drawTextUprightFromCenter(0,- 12, hourText,
-                    mHourPaint, canvas);
 
-            // noch abzulaufende Zeit verdunkeln
             Rect boundsText = new Rect();
             mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
             float textSize = boundsText.height();
+            float decenteringCorrection = -12;
+            drawTextUprightFromCenter(0, decenteringCorrection, hourText,
+                    mHourPaint, canvas);
+
+            // noch abzulaufende Zeit verdunkeln
             float relativeHour = 1 - minutes / 60f;
             mBackgroundPaint.setStrokeWidth(textSize * relativeHour);
             float yFill = mCenterY + textSize/2 * (1-relativeHour);
@@ -319,9 +323,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     mBackgroundPaint);
 
             // nochmals den Umriss nachziehen
-            mHourPaint.setAlpha(255-Math.min((int)maxLuxSinceLastRead,50));
+            mHourPaint.setAlpha(alphaHour);
             mHourPaint.setStyle(Paint.Style.STROKE);
-            drawTextUprightFromCenter(0,- 12, hourText,
+            drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                     mHourPaint, canvas);
 
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
