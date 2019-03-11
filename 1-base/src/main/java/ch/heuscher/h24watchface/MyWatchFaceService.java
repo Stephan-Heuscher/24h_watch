@@ -115,7 +115,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private Typeface mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
         private Typeface mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
-        //private Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
+        private Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
@@ -291,13 +291,19 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
-            if (lightFactor < 1) {
-                mHourPaint.setTypeface(mLight);
+            float strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
+            if(!mDarkMode) {
+                mHourPaint.setTypeface(mBold);
+                strokeWidth = 8;
             }
             else {
-                mHourPaint.setTypeface(mNormal);
+                if (lightFactor < 0.5) {
+                    mHourPaint.setTypeface(mLight);
+                }
+                else {
+                    mHourPaint.setTypeface(mNormal);
+                }
             }
-            float strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
             mHourPaint.setStrokeWidth(strokeWidth);
             drawTextUprightFromCenter(0,- 12, hourText,
                     mHourPaint, canvas);
