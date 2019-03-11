@@ -53,12 +53,16 @@ public class LightEventListener implements SensorEventListener {
 
 
     protected void selfRegister() {
-        mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
-        mIsRegistered = true;
+        if (!mIsRegistered) {
+            mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+            mIsRegistered = true;
+        }
     }
 
     protected void selfUnregister() {
-        mSensorManager.unregisterListener(this);
-        mIsRegistered = false;
+        if (mIsRegistered) {
+            mSensorManager.unregisterListener(this);
+            mIsRegistered = false;
+        }
     }
 }
