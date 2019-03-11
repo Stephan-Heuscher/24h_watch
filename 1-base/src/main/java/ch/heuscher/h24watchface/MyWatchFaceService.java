@@ -280,7 +280,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mHandPaint.setColor(handPaintColor);
             mHourPaint.setColor(handPaintColor);
-            mHourPaint.setAlpha(200 - (int)(75f*lightFactor));
 
             // Minuten-UFO am Rand der Uhr
             drawCircle(minutesRotation, mMinuteHandLength-11, canvas, 15f, mHandPaint);
@@ -291,22 +290,22 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
-            float strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
-            int alphaHour = 255 - Math.min((int) maxLuxSinceLastRead, 50);
-            if(!mDarkMode) {
-                mHourPaint.setTypeface(mBold);
-                strokeWidth = 6;
-                alphaHour = 192;
-            }
-            else {
+            float strokeWidth = 6;
+            int alphaHour = 160;
+            Typeface typeface = mBold;
+            if(mDarkMode) {
+                strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
+                alphaHour = 228 - Math.min((int) maxLuxSinceLastRead, 100);
                 if (lightFactor < 0.5) {
-                    mHourPaint.setTypeface(mLight);
+                    typeface = mLight;
                 }
                 else {
-                    mHourPaint.setTypeface(mNormal);
+                    typeface = mNormal;
                 }
             }
+            mHourPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
+            mHourPaint.setAlpha(alphaHour);
 
             Rect boundsText = new Rect();
             mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
@@ -323,7 +322,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     mBackgroundPaint);
 
             // nochmals den Umriss nachziehen
-            mHourPaint.setAlpha(alphaHour);
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                     mHourPaint, canvas);
