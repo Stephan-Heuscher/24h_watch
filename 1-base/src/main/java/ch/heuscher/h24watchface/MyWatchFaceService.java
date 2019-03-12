@@ -206,7 +206,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
              * Calculate the lengths of the watch hands and store them in member variables.
              */
             mHourHandLength = mCenterX - 25;
-            mMinuteHandLength = mCenterX - RAND_RESERVE - 2;
+            mMinuteHandLength = mCenterX - RAND_RESERVE;
             mHourPaint.setTextSize(mCenterY);
         }
 
@@ -282,11 +282,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setColor(handPaintColor);
 
             // Minuten-UFO am Rand der Uhr
-            drawCircle(minutesRotation, mMinuteHandLength-11, canvas, 15f, mHandPaint);
-            drawCircle(minutesRotation, mMinuteHandLength-17, canvas, 15f, mBackgroundPaint);
-            drawCircle(minutesRotation, mMinuteHandLength-3, canvas, 8f, mHandPaint);
-            drawCircle(minutesRotation, mMinuteHandLength-1, canvas, 5f, mBackgroundPaint);
-            //drawArrow(minutesRotation, mMinuteHandLength, mAmbient ? 25f : 40f, canvas);
+//            drawCircle(minutesRotation, mMinuteHandLength-11, canvas, 15f, mHandPaint);
+//            drawCircle(minutesRotation, mMinuteHandLength-17, canvas, 15f, mBackgroundPaint);
+//            drawCircle(minutesRotation, mMinuteHandLength-3, canvas, 8f, mHandPaint);
+//            drawCircle(minutesRotation, mMinuteHandLength-1, canvas, 5f, mBackgroundPaint);
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
@@ -326,6 +325,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                     mHourPaint, canvas);
 
+            // Minute Hand
+//            drawCircle(minutesRotation, mMinuteHandLength-4, canvas, 4f, mHandPaint);
+//            drawLineFromCenter(minutesRotation, 0, mMinuteHandLength, mHandPaint, canvas);
+
+
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
             // dünn für verbrauchte Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
@@ -344,8 +348,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if(i == 0) {
                     String text = new SimpleDateFormat("E", Locale.GERMAN).format(date);
                     text += (mDarkMode ? "☾" : "☼") + specials;
-                    drawTextUprightFromCenter(0, mMinuteHandLength - 15f,
+                    drawTextUprightFromCenter(0, mCenterX - RAND_RESERVE - 18f,
                             text, mHandPaint, canvas);
+                }
+                else if (i == 6){
+                    String minutesText = new SimpleDateFormat(":mm", Locale.GERMAN).format(date);
+                    drawTextUprightFromCenter(90, radiusCenter -5,
+                            minutesText, mHandPaint, canvas);
+                    if (!mAmbient) writeHourNumber(canvas, radiusCenter, i, false, false);
                 }
                 else if (!mAmbient) {
                     writeHourNumber(canvas, radiusCenter, i, i % 2 == 0 && ( i!=2 && i != 22), false);
@@ -383,11 +393,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
             currentY = getNextLine(currentY);
 
+/*
             if (!mAmbient){
                 drawTextUprightFromCenter(0,mCenterY - currentY,
                         String.format(Locale.GERMAN,"%tH:%tM", date, date), mHandPaint, canvas);
                 currentY = getNextLine(currentY);
             }
+*/
 
             List<CalendarEvent> events = getCalendarEvents();
             events.sort(new Comparator<CalendarEvent>()
