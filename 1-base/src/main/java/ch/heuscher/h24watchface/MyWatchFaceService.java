@@ -342,7 +342,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             Date date = mCalendar.getTime();
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
-                    String text = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
+                    String text = new SimpleDateFormat("E", Locale.GERMAN).format(date);
                     text += (mDarkMode ? "☾" : "☼") + specials;
                     drawTextUprightFromCenter(0, mMinuteHandLength - 15f,
                             text, mHandPaint, canvas);
@@ -405,7 +405,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
                         String title = event.getTitle();
                         title = title != null && title.length() > 0 ? title.substring(0, Math.min(21, title.length())) : "(ohne Titel)";
-                        String eventHrTitle = String.format(Locale.GERMAN, "%tR " + title, event.getBegin());
+                        String eventHrTitle = TimeUnit.MILLISECONDS.toMinutes(inFuture) + " " + title;
                         drawTextUprightFromCenter(0,mCenterY - currentY, eventHrTitle, mHandPaint, canvas);
                         currentY = getNextLine(currentY);
                     }
