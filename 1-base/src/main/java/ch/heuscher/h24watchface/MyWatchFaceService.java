@@ -414,8 +414,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Minuten-"Zeiger" aus Kreisen
             //mHandPaint.setStrokeWidth(STROKE_WIDTH);
             mHandPaint.setStyle(Paint.Style.STROKE);
-            drawCircle(0, 0, canvas, mCenterX/16, mHandPaint);
-            drawCircle(minutesRotation, mCenterX/16, canvas, mHandPaint.getStrokeWidth()+2, mBackgroundPaint);
+            float minutesCircleRadius = mCenterX / 20;
+            drawCircle(0, 0, canvas, minutesCircleRadius, mHandPaint);
+            drawCircle(minutesRotation, minutesCircleRadius, canvas, mHandPaint.getStrokeWidth()+2, mBackgroundPaint);
+
+            drawCircle(minutesRotation, mHourHandLength, canvas, 3f, mBackgroundPaint);
+            drawCircle(minutesRotation, mHourHandLength, canvas, 1f, mHandPaint);
 
 /*            for (int i = 1; i <= 4; i++){
                 drawCircle(minutesRotation, mCenterX/9*i, canvas, i+6, mBackgroundPaint);
