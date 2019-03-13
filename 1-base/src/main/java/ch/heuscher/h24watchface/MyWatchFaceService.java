@@ -325,11 +325,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                     mHourPaint, canvas);
 
-            // Minute Hand
-//            drawCircle(minutesRotation, mMinuteHandLength-4, canvas, 4f, mHandPaint);
-//            drawLineFromCenter(minutesRotation, 0, mMinuteHandLength, mHandPaint, canvas);
-
-
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
             // dünn für verbrauchte Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
@@ -393,14 +388,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
             currentY = getNextLine(currentY);
 
-/*
-            if (!mAmbient){
-                drawTextUprightFromCenter(0,mCenterY - currentY,
-                        String.format(Locale.GERMAN,"%tH:%tM", date, date), mHandPaint, canvas);
-                currentY = getNextLine(currentY);
-            }
-*/
-
             List<CalendarEvent> events = getCalendarEvents();
             events.sort(new Comparator<CalendarEvent>()
             {
@@ -424,22 +411,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-/* dark mode sollte wirklich dark sein, darum nicht mehr angezeigt
-            //"Helle" Stunde schreiben
-            mHandPaint.setColor(Color.LTGRAY);
-            mHandPaint.setTypeface(mLight);
-            drawTextUprightFromCenter(hour * 15f, radiusCenter,
-                    "" + hour, mHandPaint, canvas);
-            mHandPaint.setTypeface(mNormal);
-
-            // "Heller" Minuten-Kreis (keine Füllung)
+            // Minuten-"Zeiger" aus Kreisen
             mHandPaint.setStrokeWidth(STROKE_WIDTH);
             mHandPaint.setStyle(Paint.Style.STROKE);
-            drawCircle(minutesRotation, mMinuteHandLength-1, canvas, 5f, mHandPaint);
-            drawCircle(minutesRotation, mMinuteHandLength-3, canvas, 8f, mHandPaint);
+            for (int i = 1; i <= 4; i++){
+                drawCircle(minutesRotation, mCenterX/9*i, canvas, i+6, mBackgroundPaint);
+                drawCircle(minutesRotation, mCenterX/9*i, canvas, i+3, mHandPaint);
+            }
             mHandPaint.setStyle(Paint.Style.FILL);
-            mHandPaint.setColor(handPaintColor);
-*/
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
