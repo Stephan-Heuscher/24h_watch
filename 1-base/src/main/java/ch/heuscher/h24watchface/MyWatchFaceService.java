@@ -205,7 +205,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             /*
              * Calculate the lengths of the watch hands and store them in member variables.
              */
-            mHourHandLength = mCenterX - 25;
+            mHourHandLength = mCenterX - RAND_RESERVE - 7;
             mMinuteHandLength = mCenterX - RAND_RESERVE;
             mHourPaint.setTextSize(mCenterY);
         }
@@ -342,7 +342,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String specials = getSpecials(batteryManager, canvas);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
-            float radiusCenter = mCenterX * 0.73f;
+            float radiusCenter = mCenterX * 0.8f;
             Date date = mCalendar.getTime();
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
@@ -352,8 +352,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                             text, mHandPaint, canvas);
                 }
                 else if (i == 6){
-                    String minutesText = new SimpleDateFormat(":mm", Locale.GERMAN).format(date);
-                    drawTextUprightFromCenter(90, radiusCenter -5,
+                    String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
+                    drawTextUprightFromCenter(90, radiusCenter - 10,
                             minutesText, mHandPaint, canvas);
                     if (!mAmbient) writeHourNumber(canvas, radiusCenter, i, false, false);
                 }
