@@ -394,7 +394,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
             });
             for (CalendarEvent event : events) {
-                if (!event.isAllDay()) {
+                long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
+                if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
                     time.setTimeInMillis(event.getBegin().getTime());
                     float degreesFromNorth = getDegreesFromNorth(time);
                     mHandPaint.setStyle(Paint.Style.STROKE);
@@ -418,8 +419,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawCircle(0, 0, canvas, minutesCircleRadius, mHandPaint);
             drawCircle(minutesRotation, minutesCircleRadius, canvas, mHandPaint.getStrokeWidth()+2, mBackgroundPaint);
 
-            drawCircle(minutesRotation, mHourHandLength, canvas, 3f, mBackgroundPaint);
-            drawCircle(minutesRotation, mHourHandLength, canvas, 1f, mHandPaint);
+            drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
 
 /*            for (int i = 1; i <= 4; i++){
                 drawCircle(minutesRotation, mCenterX/9*i, canvas, i+6, mBackgroundPaint);
@@ -592,7 +592,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         Uri.Builder builder = WearableCalendarContract.Instances.CONTENT_URI.buildUpon();
         long begin = System.currentTimeMillis();
         ContentUris.appendId(builder, begin);
-        ContentUris.appendId(builder, begin + TimeUnit.HOURS.toMillis(18));
+        long hourNoShow = TimeUnit.HOURS.toMillis(18);
+        ContentUris.appendId(builder, begin + hourNoShow);
         final Cursor cursor = getContentResolver().query(builder.build(), PROJECTION, null, null, null);
         if (cursor == null) {
             return events;
