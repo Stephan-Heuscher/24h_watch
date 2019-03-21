@@ -417,7 +417,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHandPaint.setStyle(Paint.Style.STROKE);
             float minutesCircleRadius = mCenterX / 20;
             drawCircle(0, 0, canvas, minutesCircleRadius, mHandPaint);
-            drawCircle(minutesRotation, minutesCircleRadius, canvas, mHandPaint.getStrokeWidth()+2, mBackgroundPaint);
+            float radiusBlackMinuteDot = mHandPaint.getStrokeWidth() + 5;
+            drawCircle(minutesRotation, minutesCircleRadius, canvas, radiusBlackMinuteDot, mBackgroundPaint);
+            mHandPaint.setStyle(Paint.Style.FILL);
+            drawLineFromCenter(minutesRotation, 0,
+                    minutesCircleRadius + radiusBlackMinuteDot + 5, mHandPaint, canvas);
 
             drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
 
@@ -425,13 +429,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawCircle(minutesRotation, mCenterX/9*i, canvas, i+6, mBackgroundPaint);
                 drawCircle(minutesRotation, mCenterX/9*i, canvas, i+3, mHandPaint);
             } */
-            mHandPaint.setStyle(Paint.Style.FILL);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
             String specials = "";
             try {
-                if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) + batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_FULL) > 0  ) {
+                if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0  ) {
                     specials += "↯";
                 }
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
