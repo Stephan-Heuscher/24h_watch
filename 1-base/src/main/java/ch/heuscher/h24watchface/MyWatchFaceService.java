@@ -17,13 +17,11 @@
 package ch.heuscher.h24watchface;
 
 import android.app.AlarmManager;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -41,12 +39,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.CalendarContract;
 import android.provider.Settings;
-import android.service.notification.StatusBarNotification;
 import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.view.Gravity;
 import android.view.SurfaceHolder;
 
 import org.jetbrains.annotations.NotNull;
@@ -269,7 +265,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Farbe rot wenn wenig Batterie
             if (batteryCharge <= 10) {
                 mHandPaint.setColor(Color.RED);
-                drawTextUprightFromCenter(0, 0, "Battery: " +batteryCharge + "% !", mHandPaint, canvas);
+                drawTextUprightFromCenter(0, 0, "Battery: " +batteryCharge + "% !", mHandPaint, canvas, null);
             }
 
             float maxLuxSinceLastRead = mLightEventListener.getMaxLuxSinceLastRead();
@@ -311,7 +307,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float textSize = boundsText.height();
             float decenteringCorrection = -12;
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
-                    mHourPaint, canvas);
+                    mHourPaint, canvas, null);
 
             // noch abzulaufende Zeit verdunkeln
             float relativeHour = 1 - minutes / 60f;
@@ -323,7 +319,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // nochmals den Umriss nachziehen
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
-                    mHourPaint, canvas);
+                    mHourPaint, canvas, null);
 
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
             // dünn für verbrauchte Batterie
@@ -344,12 +340,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     String text = new SimpleDateFormat("E", Locale.GERMAN).format(date);
                     text += (mDarkMode ? "☾" : "☼") + specials;
                     drawTextUprightFromCenter(0, mCenterX - RAND_RESERVE - 18f,
-                            text, mHandPaint, canvas);
+                            text, mHandPaint, canvas, mLight);
                 }
                 else if (i == 6){
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
                     drawTextUprightFromCenter(90, radiusCenter - 10,
-                            minutesText, mHandPaint, canvas);
+                            minutesText, mHandPaint, canvas, null);
                     if (!mAmbient) writeHourNumber(canvas, radiusCenter, i, false, false);
                 }
                 else if (!mAmbient) {
@@ -364,7 +360,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // luminanz zeigen wenn nötig
             if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
                 drawTextUprightFromCenter(80,mHourHandLength-40,
-                        new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas);
+                        new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas, null);
             }
 
             float alarmDistanceFromCenter = mHourHandLength;
@@ -376,7 +372,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     time.setTimeInMillis(nextAlarmClock.getTriggerTime());
                     String alarmText = "A";//String.format("%tR", time.getTime());
                     drawTextUprightFromCenter(getDegreesFromNorth(time),
-                            alarmDistanceFromCenter, alarmText, mHandPaint, canvas);
+                            alarmDistanceFromCenter, alarmText, mHandPaint, canvas, null);
                 }
             }
             // Y für textzeilen
@@ -385,7 +381,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Datum
             String dateDate = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
                     //String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
-            drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas);
+            drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
 
             List<CalendarEvent> events = getCalendarEvents();
@@ -405,9 +401,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
                         String title = event.getTitle();
                         title = title != null && title.length() > 0 ? title.substring(0, Math.min(20, title.length())) : "(ohne Titel)";
-                        String eventHrTitle = (inFuture < 0 ? "+" : "" )+
-                                TimeUnit.MILLISECONDS.toMinutes(Math.abs(inFuture)) + " " + title;
-                        drawTextUprightFromCenter(0,mCenterY - currentY, eventHrTitle, mHandPaint, canvas);
+                        boolean isInFuture = inFuture < 0;
+                        String eventHrTitle = isInFuture ? "+" : "";
+                        eventHrTitle += TimeUnit.MILLISECONDS.toMinutes(Math.abs(inFuture)) + " " + title;
+                        drawTextUprightFromCenter(0,mCenterY - currentY,
+                                eventHrTitle, mHandPaint, canvas, isInFuture ? mLight : null);
                         currentY = getNextLine(currentY);
                     }
                 }
@@ -467,7 +465,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             catch (Throwable t) {
-                drawTextUprightFromCenter(0,0, t.getMessage(), mHandPaint, canvas);
+                drawTextUprightFromCenter(0,0, t.getMessage(), mHandPaint, canvas, null);
             }
             return specials;
         }
@@ -486,7 +484,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 */
             if (writeNumber) {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
-                        "" + hour, mHandPaint, canvas);
+                        "" + hour, mHandPaint, canvas, null);
             }
             drawCircle(degreesFromNorth, dotDistance, canvas, 3, mHandPaint);
             //drawLineFromCenter(degreesFromNorth, mCenterX - 15, mCenterX, mHandPaint, canvas);
@@ -506,7 +504,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     paint);
             canvas.restore();
         }
-        private void drawTextUprightFromCenter(float degreesFromNorth, float radiusCenter, String text, Paint paint, Canvas canvas)
+        private void drawTextUprightFromCenter(float degreesFromNorth, float radiusCenter, String text, Paint paint, Canvas canvas, Typeface typeface)
         {
             float textLengthX = paint.measureText(text);
             float textLengthY = paint.getTextSize();
@@ -516,8 +514,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float y = mCenterY + textLengthY/24*7 +
                     radiusCenter *
                     (float) Math.sin(Math.toRadians(degreesFromNorth - 90f));
-
-            canvas.drawText(text, x, y ,paint);
+            if (typeface != null) {
+                Typeface prevTypeface = paint.getTypeface();
+                paint.setTypeface(typeface);
+                canvas.drawText(text, x, y ,paint);
+                paint.setTypeface(prevTypeface);
+            }
+            else {
+                canvas.drawText(text, x, y ,paint);
+            }
         }
 
         @Override
