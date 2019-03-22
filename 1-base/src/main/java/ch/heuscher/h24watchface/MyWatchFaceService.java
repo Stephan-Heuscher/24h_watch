@@ -333,9 +333,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
                     String text = new SimpleDateFormat("E", Locale.GERMAN).format(date);
-                    text += (mDarkMode ? "☾" : "☼") + specials;
+                    text += specials;
                     drawTextUprightFromCenter(0, mCenterX - RAND_RESERVE - 18f,
-                            text, mHandPaint, canvas, mLight);
+                            text, mHandPaint, canvas, mDarkMode ? mLight : mNormal);
                 }
                 else if (i == 6){
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
