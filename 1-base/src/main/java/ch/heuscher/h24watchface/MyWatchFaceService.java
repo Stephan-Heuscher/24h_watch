@@ -238,8 +238,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            long now = System.currentTimeMillis();
-            mCalendar.setTimeInMillis(now);
+            mCalendar.setTimeInMillis(System.currentTimeMillis());
 
             // Draw the background.
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), mBackgroundPaint);
@@ -269,9 +268,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             float maxLuxSinceLastRead = mLightEventListener.getMaxLuxSinceLastRead();
-            float lightFactor = Math.min(1f, maxLuxSinceLastRead /20f+mMinLuminance);
             int handPaintColor = Color.WHITE;
             if (mAmbient && mDarkMode) {
+                float lightFactor = Math.min(1f, maxLuxSinceLastRead /20f+mMinLuminance);
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
             }
             mHandPaint.setColor(handPaintColor);
@@ -289,14 +288,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             int alphaHour = 160;
             Typeface typeface = mBold;
             if(mDarkMode) {
-                strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.2f);
+                strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.5f);
                 alphaHour = 228 - Math.min((int) maxLuxSinceLastRead, 100);
-                if (lightFactor < 0.5) {
-                    typeface = mLight;
-                }
-                else {
-                    typeface = mNormal;
-                }
+                typeface = maxLuxSinceLastRead < 8 ? mLight : mNormal;
             }
             mHourPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
@@ -322,10 +316,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     mHourPaint, canvas, null);
 
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
-            // dünn für verbrauchte Batterie
+            // dick für restl. Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
             drawLineFromCenter(hoursRotation, 0, startPoint, mHandPaint, canvas);
-            // dick für restl. Batterie
+            // dünn für verbrauchte Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
             drawLineFromCenter(hoursRotation, startPoint, mHourHandLength, mHandPaint, canvas);
 
@@ -368,7 +362,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
                 AlarmManager.AlarmClockInfo nextAlarmClock = alarm.getNextAlarmClock();
-                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < now) {
+                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < mCalendar.getTimeInMillis()) {
                     time.setTimeInMillis(nextAlarmClock.getTriggerTime());
                     String alarmText = "A";//String.format("%tR", time.getTime());
                     drawTextUprightFromCenter(getDegreesFromNorth(time),
@@ -380,7 +374,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Datum
             String dateDate = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
-                    //String.format(Locale.GERMAN,"%ta %te.%tm.%ty", date, date, date, date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
 
@@ -412,7 +405,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             // Minuten-"Zeiger" aus Kreisen
-            //mHandPaint.setStrokeWidth(STROKE_WIDTH);
             mHandPaint.setStyle(Paint.Style.STROKE);
             float minutesCircleRadius = mCenterX / 20;
             drawCircle(0, 0, canvas, minutesCircleRadius, mHandPaint);
@@ -423,11 +415,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     minutesCircleRadius + radiusBlackMinuteDot + 5, mHandPaint, canvas);
 
             drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-
-/*            for (int i = 1; i <= 4; i++){
-                drawCircle(minutesRotation, mCenterX/9*i, canvas, i+6, mBackgroundPaint);
-                drawCircle(minutesRotation, mCenterX/9*i, canvas, i+3, mHandPaint);
-            } */
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
