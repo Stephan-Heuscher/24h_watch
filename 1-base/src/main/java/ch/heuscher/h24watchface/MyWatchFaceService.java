@@ -115,7 +115,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
-        private float mDefaultMinLuminance = 0.07f;
+        private float mDefaultMinLuminance = 0.09f;
         private float mMinLuminance = mDefaultMinLuminance;
 
         private float mHourHandLength;
@@ -252,6 +252,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (minutes == 0 && hour == 19 && seconds <=1) {
                     mDarkMode = true;
             }
+            mHandPaint.setTypeface(mDarkMode ? mLight : mNormal);
 
             /* These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
             final float minutesRotation = minutes * 6f;
@@ -335,7 +336,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     String text = new SimpleDateFormat("E", Locale.GERMAN).format(date);
                     text += specials;
                     drawTextUprightFromCenter(0, mCenterX - RAND_RESERVE - 18f,
-                            text, mHandPaint, canvas, mDarkMode ? mLight : mNormal);
+                            text, mHandPaint, canvas, null);
                 }
                 else if (i == 6){
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
