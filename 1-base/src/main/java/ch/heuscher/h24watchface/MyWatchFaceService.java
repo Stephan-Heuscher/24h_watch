@@ -238,7 +238,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
-            mCalendar.setTimeInMillis(System.currentTimeMillis());
+            long now = System.currentTimeMillis();
+            mCalendar.setTimeInMillis(now);
 
             // Draw the background.
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), mBackgroundPaint);
@@ -362,7 +363,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
                 AlarmManager.AlarmClockInfo nextAlarmClock = alarm.getNextAlarmClock();
-                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < mCalendar.getTimeInMillis()) {
+                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < now) {
                     time.setTimeInMillis(nextAlarmClock.getTriggerTime());
                     String alarmText = "A";//String.format("%tR", time.getTime());
                     drawTextUprightFromCenter(getDegreesFromNorth(time),
@@ -461,21 +462,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
             float dotDistance = mHourHandLength;
-/*
-            if (writeQuarterDots) {
-                float quarterInDegrees = rotatePerHour / 4;
-                for (float rotate = quarterInDegrees; rotate < rotatePerHour; rotate = rotate + quarterInDegrees) {
-                    drawCircle(degreesFromNorth + rotate, dotDistance, canvas, 1.5f, mHandPaint);
-                }
-            }
-*/
+
             if (writeNumber) {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         "" + hour, mHandPaint, canvas, null);
             }
             drawCircle(degreesFromNorth, dotDistance, canvas, 3, mHandPaint);
-            //drawLineFromCenter(degreesFromNorth, mCenterX - 15, mCenterX, mHandPaint, canvas);
         }
+
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
             canvas.save();
             canvas.rotate(rotationFromNorth, mCenterX, mCenterY);
@@ -491,6 +485,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     paint);
             canvas.restore();
         }
+
         private void drawTextUprightFromCenter(float degreesFromNorth, float radiusCenter, String text, Paint paint, Canvas canvas, Typeface typeface)
         {
             float textLengthX = paint.measureText(text);
@@ -612,5 +607,4 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         cursor.close();
         return events;
     }
-
 }

@@ -5,16 +5,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import java.util.concurrent.TimeUnit;
-
 public class LightEventListener implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor mLight;
     private boolean mIsRegistered = false;
-
-    public Sensor getLight() {
-        return mLight;
-    }
 
     private float mLux = 100f;
     private float mMaxLuxSinceLastRead = 0;
@@ -27,7 +21,7 @@ public class LightEventListener implements SensorEventListener {
         if(mMaxLuxSinceLastRead == 0){
             return getLux();
         }
-        Float maxLuxSinceLastRead = mMaxLuxSinceLastRead;
+        float maxLuxSinceLastRead = mMaxLuxSinceLastRead;
         mMaxLuxSinceLastRead = 0;
         return maxLuxSinceLastRead;
     }
@@ -50,7 +44,6 @@ public class LightEventListener implements SensorEventListener {
         mLux = event.values[0];
         mMaxLuxSinceLastRead = Math.max(mMaxLuxSinceLastRead, mLux);
     }
-
 
     protected void selfRegister() {
         if (!mIsRegistered) {
