@@ -402,7 +402,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     time.setTimeInMillis(event.getBegin().getTime());
                     float degreesFromNorth = getDegreesFromNorth(time);
                     mHandPaint.setStyle(Paint.Style.STROKE);
-                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, 6.5f, mHandPaint);
+                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, 8f, mHandPaint);
                     mHandPaint.setStyle(Paint.Style.FILL);
                     long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
                     if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
