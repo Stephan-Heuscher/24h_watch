@@ -317,12 +317,21 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float yFill = mCenterY + textSize/2 * (1-relativeHour);
             canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
                     mBackgroundPaint);
-
             // nochmals den Umriss nachziehen
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                     mHourPaint, canvas, null);
 
+            // Minuten-"Zeiger" aus Kreisen über der mittleren Zahl
+            float minutesCircleRadius = mCenterX / 16;
+            drawCircle(0, 0, canvas, minutesCircleRadius, mHandPaint);
+            drawCircle(0, 0, canvas, minutesCircleRadius-2, mBackgroundPaint);
+            float radiusBlackMinuteDot = mHandPaint.getStrokeWidth() + 5;
+            drawCircle(minutesRotation, minutesCircleRadius, canvas, radiusBlackMinuteDot, mBackgroundPaint);
+            drawLineFromCenter(minutesRotation, 0,
+                    minutesCircleRadius + radiusBlackMinuteDot, mHandPaint, canvas);
+
+            drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
             // dick für restl. Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
@@ -346,7 +355,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
                 else if (i == 6){
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
-                    drawTextUprightFromCenter(90, radiusCenter - 10,
+                    drawTextUprightFromCenter(90, radiusCenter - 12,
                             minutesText, mHandPaint, canvas, null);
                     if (!mAmbient) writeHourNumber(canvas, radiusCenter, i, false, false);
                 }
@@ -411,18 +420,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
                 }
             }
-
-            // Minuten-"Zeiger" aus Kreisen
-            mHandPaint.setStyle(Paint.Style.STROKE);
-            float minutesCircleRadius = mCenterX / 20;
-            drawCircle(0, 0, canvas, minutesCircleRadius, mHandPaint);
-            float radiusBlackMinuteDot = mHandPaint.getStrokeWidth() + 5;
-            drawCircle(minutesRotation, minutesCircleRadius, canvas, radiusBlackMinuteDot, mBackgroundPaint);
-            mHandPaint.setStyle(Paint.Style.FILL);
-            drawLineFromCenter(minutesRotation, 0,
-                    minutesCircleRadius + radiusBlackMinuteDot + 5, mHandPaint, canvas);
-
-            drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
