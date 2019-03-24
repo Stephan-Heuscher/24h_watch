@@ -222,7 +222,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         mMinLuminance += 0.01f;
                     }
                     if (y >= mCenterY / 2 * 3) {
-                        mRotate = (mRotate + 180) % 360;
+                        mRotate = mRotate == 0 ? 180 : 0;
                     }
                     invalidate();
                     break;
