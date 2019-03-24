@@ -329,7 +329,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawLineFromCenter(minutesRotation, 0,
                     2 * minutesCircleRadius - 6, mHandPaint, canvas);
 
-            drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
             // dick für restl. Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
@@ -349,20 +348,20 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     drawTextUprightFromCenter(0, mCenterX - RAND_RESERVE - 18f,
                             specials, mHandPaint, canvas, null);
                     if (!mAmbient) writeHourNumber(canvas, radiusCenter, i,
-                            specials.length() == 0, false);
+                            specials.length() == 0);
                 }
                 else if (i == 6){
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
                     drawTextUprightFromCenter(90, radiusCenter - 12,
                             minutesText, mHandPaint, canvas, null);
-                    if (!mAmbient) writeHourNumber(canvas, radiusCenter, i, false, false);
+                    if (!mAmbient) writeHourNumber(canvas, radiusCenter, i, false);
                 }
                 else if (!mAmbient) {
-                    writeHourNumber(canvas, radiusCenter, i, i % 2 == 0 && ( i!=2 && i != 22), false);
+                    writeHourNumber(canvas, radiusCenter, i, i % 2 == 0 && ( i!=2 && i != 22));
                 }
                 if(i==hour) {
-                    writeHourNumber(canvas, radiusCenter, hour, false, true);
-                    writeHourNumber(canvas, radiusCenter, hour+1, false, false);
+                    writeHourNumber(canvas, radiusCenter, hour, false);
+                    writeHourNumber(canvas, radiusCenter, hour+1, false);
                 }
             }
 
@@ -385,7 +384,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // Y für textzeilen
-            float currentY = RAND_RESERVE+1.7f*TEXT_SIZE;
+            float currentY = RAND_RESERVE+2f*TEXT_SIZE;
 
             // Datum
             String dateDate = new SimpleDateFormat("E`YY-MM-dd", Locale.GERMAN).format(date);
@@ -418,6 +417,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
                 }
             }
+            // minute hand on exterior ring as last
+            drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
@@ -460,7 +461,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             return specials;
         }
 
-        private void writeHourNumber(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean writeQuarterDots) {
+        private void writeHourNumber(Canvas canvas, float radiusCenter, int hour, boolean writeNumber) {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
             float dotDistance = mHourHandLength;
@@ -469,7 +470,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         "" + hour, mHandPaint, canvas, null);
             }
-            drawCircle(degreesFromNorth, dotDistance, canvas, 3, mHandPaint);
+            drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
+            // black dot in the middle
+            drawCircle(degreesFromNorth, dotDistance, canvas, 2, mBackgroundPaint);
         }
 
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
