@@ -348,10 +348,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             Date date = mCalendar.getTime();
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
-                    String text = new SimpleDateFormat("E", Locale.GERMAN).format(date).substring(0,2);
-                    text += specials.length() > 0 ? "." + specials : "";
                     drawTextUprightFromCenter(0, mCenterX - RAND_RESERVE - 18f,
-                            text, mHandPaint, canvas, null);
+                            specials, mHandPaint, canvas, null);
+                    if (!mAmbient) writeHourNumber(canvas, radiusCenter, i,
+                            specials.length() == 0, false);
                 }
                 else if (i == 6){
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
@@ -390,7 +390,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float currentY = RAND_RESERVE+1.7f*TEXT_SIZE;
 
             // Datum
-            String dateDate = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
+            String dateDate = new SimpleDateFormat("E`YY-MM-dd", Locale.GERMAN).format(date);
             drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
 
