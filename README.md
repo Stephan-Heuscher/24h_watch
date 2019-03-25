@@ -17,15 +17,9 @@ Features:
    * Small minute "hand" in center and on outer rim
    * Display of ISO date and german day
    * Toggling display by 180° by tabbing the bottom
-   * Display of status information at the top of the watch face
-   ** ↯: Charching
-   ** W: Wifi enabled
-   ** !: Unread notifications
-   ** ¿: Notifications
-   ** Ø: Do not disturb
-   ** ✈: Flight mode
-   ** #: No internet connection
-   ** ⌖: GPS enabled
+   * Display of status information at the top of the watch face:  ↯: Charching -- W: Wifi enabled
+   -- !: Unread notifications -- ¿: Notifications -- Ø: Do not disturb -- ✈: Flight mode
+   -- #: No internet connection -- ⌖: GPS enabled
 
 License
 -------
