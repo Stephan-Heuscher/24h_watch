@@ -1,10 +1,31 @@
 24h Watchface on the Basis of Android Wear watch face codelab
 =============================================================
 
-A 24h watchface for my needs (Huawei Watch 2). 
+A 24h watchface for my needs (Huawei Watch 2).  Codelab see https://watchface-codelab.appspot.com
 
-
-Codelab see https://watchface-codelab.appspot.com
+License
+-------
+Features:
+   * Dark mode with minimized light emission (dimming controlled by light sensor)
+   * Light mode with extra big numbers
+   * Switch between dark and light mode by tabbing the top
+   * Setting of minimal light emission (for 0 lux) by tabbing left and right
+   * 24h watch with 0:00h at top
+   * Display of next alarm and calendar events (+ 18h)
+   * Display title of next calendar event 30 minutes before event
+   * Display of time to and time during calendar events (+ 30 minutes before)
+   * Small minute "hand" in center and on outer rim
+   * Display of ISO date and german day
+   * Toggling display by 180° by tabbing the bottom
+   * Display of status information at the top of the watch face
+   ** ↯: Charching
+   ** W: Wifi enabled
+   ** !: Unread notifications
+   ** ¿: Notifications
+   ** Ø: Do not disturb
+   ** ✈: Flight mode
+   ** #: No internet connection
+   ** ⌖: GPS enabled
 
 License
 -------
