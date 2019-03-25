@@ -3,9 +3,8 @@
 
 A 24h watchface for my needs (Huawei Watch 2).  Codelab see https://watchface-codelab.appspot.com
 
-License
--------
-Features:
+Features
+--------
    * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
    * Switch between dark and light mode by tabbing the top
