@@ -32,6 +32,7 @@ public class LightEventListener implements SensorEventListener {
     public LightEventListener(SensorManager mSensorManager) {
         this.mSensorManager = mSensorManager;
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        selfRegister();
     }
 
     @Override
