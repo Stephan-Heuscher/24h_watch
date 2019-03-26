@@ -346,7 +346,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
                     boolean isSpecial = specials.length() != 0;
-                    String hourOrSpecial = isSpecial ? specials : "0";
+                    String hourOrSpecial = isSpecial ? specials : "24";
                     if (isSpecial || !mAmbient) {
                         writeHour(canvas, radiusCenter, i, hourOrSpecial, true);
                     }
