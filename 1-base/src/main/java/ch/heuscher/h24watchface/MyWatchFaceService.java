@@ -52,6 +52,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -74,6 +76,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(60);
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
+    public static final SimpleDateFormat HOUR_MINUTE_SECOND_FORMAT = new SimpleDateFormat("HH:mm:ss");
+    public static final SimpleDateFormat MINUTE_SECOND_FORMAT = new SimpleDateFormat("mm:ss");
+    public static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("HH'h'mm");
 
     @Override
     public Engine onCreateEngine() {
@@ -131,8 +136,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private LightEventListener mLightEventListener;
         private float mRotate = 0;
         private int mCompilationId = 1974;
-        private CharSequence mTimerValue = "";
         private float mLastLux;
+        private long mLastReadCountdownTime;
+        private Date mLastCountdownTime;
+
+        private String mDebug = null;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -178,11 +186,24 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (watchFaceComplicationId == mCompilationId) {
                 // This is the timer complication
                 try {
-                    mTimerValue = "" + data.getShortText()
-                            .getText(getBaseContext(), System.currentTimeMillis());
+                    mLastReadCountdownTime = System.currentTimeMillis();
+                    String timerValue = "" + data.getShortText()
+                            .getText(getBaseContext(), mLastReadCountdownTime);
+                    mDebug = timerValue;
+                    if (timerValue != null && timerValue.contains(":"))
+                    {
+                        if (timerValue.length() == 5) {
+                            timerValue = "00:" + timerValue;
+                        }
+                        if (timerValue.length() == 4) {
+                            timerValue = "0" + timerValue + ":00";
+                        }
+                        mLastCountdownTime = HOUR_MINUTE_SECOND_FORMAT.parse(timerValue);
+                    }
                 }
                 catch (Exception e){
                     // ignore --> I will look if I see no timer.
+                    mLastCountdownTime = null;
                 }
             }
 
@@ -446,8 +467,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
-            String specials = mTimerValue != null && mTimerValue.length() >= 5 // check exist & time is shown
-                    ? mTimerValue.toString() : "";
+            String specials = "" + (mDebug != null ? mDebug : "");
+            if (mLastCountdownTime != null) {
+                long correctedTimeMs = mLastCountdownTime.getTime() - (System.currentTimeMillis() - mLastReadCountdownTime);
+                Date correctedTime = new Date (correctedTimeMs);
+                specials = correctedTimeMs >= TimeUnit.HOURS.toMillis(1)
+                        ? HOUR_MINUTE_FORMAT.format(correctedTime)
+                        : MINUTE_SECOND_FORMAT.format(correctedTime);
+            }
             try {
                 if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0  ) {
                     specials += "↯";
