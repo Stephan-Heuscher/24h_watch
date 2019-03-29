@@ -18,6 +18,7 @@ package ch.heuscher.h24watchface;
 
 import android.app.AlarmManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.provider.CalendarContract;
 import android.provider.Settings;
+import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
@@ -126,6 +128,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private float mCenterY;
         private LightEventListener mLightEventListener;
         private float mRotate = 0;
+        private int mCompilationId = 1974;
+        private CharSequence mTimerValue = "";
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -136,6 +140,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     setHideStatusBar(true).build());
 
             mLightEventListener = new LightEventListener((SensorManager) getSystemService(SENSOR_SERVICE));
+
+            setDefaultComplicationProvider(mCompilationId, new ComponentName("com.google.android.deskclock",
+                            "com.google.android.deskclock.complications.TimerProviderService"),
+                    ComplicationData.TYPE_SHORT_TEXT);
+            setActiveComplications(mCompilationId);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
@@ -158,6 +167,22 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mUpdateTimeHandler.removeMessages(R.id.message_update);
             mLightEventListener.selfUnregister();
             super.onDestroy();
+        }
+
+        @Override
+        public void onComplicationDataUpdate(int watchFaceComplicationId, ComplicationData data) {
+            super.onComplicationDataUpdate(watchFaceComplicationId, data);
+            if (watchFaceComplicationId == mCompilationId) {
+                // This is the timer complication
+                try {
+                    mTimerValue = "" + data.getShortText()
+                            .getText(getBaseContext(), System.currentTimeMillis());
+                }
+                catch (Exception e){
+                    // ignore --> I will look if I see no timer.
+                }
+            }
+
         }
 
         @Override
@@ -226,10 +251,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
                     invalidate();
                     break;
-                        /* herausfinder, wie wir den countdown-timer starten
-                        Context ctx=getBaseContext();
-                        Intent intent = ctx.getPackageManager().getLaunchIntentForPackage("com.google.android.deskclock");
-                        if (intent != null) ctx.startActivity(intent); */
 
                 case WatchFaceService.TAP_TYPE_TOUCH:
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
@@ -283,12 +304,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Light typeface if there's enough light
             mHandPaint.setTypeface(mDarkMode && maxLuxSinceLastRead > 10 ? mLight : mNormal);
-
-            // Minuten-UFO am Rand der Uhr
-//            drawCircle(minutesRotation, mMinuteHandLength-11, canvas, 15f, mHandPaint);
-//            drawCircle(minutesRotation, mMinuteHandLength-17, canvas, 15f, mBackgroundPaint);
-//            drawCircle(minutesRotation, mMinuteHandLength-3, canvas, 8f, mHandPaint);
-//            drawCircle(minutesRotation, mMinuteHandLength-1, canvas, 5f, mBackgroundPaint);
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
@@ -346,9 +361,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
                     boolean isSpecial = specials.length() != 0;
-                    String hourOrSpecial = isSpecial ? specials : "24";
+                    String topText = isSpecial ? specials : "24";
                     if (isSpecial || !mAmbient) {
-                        writeHour(canvas, radiusCenter, i, hourOrSpecial, true);
+                        writeHour(canvas, radiusCenter, i, topText, true);
                     }
                 }
                 else if (i == 6){
@@ -423,7 +438,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
-            String specials = "";
+            String specials = mTimerValue != null && mTimerValue.length() >= 5 // check exist & time is shown
+                    ? mTimerValue.toString() : "";
             try {
                 if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0  ) {
                     specials += "↯";
@@ -465,6 +481,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private void writeHour(Canvas canvas, float radiusCenter, int hour, boolean writeNumber) {
             writeHour(canvas, radiusCenter, hour, ""+hour, writeNumber);
         }
+
         private void writeHour(Canvas canvas, float radiusCenter, int hour, String hourText, boolean writeNumber) {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
