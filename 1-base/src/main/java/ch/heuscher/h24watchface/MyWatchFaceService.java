@@ -189,7 +189,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     mLastReadCountdownTime = System.currentTimeMillis();
                     String timerValue = "" + data.getShortText()
                             .getText(getBaseContext(), mLastReadCountdownTime);
-                    mDebug = timerValue;
                     if (timerValue != null && timerValue.contains(":"))
                     {
                         if (timerValue.length() == 5) {
