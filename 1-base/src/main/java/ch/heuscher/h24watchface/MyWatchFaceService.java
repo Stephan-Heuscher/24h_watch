@@ -41,6 +41,7 @@ import android.os.Message;
 import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.support.wearable.complications.ComplicationData;
+import android.support.wearable.complications.SystemProviders;
 import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
@@ -80,6 +81,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
+        public static final int VERY_DARK = 10;
         /* Handler to update the time once a second in interactive mode. */
         private final Handler mUpdateTimeHandler = new Handler() {
             @Override
@@ -130,6 +132,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private float mRotate = 0;
         private int mCompilationId = 1974;
         private CharSequence mTimerValue = "";
+        private float mLastLux;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -140,11 +143,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     setHideStatusBar(true).build());
 
             mLightEventListener = new LightEventListener((SensorManager) getSystemService(SENSOR_SERVICE));
-
-            setDefaultComplicationProvider(mCompilationId, new ComponentName("com.google.android.deskclock",
-                            "com.google.android.deskclock.complications.TimerProviderService"),
-                    ComplicationData.TYPE_SHORT_TEXT);
-            setActiveComplications(mCompilationId);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
@@ -160,6 +158,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setAntiAlias(true);
 
             mCalendar = Calendar.getInstance();
+
+            setDefaultComplicationProvider(mCompilationId, new ComponentName("com.google.android.deskclock",
+                            "com.google.android.deskclock.complications.TimerProviderService"),
+                    ComplicationData.TYPE_SHORT_TEXT);
+            setActiveComplications(mCompilationId);
         }
 
         @Override
@@ -273,6 +276,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             int minutes = mCalendar.get(Calendar.MINUTE);
             int seconds = mCalendar.get(Calendar.SECOND);
 
+            // Hack to set and re-set countdown-timer
+            setActiveComplications(SystemProviders.DATE);
+            setActiveComplications(mCompilationId);
+
+
             // Darkmode autom. umschaltung
             if (minutes == 0 && hour == 19 && seconds <=1) {
                     mDarkMode = true;
@@ -293,17 +301,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(0, 0, "Battery: " +batteryCharge + "% !", mHandPaint, canvas, null);
             }
 
-            float maxLuxSinceLastRead = mLightEventListener.getMaxLuxSinceLastRead();
+            mLastLux = mLightEventListener.getMaxLuxSinceLastRead();
             int handPaintColor = Color.WHITE;
             if (mAmbient && mDarkMode) {
-                float lightFactor = Math.min(1f, maxLuxSinceLastRead /20f+mMinLuminance);
+                float lightFactor = Math.min(1f, mLastLux /20f+mMinLuminance);
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
             }
             mHandPaint.setColor(handPaintColor);
             mHourPaint.setColor(handPaintColor);
 
             // Light typeface if there's enough light
-            mHandPaint.setTypeface(mDarkMode && maxLuxSinceLastRead > 10 ? mLight : mNormal);
+            mHandPaint.setTypeface(mDarkMode && mLastLux > VERY_DARK ? mLight : mNormal);
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
@@ -311,9 +319,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             int alphaHour = 160;
             Typeface typeface = mBold;
             if(mDarkMode) {
-                strokeWidth = Math.min(5, maxLuxSinceLastRead/12 + 1.5f);
-                alphaHour = 228 - Math.min((int) maxLuxSinceLastRead, 100);
-                typeface = maxLuxSinceLastRead < 8 ? mLight : mNormal;
+                strokeWidth = Math.min(5, mLastLux /12 + 1.5f);
+                alphaHour = 228 - Math.min((int) mLastLux, 100);
+                typeface = mLastLux < 8 ? mLight : mNormal;
             }
             mHourPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
@@ -493,7 +501,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
             // black dot in the middle
-            drawCircle(degreesFromNorth, dotDistance, canvas, 2, mBackgroundPaint);
+            drawCircle(degreesFromNorth, dotDistance, canvas,
+                    !mAmbient && mDarkMode && mLastLux > VERY_DARK? 3 : 2, mBackgroundPaint);
         }
 
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
