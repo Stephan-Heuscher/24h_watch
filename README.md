@@ -19,11 +19,10 @@ Features
    * Display of status information at the top of the watch face:  ↯: Charching -- W: Wifi enabled
    -- !: Unread notifications -- ¿: Active notifications -- Ø: Do not disturb -- ✈: Flight mode
    -- #: No internet connection -- ⌖: GPS enabled
-   * Remaining time on countdown timer on top (works cleanly for timers of less than one hour) 
+   * Remaining time on countdown timer on bottom (works cleanly for timers of less than ten hours) 
    
 Next ideas
 --------
-   * Put remaining countdown timer on bottom
    * Handle display state and style in seperate class
 
 License
