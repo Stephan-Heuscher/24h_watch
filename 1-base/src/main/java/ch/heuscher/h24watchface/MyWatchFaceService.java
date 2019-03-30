@@ -138,7 +138,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private int mCompilationId = 1974;
         private float mLastLux;
         private long mLastReadCountdownTime;
-        private Date mLastCountdownTime;
+        private LocalTime mLastCountdownTime;
 
         private String mDebug = null;
 
@@ -197,7 +197,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         if (timerValue.length() == 4) {
                             timerValue = "0" + timerValue + ":00";
                         }
-                        mLastCountdownTime = HOUR_MINUTE_SECOND_FORMAT.parse(timerValue);
+                        mLastCountdownTime = LocalTime.parse(timerValue);
                     }
                 }
                 catch (Exception e){
@@ -400,6 +400,26 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                             minutesText, mHandPaint, canvas, null);
                     if (!mAmbient) writeHour(canvas, radiusCenter, i, false);
                 }
+                else if (i == 12){
+                    boolean isCountdownActive = mLastCountdownTime != null;
+                    if (isCountdownActive) {
+                        String countDownTime = "T-";
+                        long correctedTimeMs = mLastCountdownTime.toSecondOfDay()*1000 - (System.currentTimeMillis() - mLastReadCountdownTime);
+                        LocalTime correctedTime = LocalTime.ofSecondOfDay(correctedTimeMs / 1000);
+                        if (correctedTime.getHour() >= 1){
+                            countDownTime += correctedTime.getHour() + "h";
+                        }
+                        else if (correctedTime.getMinute() >= 1){
+                            countDownTime += correctedTime.getMinute() + "'";
+                        }
+                        else {
+                            countDownTime += "<" + correctedTime.getSecond() + "s";
+                        }
+                        drawTextUprightFromCenter(180, radiusCenter,
+                                countDownTime, mHandPaint, canvas, null);
+                    }
+                    if (!mAmbient) writeHour(canvas, radiusCenter, i, !isCountdownActive);
+                }
                 else if (!mAmbient) {
                     writeHour(canvas, radiusCenter,i, i % 2 == 0 && ( i!=2 && i != 22));
                 }
@@ -469,13 +489,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
             String specials = "" + (mDebug != null ? mDebug : "");
-            if (mLastCountdownTime != null) {
-                long correctedTimeMs = mLastCountdownTime.getTime() - (System.currentTimeMillis() - mLastReadCountdownTime);
-                Date correctedTime = new Date (correctedTimeMs);
-                specials = correctedTimeMs >= TimeUnit.HOURS.toMillis(1)
-                        ? HOUR_MINUTE_FORMAT.format(correctedTime)
-                        : MINUTE_SECOND_FORMAT.format(correctedTime);
-            }
             try {
                 if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0  ) {
                     specials += "↯";
