@@ -453,8 +453,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         String title = event.getTitle();
                         title = title != null && title.length() > 0 ? title.substring(0, Math.min(20, title.length())) : "(ohne Titel)";
                         boolean isInFuture = inFuture < 0;
-                        String eventHrTitle = isInFuture ? "+" : "";
-                        eventHrTitle += TimeUnit.MILLISECONDS.toMinutes(Math.abs(inFuture)) + " " + title;
+                        String eventHrTitle = isInFuture ?
+                                "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
+                                : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
+                        eventHrTitle +=  " " + title;
                         drawTextUprightFromCenter(0,mCenterY - currentY,
                                 eventHrTitle, mHandPaint, canvas, isInFuture ? mLight : null);
                         currentY = getNextLine(currentY);

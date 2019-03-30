@@ -23,8 +23,8 @@ Features
    
 Next ideas
 --------
-   * Display remaining time for calendar events
    * Put remaining countdown timer on bottom
+   * Handle display state and style in seperate class
 
 License
 -------
