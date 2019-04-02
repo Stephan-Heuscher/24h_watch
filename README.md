@@ -23,7 +23,7 @@ Features
    
 Next ideas
 --------
-   * Handle display state and style in seperate class
+   * Handle display state and style in separate class
 
 License
 -------

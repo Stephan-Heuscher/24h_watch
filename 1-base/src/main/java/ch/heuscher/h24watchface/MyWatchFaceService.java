@@ -183,11 +183,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onComplicationDataUpdate(int watchFaceComplicationId, ComplicationData data) {
             super.onComplicationDataUpdate(watchFaceComplicationId, data);
+            String timerValue = null;
             if (watchFaceComplicationId == mCompilationId) {
                 // This is the timer complication
                 try {
                     mLastReadCountdownTime = System.currentTimeMillis();
-                    String timerValue = "" + data.getShortText()
+                    timerValue = "" + data.getShortText()
                             .getText(getBaseContext(), mLastReadCountdownTime);
                     if (timerValue != null && timerValue.contains(":"))
                     {
@@ -199,10 +200,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         }
                         mLastCountdownTime = LocalTime.parse(timerValue);
                     }
+                    else {
+                        mLastCountdownTime = null;
+                    }
                 }
                 catch (Exception e){
                     // ignore --> I will look if I see no timer.
-                    mLastCountdownTime = null;
+                    mDebug = timerValue;
                 }
             }
 
@@ -448,7 +452,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // Y für textzeilen
-            float currentY = RAND_RESERVE+2.3f*TEXT_SIZE;
+            float currentY = getNextLine(mCenterY - radiusCenter);
 
             // Datum
             String dateDate = new SimpleDateFormat("E YYYY-MM-dd", Locale.GERMAN).format(date);
@@ -640,7 +644,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     }
 
     private float getNextLine(float currentY) {
-        return currentY + 1.15f * TEXT_SIZE;
+        return currentY + 1.05f * TEXT_SIZE;
     }
 
     private float getDegreesFromNorth(@NotNull Calendar time) {
