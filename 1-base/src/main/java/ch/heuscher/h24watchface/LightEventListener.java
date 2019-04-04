@@ -6,8 +6,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 public class LightEventListener implements SensorEventListener {
-    private static final int MAX_SENSOR_VALUES = 5;
-    private int mSensorValues = 0;
     private SensorManager mSensorManager;
     private Sensor mLight;
     private boolean mIsRegistered = false;
@@ -16,7 +14,6 @@ public class LightEventListener implements SensorEventListener {
     private float mMaxLuxSinceLastRead = 0;
 
     public float getLux() {
-        selfRegister();
         return mLux;
     }
 
@@ -47,16 +44,11 @@ public class LightEventListener implements SensorEventListener {
         // The light sensor returns a single value.
         mLux = event.values[0];
         mMaxLuxSinceLastRead = Math.max(mMaxLuxSinceLastRead, mLux);
-        mSensorValues++;
-        if (mSensorValues >= MAX_SENSOR_VALUES) {
-            selfUnregister();
-        }
     }
 
     protected void selfRegister() {
         if (!mIsRegistered) {
             mSensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
-            mSensorValues = 0;
             mIsRegistered = true;
         }
     }
