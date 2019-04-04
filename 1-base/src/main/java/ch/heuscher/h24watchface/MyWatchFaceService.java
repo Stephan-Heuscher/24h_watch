@@ -547,7 +547,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
             // black dot in the middle
             drawCircle(degreesFromNorth, dotDistance, canvas,
-                    mDarkMode && mLastLux > VERY_DARK? 3 : 2, mBackgroundPaint);
+                    mDarkMode && mLastLux > VERY_DARK ? 3 : 2, mBackgroundPaint);
         }
 
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
