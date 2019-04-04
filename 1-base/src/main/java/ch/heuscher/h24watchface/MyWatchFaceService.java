@@ -17,6 +17,7 @@
 package ch.heuscher.h24watchface;
 
 import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -53,7 +54,6 @@ import org.jetbrains.annotations.NotNull;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -76,9 +76,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(60);
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
-    public static final SimpleDateFormat HOUR_MINUTE_SECOND_FORMAT = new SimpleDateFormat("HH:mm:ss");
-    public static final SimpleDateFormat MINUTE_SECOND_FORMAT = new SimpleDateFormat("mm:ss");
-    public static final SimpleDateFormat HOUR_MINUTE_FORMAT = new SimpleDateFormat("HH'h'mm");
+
+    // Action for updating the display in ambient mode, per our custom refresh cycle.
+    private static final String AMBIENT_UPDATE_ACTION = "ch.heuscher.h24watchface.AMBIENT_UPDATE";
+    private AlarmManager mAmbientUpdateAlarmManager;
+    private PendingIntent mAmbientUpdatePendingIntent;
+    private BroadcastReceiver mAmbientUpdateBroadcastReceiver;
 
     @Override
     public Engine onCreateEngine() {
@@ -171,12 +174,38 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                             "com.google.android.deskclock.complications.TimerProviderService"),
                     ComplicationData.TYPE_SHORT_TEXT);
             setActiveComplications(mCompilationId);
+
+            // setup faster updates
+            mAmbientUpdateAlarmManager =
+                    (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+            Intent ambientUpdateIntent = new Intent(AMBIENT_UPDATE_ACTION);
+
+            mAmbientUpdatePendingIntent = PendingIntent.getBroadcast(
+                    getBaseContext(), 0, ambientUpdateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            mAmbientUpdateBroadcastReceiver = new BroadcastReceiver() {
+                float mLux;
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    float lux = mLightEventListener.getMaxLuxSinceLastRead();
+                    float relativeLuxChange = lux / mLux;
+                    if (relativeLuxChange > 2 || relativeLuxChange < 0.5){
+                        postInvalidate();
+                    }
+                    mLux = lux;
+                    // next call
+                    setupNextCall();
+                }
+            };
+
         }
 
         @Override
         public void onDestroy() {
             mUpdateTimeHandler.removeMessages(R.id.message_update);
             mLightEventListener.selfUnregister();
+            unregisterReceiver();
             super.onDestroy();
         }
 
@@ -439,6 +468,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas, null);
             }
 
+            // lux anzeigen
+            if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
+                drawTextUprightFromCenter(100,mHourHandLength-40,
+                        new DecimalFormat("#####").format(mLastLux) , mHandPaint, canvas, null);
+            }
+
             float alarmDistanceFromCenter = mHourHandLength;
             Calendar time = Calendar.getInstance();
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -616,6 +651,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mRegisteredTimeZoneReceiver = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             MyWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
+            IntentFilter updateFilter = new IntentFilter(AMBIENT_UPDATE_ACTION);
+            MyWatchFaceService.this.registerReceiver(mAmbientUpdateBroadcastReceiver, updateFilter);
+            // first start
+            setupNextCall();
         }
 
         private void unregisterReceiver() {
@@ -625,6 +664,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredTimeZoneReceiver = false;
             MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
+            MyWatchFaceService.this.unregisterReceiver(mAmbientUpdateBroadcastReceiver);
+            mAmbientUpdateAlarmManager.cancel(mAmbientUpdatePendingIntent);
         }
 
         private void updateTimer() {
@@ -641,6 +682,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
         }
+    }
+
+    private void setupNextCall() {
+        mAmbientUpdateAlarmManager.setExact(
+                AlarmManager.RTC_WAKEUP,
+                1000 + System.currentTimeMillis(),
+                mAmbientUpdatePendingIntent);
     }
 
     private float getNextLine(float currentY) {
