@@ -185,16 +185,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     getBaseContext(), 0, ambientUpdateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             mAmbientUpdateBroadcastReceiver = new BroadcastReceiver() {
-                float mLux;
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    float lux = mLightEventListener.getMaxLuxSinceLastRead();
-                    float relativeLuxChange = lux / mLux;
-                    if (relativeLuxChange > 2 || relativeLuxChange < 0.5){
+                    float lux = mLightEventListener.getLux();
+                    float lightFactorChange = computeLightFactor(lux) - computeLightFactor(mLastLux);
+                    if (Math.abs(lightFactorChange ) >= 0.1) {
                         postInvalidate();
                     }
-                    mLux = lux;
-                    // next call
                     setupNextCall();
                 }
             };
@@ -357,7 +354,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mLastLux = mLightEventListener.getMaxLuxSinceLastRead();
             int handPaintColor = Color.WHITE;
             if (mAmbient && mDarkMode) {
-                float lightFactor = Math.min(1f, mLastLux /20f+mMinLuminance);
+                float lightFactor = computeLightFactor(mLastLux);
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
             }
             mHandPaint.setColor(handPaintColor);
@@ -372,7 +369,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             int alphaHour = 160;
             Typeface typeface = mBold;
             if(mDarkMode) {
-                strokeWidth = Math.min(5, mLastLux /12 + 1.5f);
+                strokeWidth = computeFactorFromLight(mLastLux,5, 12, 1.5f);
                 alphaHour = 228 - Math.min((int) mLastLux, 100);
                 typeface = mLastLux < 8 ? mLight : mNormal;
             }
@@ -466,13 +463,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
                 drawTextUprightFromCenter(80,mHourHandLength-40,
                         new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas, null);
-            }
-
-            // lux anzeigen
-            if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
+                // lux anzeigen
                 drawTextUprightFromCenter(100,mHourHandLength-40,
                         new DecimalFormat("#####").format(mLastLux) , mHandPaint, canvas, null);
             }
+
 
             float alarmDistanceFromCenter = mHourHandLength;
             Calendar time = Calendar.getInstance();
@@ -524,6 +519,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             // minute hand on exterior ring as last
             drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+        }
+
+        private float computeLightFactor(float lux) {
+            return computeFactorFromLight(lux, 1f, 20f, mMinLuminance);
+        }
+
+        private float computeFactorFromLight(float lux, float maxFactor, float luxDivider, float minFactor) {
+            return Math.min(maxFactor,  lux/ luxDivider + minFactor);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
@@ -687,7 +690,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private void setupNextCall() {
         mAmbientUpdateAlarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,
-                1000 + System.currentTimeMillis(),
+                2500 + System.currentTimeMillis(),
                 mAmbientUpdatePendingIntent);
     }
 
