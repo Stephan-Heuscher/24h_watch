@@ -37,8 +37,6 @@ import android.net.Network;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
-import android.os.Handler;
-import android.os.Message;
 import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.support.wearable.complications.ComplicationData;
@@ -89,22 +87,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
-        public static final int VERY_DARK = 10;
-        /* Handler to update the time once a second in interactive mode. */
-        private final Handler mUpdateTimeHandler = new Handler() {
-            @Override
-            public void handleMessage(Message message) {
-                if (R.id.message_update == message.what) {
-                    invalidate();
-                    if (shouldTimerBeRunning()) {
-                        long timeMs = System.currentTimeMillis();
-                        long delayMs = INTERACTIVE_UPDATE_RATE_MS
-                                - (timeMs % INTERACTIVE_UPDATE_RATE_MS);
-                        mUpdateTimeHandler.sendEmptyMessageDelayed(R.id.message_update, delayMs);
-                    }
-                }
-            }
-        };
+        public static final int VERY_DARK = 5;
 
         private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -114,7 +97,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
         };
 
-        private boolean mRegisteredTimeZoneReceiver = false;
+        private boolean mRegisteredReceivers = false;
         private static final float STROKE_WIDTH = 1f;
         private Calendar mCalendar;
         private Paint mBackgroundPaint;
@@ -157,6 +140,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
+            mBackgroundPaint.setAntiAlias(true);
 
             mHandPaint = new Paint();
             mHandPaint.setStrokeWidth(STROKE_WIDTH);
@@ -189,7 +173,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 public void onReceive(Context context, Intent intent) {
                     float lux = mLightEventListener.getLux();
                     float lightFactorChange = computeLightFactor(lux) - computeLightFactor(mLastLux);
-                    if (Math.abs(lightFactorChange ) >= 0.1) {
+                    if (Math.abs(lightFactorChange ) >= 0.3 || (lux < 1 && Math.abs(lightFactorChange ) >= 0.05)) {
                         postInvalidate();
                     }
                     setupNextCall();
@@ -200,7 +184,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDestroy() {
-            mUpdateTimeHandler.removeMessages(R.id.message_update);
             mLightEventListener.selfUnregister();
             unregisterReceiver();
             super.onDestroy();
@@ -256,12 +239,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             } else {
                 mLightEventListener.selfUnregister();
             }
-
-            /*
-             * Whether the timer should be running depends on whether we're visible (as well as
-             * whether we're in ambient mode), so we may need to start or stop the timer.
-             */
-            updateTimer();
         }
 
         @Override
@@ -461,11 +438,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // luminanz zeigen wenn nötig
             if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
-                drawTextUprightFromCenter(80,mHourHandLength-40,
+                drawTextUprightFromCenter(75,mHourHandLength-40,
                         new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas, null);
                 // lux anzeigen
-                drawTextUprightFromCenter(100,mHourHandLength-40,
-                        new DecimalFormat("#####").format(mLastLux) , mHandPaint, canvas, null);
+                drawTextUprightFromCenter(105,mHourHandLength-40,
+                        new DecimalFormat("#######").format(mLastLux) , mHandPaint, canvas, null);
             }
 
 
@@ -519,6 +496,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             // minute hand on exterior ring as last
             drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            setupNextCall();
         }
 
         private float computeLightFactor(float lux) {
@@ -637,61 +615,38 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             } else {
                 unregisterReceiver();
             }
-
-            /*
-            * Whether the timer should be running depends on whether we're visible
-            * (as well as whether we're in ambient mode),
-            * so we may need to start or stop the timer.
-            */
-            updateTimer();
         }
 
         private void registerReceiver() {
             mLightEventListener.selfRegister();
-            if (mRegisteredTimeZoneReceiver) {
+            if (mRegisteredReceivers) {
                 return;
             }
-            mRegisteredTimeZoneReceiver = true;
+            mRegisteredReceivers = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             MyWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
             IntentFilter updateFilter = new IntentFilter(AMBIENT_UPDATE_ACTION);
             MyWatchFaceService.this.registerReceiver(mAmbientUpdateBroadcastReceiver, updateFilter);
-            // first start
-            setupNextCall();
         }
 
         private void unregisterReceiver() {
             mLightEventListener.selfUnregister();
-            if (!mRegisteredTimeZoneReceiver) {
+            if (!mRegisteredReceivers) {
                 return;
             }
-            mRegisteredTimeZoneReceiver = false;
+            mRegisteredReceivers = false;
             MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
             MyWatchFaceService.this.unregisterReceiver(mAmbientUpdateBroadcastReceiver);
             mAmbientUpdateAlarmManager.cancel(mAmbientUpdatePendingIntent);
         }
-
-        private void updateTimer() {
-            mUpdateTimeHandler.removeMessages(R.id.message_update);
-            if (shouldTimerBeRunning()) {
-                mUpdateTimeHandler.sendEmptyMessage(R.id.message_update);
+        private void setupNextCall() {
+            if (mDarkMode) {
+                mAmbientUpdateAlarmManager.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        (int)(Math.random() * 10 * 1000) + System.currentTimeMillis(),
+                        mAmbientUpdatePendingIntent);
             }
         }
-
-        /**
-         * Returns whether the {@link #mUpdateTimeHandler} timer should be running. The timer
-         * should only run when we're visible and in interactive mode.
-         */
-        private boolean shouldTimerBeRunning() {
-            return isVisible() && !isInAmbientMode();
-        }
-    }
-
-    private void setupNextCall() {
-        mAmbientUpdateAlarmManager.setExact(
-                AlarmManager.RTC_WAKEUP,
-                2500 + System.currentTimeMillis(),
-                mAmbientUpdatePendingIntent);
     }
 
     private float getNextLine(float currentY) {
