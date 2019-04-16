@@ -17,7 +17,6 @@
 package ch.heuscher.h24watchface;
 
 import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -76,9 +75,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final int RAND_RESERVE = 7;
 
     // Action for updating the display in ambient mode, per our custom refresh cycle.
-    private static final String AMBIENT_UPDATE_ACTION = "ch.heuscher.h24watchface.AMBIENT_UPDATE";
-    private AlarmManager mAmbientUpdateAlarmManager;
-    private PendingIntent mAmbientUpdatePendingIntent;
+    public static final String AMBIENT_UPDATE_ACTION = "ch.heuscher.h24watchface.AMBIENT_UPDATE";
     private BroadcastReceiver mAmbientUpdateBroadcastReceiver;
 
     @Override
@@ -87,7 +84,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
-        public static final int VERY_DARK = 5;
 
         private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -110,23 +106,35 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
-        private float mDefaultMinLuminance = 0.07f;
-        private float mMinLuminance = mDefaultMinLuminance;
 
         private float mHourHandLength;
-        private float mMinuteHandLength;
         private int mWidth;
         private int mHeight;
         private float mCenterX;
         private float mCenterY;
-        private LightEventListener mLightEventListener;
+        private DimmingController mDimmingController;
         private float mRotate = 0;
         private int mCompilationId = 1974;
-        private float mLastLux;
         private long mLastReadCountdownTime;
         private LocalTime mLastCountdownTime;
 
         private String mDebug = null;
+
+        public boolean isAmbient() {
+            return mAmbient;
+        }
+
+        public void setAmbient(boolean mAmbient) {
+            this.mAmbient = mAmbient;
+        }
+
+        public boolean isDarkMode() {
+            return mDarkMode;
+        }
+
+        public void setDarkMode(boolean mDarkMode) {
+            this.mDarkMode = mDarkMode;
+        }
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -136,7 +144,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     setShowUnreadCountIndicator(true). // so dass Unread-Punkt nicht mehr sichtbar
                     setHideStatusBar(true).build());
 
-            mLightEventListener = new LightEventListener((SensorManager) getSystemService(SENSOR_SERVICE));
+            mDimmingController = new DimmingController(
+                    getBaseContext(),
+                    (AlarmManager) getSystemService(Context.ALARM_SERVICE),
+                    (SensorManager) getSystemService(SENSOR_SERVICE));
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
@@ -159,24 +170,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     ComplicationData.TYPE_SHORT_TEXT);
             setActiveComplications(mCompilationId);
 
-            // setup faster updates
-            mAmbientUpdateAlarmManager =
-                    (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-
-            Intent ambientUpdateIntent = new Intent(AMBIENT_UPDATE_ACTION);
-
-            mAmbientUpdatePendingIntent = PendingIntent.getBroadcast(
-                    getBaseContext(), 0, ambientUpdateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
             mAmbientUpdateBroadcastReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    float lux = mLightEventListener.getLux();
-                    float lightFactorChange = computeLightFactor(lux) - computeLightFactor(mLastLux);
-                    if (Math.abs(lightFactorChange ) >= 0.3 || (lux < 1 && Math.abs(lightFactorChange ) >= 0.05)) {
-                        postInvalidate();
+                    if (mDimmingController.needsRedraw()) {
+                        invalidate(); // always redraw immediately
                     }
-                    setupNextCall();
                 }
             };
 
@@ -184,7 +183,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDestroy() {
-            mLightEventListener.selfUnregister();
+            mDimmingController.selfUnregister();
             unregisterReceiver();
             super.onDestroy();
         }
@@ -230,14 +229,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
-            if (mAmbient != inAmbientMode) {
-                mAmbient = inAmbientMode;
+            if (isAmbient() != inAmbientMode) {
+                setAmbient(inAmbientMode);
                 invalidate();
             }
-            if (mDarkMode) {
-                mLightEventListener.selfRegister();
+            if (isDarkMode()) {
+                mDimmingController.selfRegister();
             } else {
-                mLightEventListener.selfUnregister();
+                mDimmingController.selfUnregister();
             }
         }
 
@@ -258,7 +257,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
              * Calculate the lengths of the watch hands and store them in member variables.
              */
             mHourHandLength = mCenterX - RAND_RESERVE - 7;
-            mMinuteHandLength = mCenterX - RAND_RESERVE;
             mHourPaint.setTextSize(mCenterY);
         }
 
@@ -268,13 +266,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             switch (tapType) {
                 case WatchFaceService.TAP_TYPE_TAP:
                     if (y <= mCenterY / 2 ) {
-                        mDarkMode = !mDarkMode;
+                        setDarkMode(!isDarkMode());
                     }
                     if (x <= mCenterX / 2 ) {
-                        mMinLuminance -= 0.01f;
+                        mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() - 0.01f);
                     }
                     if (x >= mCenterX / 2 * 3 ) {
-                        mMinLuminance += 0.01f;
+                        mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() + 0.01f);
                     }
                     if (y >= mCenterY / 2 * 3) {
                         mRotate = mRotate == 0 ? 180 : 0;
@@ -310,7 +308,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Darkmode autom. umschaltung
             if (minutes == 0 && hour == 19 && seconds <=1) {
-                    mDarkMode = true;
+                    setDarkMode(true);
             }
 
             /* These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
@@ -328,27 +326,26 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(0, 0, "Battery: " +batteryCharge + "% !", mHandPaint, canvas, null);
             }
 
-            mLastLux = mLightEventListener.getMaxLuxSinceLastRead();
             int handPaintColor = Color.WHITE;
-            if (mAmbient && mDarkMode) {
-                float lightFactor = computeLightFactor(mLastLux);
+            float lightFactor = mDimmingController.getNextDimm() == null ? 1f : mDimmingController.getNextDimm();
+            if (isAmbient() && isDarkMode()) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
             }
             mHandPaint.setColor(handPaintColor);
             mHourPaint.setColor(handPaintColor);
 
             // Light typeface if there's enough light
-            mHandPaint.setTypeface(mDarkMode && mLastLux > VERY_DARK ? mLight : mNormal);
+            mHandPaint.setTypeface(isDarkMode() && lightFactor > DimmingController.VERY_DARK ? mLight : mNormal);
 
             String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
             float strokeWidth = 6;
             int alphaHour = 160;
             Typeface typeface = mBold;
-            if(mDarkMode) {
-                strokeWidth = computeFactorFromLight(mLastLux,5, 12, 1.5f);
-                alphaHour = 228 - Math.min((int) mLastLux, 100);
-                typeface = mLastLux < 8 ? mLight : mNormal;
+            if(isDarkMode()) {
+                strokeWidth = Math.max(lightFactor*3, 1.5f);
+                alphaHour = 228 - Math.min((int)(lightFactor*200), 100);
+                typeface = lightFactor < DimmingController.VERY_DARK ? mLight : mNormal;
             }
             mHourPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
@@ -397,7 +394,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if(i == 0) {
                     boolean isSpecial = specials.length() != 0;
                     String topText = isSpecial ? specials : "24";
-                    if (isSpecial || !mAmbient) {
+                    if (isSpecial || !isAmbient()) {
                         writeHour(canvas, radiusCenter, i, topText, true);
                     }
                 }
@@ -405,7 +402,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
                     drawTextUprightFromCenter(90, radiusCenter - 12,
                             minutesText, mHandPaint, canvas, null);
-                    if (!mAmbient) writeHour(canvas, radiusCenter, i, false);
+                    if (!isAmbient()) writeHour(canvas, radiusCenter, i, false);
                 }
                 else if (i == 12){
                     boolean isCountdownActive = mLastCountdownTime != null;
@@ -425,9 +422,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         drawTextUprightFromCenter(180, radiusCenter,
                                 countDownTime, mHandPaint, canvas, null);
                     }
-                    if (!mAmbient) writeHour(canvas, radiusCenter, i, !isCountdownActive);
+                    if (!isAmbient()) writeHour(canvas, radiusCenter, i, !isCountdownActive);
                 }
-                else if (!mAmbient) {
+                else if (!isAmbient()) {
                     writeHour(canvas, radiusCenter,i, i % 2 == 0 && ( i!=2 && i != 22));
                 }
                 if(i==hour) {
@@ -437,12 +434,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             // luminanz zeigen wenn nötig
-            if (Math.abs(mMinLuminance - mDefaultMinLuminance) >= 0.0001f) {
+            if (Math.abs(mDimmingController.getMinLuminance() - DimmingController.DEFAULT_MIN_LUMINANCE) >= 0.0001f) {
                 drawTextUprightFromCenter(75,mHourHandLength-40,
-                        new DecimalFormat(".##").format(mMinLuminance) , mHandPaint, canvas, null);
+                        new DecimalFormat(".##").format(mDimmingController.getMinLuminance()) , mHandPaint, canvas, null);
                 // lux anzeigen
                 drawTextUprightFromCenter(105,mHourHandLength-40,
-                        new DecimalFormat("#######").format(mLastLux) , mHandPaint, canvas, null);
+                        new DecimalFormat("#.##").format(lightFactor) , mHandPaint, canvas, null);
             }
 
 
@@ -496,15 +493,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             // minute hand on exterior ring as last
             drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-            setupNextCall();
-        }
 
-        private float computeLightFactor(float lux) {
-            return computeFactorFromLight(lux, 1f, 20f, mMinLuminance);
-        }
-
-        private float computeFactorFromLight(float lux, float maxFactor, float luxDivider, float minFactor) {
-            return Math.min(maxFactor,  lux/ luxDivider + minFactor);
+            mDimmingController.setLastDimm(lightFactor);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
@@ -562,8 +552,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
             // black dot in the middle
+            Float nextDimmObject = mDimmingController.getNextDimm();
+            float nextDimm = nextDimmObject == null ? 1 : nextDimmObject;
             drawCircle(degreesFromNorth, dotDistance, canvas,
-                    mDarkMode && mLastLux > VERY_DARK ? 3 : 2, mBackgroundPaint);
+                    isDarkMode() && nextDimm < DimmingController.VERY_DARK ? 3 : 2, mBackgroundPaint);
         }
 
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
@@ -618,7 +610,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void registerReceiver() {
-            mLightEventListener.selfRegister();
+            mDimmingController.selfRegister();
             if (mRegisteredReceivers) {
                 return;
             }
@@ -630,23 +622,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void unregisterReceiver() {
-            mLightEventListener.selfUnregister();
+            mDimmingController.selfUnregister();
             if (!mRegisteredReceivers) {
                 return;
             }
             mRegisteredReceivers = false;
             MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
             MyWatchFaceService.this.unregisterReceiver(mAmbientUpdateBroadcastReceiver);
-            mAmbientUpdateAlarmManager.cancel(mAmbientUpdatePendingIntent);
         }
-        private void setupNextCall() {
-            if (mDarkMode) {
-                mAmbientUpdateAlarmManager.setExact(
-                        AlarmManager.RTC_WAKEUP,
-                        (int)(Math.random() * 10 * 1000) + System.currentTimeMillis(),
-                        mAmbientUpdatePendingIntent);
-            }
-        }
+
     }
 
     private float getNextLine(float currentY) {
