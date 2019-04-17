@@ -57,9 +57,10 @@ public class DimmingController implements SensorEventListener {
         if (needsRedraw() && !mChangeSignaled){
             mChangeSignaled = true;
             //wake up to redraw
-            mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle(
+//            mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle( // not used because of long reaction times
+            mAmbientUpdateAlarmManager.setExact(
                     AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + 2,
+                    System.currentTimeMillis() + 500,
                     mAmbientUpdatePendingIntent);
         }
     }
