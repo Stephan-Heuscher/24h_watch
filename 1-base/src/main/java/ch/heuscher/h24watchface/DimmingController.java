@@ -11,7 +11,7 @@ import android.hardware.SensorManager;
 
 public class DimmingController implements SensorEventListener {
     public static final float VERY_DARK = 0.3f;
-    public static final float DEFAULT_MIN_LUMINANCE = 0.07f;
+    public static final float DEFAULT_MIN_LUMINANCE = 0.08f;
     private SensorManager mSensorManager;
     private Sensor mLight;
     private boolean mIsRegistered = false;
