@@ -3,7 +3,11 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/1-base/1-base.iml" filepath="$PROJECT_DIR$/1-base/1-base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/2-background/2-background.iml" filepath="$PROJECT_DIR$/2-background/2-background.iml" />
       <module fileurl="file://$PROJECT_DIR$/2019_24h_watch.iml" filepath="$PROJECT_DIR$/2019_24h_watch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/3-hands/3-hands.iml" filepath="$PROJECT_DIR$/3-hands/3-hands.iml" />
+      <module fileurl="file://$PROJECT_DIR$/4-ambient/4-ambient.iml" filepath="$PROJECT_DIR$/4-ambient/4-ambient.iml" />
+      <module fileurl="file://$PROJECT_DIR$/5-palette/5-palette.iml" filepath="$PROJECT_DIR$/5-palette/5-palette.iml" />
     </modules>
   </component>
 </project>
