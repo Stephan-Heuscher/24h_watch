@@ -8,11 +8,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.PowerManager;
 
 public class DimmingController implements SensorEventListener {
     public static final float VERY_DARK = 0.3f;
     public static final float DEFAULT_MIN_LUMINANCE = 0.08f;
+    public static final float BOOST_MINIMUM_LUX = 100f;
     private SensorManager mSensorManager;
+    private PowerManager mPowerManager;
+    private PowerManager.WakeLock mWakeLock;
     private Sensor mLight;
     private boolean mIsRegistered = false;
 
@@ -29,7 +33,8 @@ public class DimmingController implements SensorEventListener {
         return mLux;
     }
 
-    public DimmingController(Context context, AlarmManager alarmManager, SensorManager mSensorManager) {
+    public DimmingController(Context context, PowerManager powerManager,  AlarmManager alarmManager, SensorManager mSensorManager) {
+        mPowerManager = powerManager;
         mAmbientUpdateAlarmManager = alarmManager;
         Intent ambientUpdateIntent = new Intent(MyWatchFaceService.AMBIENT_UPDATE_ACTION);
 
@@ -54,11 +59,19 @@ public class DimmingController implements SensorEventListener {
         mLux = event.values[0];
         float nextDimm = computeLightFactor(mLux);
         setNextDimm(nextDimm);
+        if (mWakeLock != null && !needsBoost())
+        {
+            mWakeLock.release();
+            mWakeLock = null;
+        }
+        else if (mWakeLock == null && needsBoost()) {
+            mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "heuscher24h:tag");
+            mWakeLock.acquire();
+        }
         if (needsRedraw() && !mChangeSignaled){
             mChangeSignaled = true;
             //wake up to redraw
-//            mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle( // not used because of long reaction times
-            mAmbientUpdateAlarmManager.setExact(
+            mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     System.currentTimeMillis() + 500,
                     mAmbientUpdatePendingIntent);
@@ -68,6 +81,11 @@ public class DimmingController implements SensorEventListener {
     public boolean needsRedraw() {
         float dimmChange = getNextDimm() - getLastDimm();
         return Math.abs(dimmChange) >= 0.3 || (getNextDimm() < VERY_DARK && Math.abs(dimmChange) >= 0.05 );
+    }
+
+    public boolean needsBoost() {
+        float dimmChange = getNextDimm() - getLastDimm();
+        return Math.abs(dimmChange) >= 0.3f && getNextDimm() >= 0.99f && getLux() > BOOST_MINIMUM_LUX;
     }
 
     private float computeLightFactor(float lux) {

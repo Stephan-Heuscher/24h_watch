@@ -36,6 +36,7 @@ import android.net.Network;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.PowerManager;
 import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.support.wearable.complications.ComplicationData;
@@ -146,6 +147,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             mDimmingController = new DimmingController(
                     getBaseContext(),
+                    (PowerManager) (PowerManager) getSystemService(POWER_SERVICE),
                     (AlarmManager) getSystemService(Context.ALARM_SERVICE),
                     (SensorManager) getSystemService(SENSOR_SERVICE));
 
