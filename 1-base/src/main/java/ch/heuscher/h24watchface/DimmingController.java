@@ -50,16 +50,15 @@ public class DimmingController implements SensorEventListener {
         mLux = event.values[0];
         float nextDimm = computeLightFactor(mLux);
         setNextDimm(nextDimm);
-        if (mWakeLock != null && !needsBoost())
-        {
+        if (mWakeLock != null && !needsBoost()) {
             mWakeLock.release();
             mWakeLock = null;
         }
         else if (mWakeLock == null && needsBoost()) {
             mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "heuscher24h:tag");
-            mWakeLock.acquire(TimeUnit.SECONDS.toMillis(5));
+            mWakeLock.acquire(TimeUnit.SECONDS.toMillis(3));
         }
-        if (needsRedraw()){
+        else if (needsRedraw()){
             mEngine.postInvalidate();
         }
     }
@@ -71,7 +70,7 @@ public class DimmingController implements SensorEventListener {
 
     public boolean needsBoost() {
         float dimmChange = getNextDimm() - getLastDimm();
-        return Math.abs(dimmChange) >= 0.3f && getNextDimm() >= 0.99f && getLux() > BOOST_MINIMUM_LUX;
+        return Math.abs(dimmChange) >= 0.05f && getLux() > BOOST_MINIMUM_LUX;
     }
 
     private float computeLightFactor(float lux) {
