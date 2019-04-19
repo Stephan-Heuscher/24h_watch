@@ -1,15 +1,13 @@
 package ch.heuscher.h24watchface;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.PowerManager;
-import android.support.wearable.watchface.WatchFaceService;
+
+import java.util.concurrent.TimeUnit;
 
 public class DimmingController implements SensorEventListener {
     public static final float VERY_DARK = 0.3f;
@@ -25,26 +23,16 @@ public class DimmingController implements SensorEventListener {
     private float mLux = 100f;
     private Float mNextDimm = null;
     private Float mLastDimm = 1f;
-    private boolean mChangeSignaled = false;
     private float mMinLuminance = DEFAULT_MIN_LUMINANCE;
-
-    private AlarmManager mAmbientUpdateAlarmManager;
-    private PendingIntent mAmbientUpdatePendingIntent;
 
     public float getLux() {
         return mLux;
     }
 
-    public DimmingController(MyWatchFaceService.Engine engine, Context context, PowerManager powerManager,  AlarmManager alarmManager, SensorManager mSensorManager) {
+    public DimmingController(MyWatchFaceService.Engine engine, Context context, PowerManager powerManager,  SensorManager sensorManager) {
         mEngine = engine;
         mPowerManager = powerManager;
-        mAmbientUpdateAlarmManager = alarmManager;
-        Intent ambientUpdateIntent = new Intent(MyWatchFaceService.AMBIENT_UPDATE_ACTION);
-
-        mAmbientUpdatePendingIntent = PendingIntent.getBroadcast(
-                context, 0, ambientUpdateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        this.mSensorManager = mSensorManager;
+        mSensorManager = sensorManager;
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         selfRegister();
     }
@@ -69,7 +57,7 @@ public class DimmingController implements SensorEventListener {
         }
         else if (mWakeLock == null && needsBoost()) {
             mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "heuscher24h:tag");
-            mWakeLock.acquire();
+            mWakeLock.acquire(TimeUnit.SECONDS.toMillis(5));
         }
         if (needsRedraw()){
             mEngine.postInvalidate();
@@ -105,7 +93,6 @@ public class DimmingController implements SensorEventListener {
     protected void selfUnregister() {
         if (mIsRegistered) {
             mSensorManager.unregisterListener(this);
-            mAmbientUpdateAlarmManager.cancel(mAmbientUpdatePendingIntent);
             mIsRegistered = false;
         }
     }
@@ -123,7 +110,6 @@ public class DimmingController implements SensorEventListener {
     }
 
     public void setLastDimm(Float mLastDimm) {
-        mChangeSignaled = false;
         this.mLastDimm = mLastDimm;
     }
 

@@ -75,10 +75,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
 
-    // Action for updating the display in ambient mode, per our custom refresh cycle.
-    public static final String AMBIENT_UPDATE_ACTION = "ch.heuscher.h24watchface.AMBIENT_UPDATE";
-    private BroadcastReceiver mAmbientUpdateBroadcastReceiver;
-
     @Override
     public Engine onCreateEngine() {
         return new Engine();
@@ -148,8 +144,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mDimmingController = new DimmingController(
                     this,
                     getBaseContext(),
-                    (PowerManager) (PowerManager) getSystemService(POWER_SERVICE),
-                    (AlarmManager) getSystemService(Context.ALARM_SERVICE),
+                    (PowerManager) getSystemService(POWER_SERVICE),
                     (SensorManager) getSystemService(SENSOR_SERVICE));
 
             mBackgroundPaint = new Paint();
@@ -172,16 +167,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                             "com.google.android.deskclock.complications.TimerProviderService"),
                     ComplicationData.TYPE_SHORT_TEXT);
             setActiveComplications(mCompilationId);
-
-            mAmbientUpdateBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (mDimmingController.needsRedraw()) {
-                        invalidate(); // always redraw immediately
-                    }
-                }
-            };
-
         }
 
         @Override
@@ -620,8 +605,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mRegisteredReceivers = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             MyWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
-            IntentFilter updateFilter = new IntentFilter(AMBIENT_UPDATE_ACTION);
-            MyWatchFaceService.this.registerReceiver(mAmbientUpdateBroadcastReceiver, updateFilter);
         }
 
         private void unregisterReceiver() {
@@ -631,9 +614,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredReceivers = false;
             MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
-            MyWatchFaceService.this.unregisterReceiver(mAmbientUpdateBroadcastReceiver);
         }
-
     }
 
     private float getNextLine(float currentY) {
