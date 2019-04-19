@@ -9,11 +9,13 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.PowerManager;
+import android.support.wearable.watchface.WatchFaceService;
 
 public class DimmingController implements SensorEventListener {
     public static final float VERY_DARK = 0.3f;
     public static final float DEFAULT_MIN_LUMINANCE = 0.08f;
     public static final float BOOST_MINIMUM_LUX = 100f;
+    private MyWatchFaceService.Engine mEngine;
     private SensorManager mSensorManager;
     private PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
@@ -33,7 +35,8 @@ public class DimmingController implements SensorEventListener {
         return mLux;
     }
 
-    public DimmingController(Context context, PowerManager powerManager,  AlarmManager alarmManager, SensorManager mSensorManager) {
+    public DimmingController(MyWatchFaceService.Engine engine, Context context, PowerManager powerManager,  AlarmManager alarmManager, SensorManager mSensorManager) {
+        mEngine = engine;
         mPowerManager = powerManager;
         mAmbientUpdateAlarmManager = alarmManager;
         Intent ambientUpdateIntent = new Intent(MyWatchFaceService.AMBIENT_UPDATE_ACTION);
@@ -68,13 +71,8 @@ public class DimmingController implements SensorEventListener {
             mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "heuscher24h:tag");
             mWakeLock.acquire();
         }
-        if (needsRedraw() && !mChangeSignaled){
-            mChangeSignaled = true;
-            //wake up to redraw
-            mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    System.currentTimeMillis() + 500,
-                    mAmbientUpdatePendingIntent);
+        if (needsRedraw()){
+            mEngine.postInvalidate();
         }
     }
 

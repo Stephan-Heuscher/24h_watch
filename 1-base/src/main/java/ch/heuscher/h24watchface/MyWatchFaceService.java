@@ -84,7 +84,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         return new Engine();
     }
 
-    private class Engine extends CanvasWatchFaceService.Engine {
+    public class Engine extends CanvasWatchFaceService.Engine {
 
         private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
             @Override
@@ -146,6 +146,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     setHideStatusBar(true).build());
 
             mDimmingController = new DimmingController(
+                    this,
                     getBaseContext(),
                     (PowerManager) (PowerManager) getSystemService(POWER_SERVICE),
                     (AlarmManager) getSystemService(Context.ALARM_SERVICE),
