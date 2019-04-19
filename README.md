@@ -5,7 +5,7 @@ A 24h watchface for my needs (Huawei Watch 2).  Codelab see https://watchface-co
 
 Features
 --------
-   * Dark mode with minimized light emission (dimming controlled by light sensor ~ever 3 seconds)
+   * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
    * Switch between dark and light mode by tabbing the top
    * Setting of minimal light emission (for 0 lux) by tabbing left and right
