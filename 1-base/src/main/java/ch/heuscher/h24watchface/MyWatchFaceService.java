@@ -361,7 +361,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float minutesCircleRadius = mCenterX / 16;
             drawCircle(0, 0, canvas, minutesCircleRadius, mBackgroundPaint);
             drawCircle(minutesRotation, minutesCircleRadius, canvas, minutesCircleRadius, mBackgroundPaint);
-            drawLineFromCenter(minutesRotation, 0,
+            drawLineFromCenter(minutesRotation, -4,
                     2 * minutesCircleRadius - 6, mHandPaint, canvas);
 
             float startPoint = (batteryCharge / 100f) * mHourHandLength;
