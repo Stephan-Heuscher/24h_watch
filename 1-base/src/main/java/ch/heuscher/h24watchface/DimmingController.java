@@ -48,8 +48,7 @@ public class DimmingController implements SensorEventListener {
             return;
         // The light sensor returns a single value.
         mLux = event.values[0];
-        float nextDimm = computeLightFactor(mLux);
-        setNextDimm(nextDimm);
+        setNextDimm(computeLightFactor(mLux));
         if (mWakeLock != null && !needsBoost()) {
             mWakeLock.release();
             mWakeLock = null;
@@ -64,13 +63,15 @@ public class DimmingController implements SensorEventListener {
     }
 
     public boolean needsRedraw() {
-        float dimmChange = getNextDimm() - getLastDimm();
-        return Math.abs(dimmChange) >= 0.3 || (getNextDimm() < VERY_DARK && Math.abs(dimmChange) >= 0.05 );
+        return getDimmChange() >= 0.3 || (getNextDimm() < VERY_DARK && getDimmChange() >= 0.05 );
     }
 
     public boolean needsBoost() {
-        float dimmChange = getNextDimm() - getLastDimm();
-        return Math.abs(dimmChange) >= 0.05f && getLux() > BOOST_MINIMUM_LUX;
+        return getDimmChange() >= 0.05f && getLux() > BOOST_MINIMUM_LUX;
+    }
+
+    private float getDimmChange() {
+        return Math.abs(getNextDimm() - getLastDimm());
     }
 
     private float computeLightFactor(float lux) {
