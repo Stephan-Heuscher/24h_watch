@@ -21,7 +21,7 @@ public class DimmingController implements SensorEventListener {
     private boolean mIsRegistered = false;
 
     private float mLux = 100f;
-    private Float mNextDimm = null;
+    private Float mNextDimm = 1f;
     private Float mLastDimm = 1f;
     private float mMinLuminance = DEFAULT_MIN_LUMINANCE;
 
@@ -58,7 +58,7 @@ public class DimmingController implements SensorEventListener {
             mWakeLock.acquire(TimeUnit.SECONDS.toMillis(3));
         }
         else if (needsRedraw()){
-            mEngine.postInvalidate();
+            mEngine.invalidate();
         }
     }
 
