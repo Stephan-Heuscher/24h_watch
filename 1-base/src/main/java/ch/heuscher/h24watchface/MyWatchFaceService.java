@@ -62,8 +62,7 @@ import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Analog watch face with a ticking second hand. In ambient mode, the second hand isn't shown. On
- * devices with low-bit ambient mode, the hands are drawn without anti-aliasing in ambient mode.
+ * Analog 24h watch face. On devices with low-bit ambient mode, the hands are drawn without anti-aliasing in ambient mode.
  */
 public class MyWatchFaceService extends CanvasWatchFaceService {
 
@@ -71,7 +70,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
      * Update rate in milliseconds for interactive mode. We update once a second to advance the
      * second hand.
      */
-    private static final long INTERACTIVE_UPDATE_RATE_MS = TimeUnit.SECONDS.toMillis(60);
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
 
@@ -316,7 +314,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int handPaintColor = Color.WHITE;
             float lightFactor = mDimmingController.getNextDimm() == null ? 1f : mDimmingController.getNextDimm();
-            if (isAmbient() && isDarkMode()) {
+            if (isDarkMode()) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
             }
             mHandPaint.setColor(handPaintColor);
