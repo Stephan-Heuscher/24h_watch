@@ -414,11 +414,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             float radiusCenter = mCenterX * 0.8f;
             Date date = mCalendar.getTime();
+            boolean active = !(isAmbient() || isDarkMode());
             for (int i = 0; i <= 23; i++) {
                 if(i == 0) {
                     boolean isSpecial = specials.length() != 0;
                     String topText = isSpecial ? specials : "24";
-                    if (isSpecial || !isAmbient()) {
+                    if (isSpecial || active) {
                         writeHour(canvas, radiusCenter, i, topText, true);
                     }
                 }
@@ -440,9 +441,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         drawTextUprightFromCenter(180, radiusCenter,
                                 countDownTime, mHandPaint, canvas, null);
                     }
-                    if (!isAmbient()) writeHour(canvas, radiusCenter, i, !isCountdownActive);
+                    if (active) writeHour(canvas, radiusCenter, i, !isCountdownActive);
                 }
-                else if (!isAmbient()) {
+                else if (active) {
                     writeHour(canvas, radiusCenter,i, i % 2 == 0 && ( i!=2 && i != 22));
                 }
                 if(i==hour) {
