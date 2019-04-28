@@ -359,7 +359,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             Typeface typeface = mBold;
             if(isDarkMode()) {
                 strokeWidth = Math.max(lightFactor*3, 1.5f);
-                alphaHour = 228 - Math.min((int)(lightFactor*200), 100);
+                alphaHour = 218 - Math.min((int)(lightFactor*200), 100);
                 typeface = lightFactor < DimmingController.VERY_DARK ? mLight : mNormal;
             }
             mHourPaint.setTypeface(typeface);
@@ -383,6 +383,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setStyle(Paint.Style.STROKE);
             drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                     mHourPaint, canvas, null);
+
+            // Minuten unten schreiben
+            String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
+            float hourTextSize = mHourPaint.getTextSize();
+            mHourPaint.setTextSize(55);
+            drawTextUprightFromCenter(180, 4.65f*mCenterY/8,
+                    minutesText.charAt(0) + " " + minutesText.charAt(1),
+                    mHourPaint, canvas, mLight);
+            mHourPaint.setTextSize(hourTextSize);
 
             // Minuten-"Zeiger" aus Kreisen über der mittleren Zahl
             float minutesCircleRadius = mCenterX / 16;
@@ -412,12 +421,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     if (isSpecial || !isAmbient()) {
                         writeHour(canvas, radiusCenter, i, topText, true);
                     }
-                }
-                else if (i == 6){
-                    String minutesText = new SimpleDateFormat(": mm", Locale.GERMAN).format(date);
-                    drawTextUprightFromCenter(90, radiusCenter - 12,
-                            minutesText, mHandPaint, canvas, null);
-                    if (!isAmbient()) writeHour(canvas, radiusCenter, i, false);
                 }
                 else if (i == 12){
                     boolean isCountdownActive = mLastCountdownTime != null;
@@ -649,8 +652,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             //wake up to check for redraw
             mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
-                    // android should allow wakeup every 10 seconds
-                    System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10),
+                    // check every second so we don't miss a wakeup --> android will slow down!
+                    System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(1),
                     mAmbientUpdatePendingIntent);
         }
     }
