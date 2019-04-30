@@ -400,13 +400,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawLineFromCenter(minutesRotation, -4,
                     2 * minutesCircleRadius - 6, mHandPaint, canvas);
 
-            float startPoint = (batteryCharge / 100f) * mHourHandLength;
-            // dick für restl. Batterie
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
-            drawLineFromCenter(hoursRotation, 0, startPoint, mHandPaint, canvas);
-            // dünn für verbrauchte Batterie
+            drawLineFromCenter(hoursRotation, 0, mHourHandLength, mHandPaint, canvas);
+            if (batteryCharge <= 98) {
+                // Schwarzer Punkt für Batteriestand
+                drawCircle(hoursRotation, (batteryCharge / 100) * mHourHandLength, canvas, 2, mBackgroundPaint);
+            }
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
-            drawLineFromCenter(hoursRotation, startPoint, mHourHandLength, mHandPaint, canvas);
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(batteryManager, canvas);
@@ -443,12 +443,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
                     if (active) writeHour(canvas, radiusCenter, i, !isCountdownActive);
                 }
-                else if (active) {
-                    writeHour(canvas, radiusCenter,i, i % 2 == 0 && ( i!=2 && i != 22));
-                }
-                if(i==hour) {
-                    writeHour(canvas, radiusCenter,  hour, false);
-                    writeHour(canvas, radiusCenter, hour+1, false);
+                else if (active && i % 2 == 0) {
+                    writeHour(canvas, radiusCenter,i, ( i!=2 && i != 22));
                 }
             }
 
@@ -527,7 +523,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     specials += "W";
                 }
                 if (getUnreadCount() > 0) { // entweder ungelesene
-                    specials += "!";
+                    specials += "⚠";
                 }
                 else if (getNotificationCount() > 0) { // oder noch andere
                     specials += "¿";

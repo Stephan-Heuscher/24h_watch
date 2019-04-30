@@ -17,9 +17,10 @@ Features
    * Display of ISO date and german day
    * Toggling display by 180° by tabbing the bottom
    * Display of status information at the top of the watch face:  ↯: Charching -- W: Wifi enabled
-   -- !: Unread notifications -- ¿: Active notifications -- Ø: Do not disturb -- ✈: Flight mode
+   -- ⚠: Unread notifications -- ¿: Active notifications -- Ø: Do not disturb -- ✈: Flight mode
    -- #: No internet connection -- ⌖: GPS enabled
-   * Remaining time on countdown timer on bottom (works cleanly for timers of less than ten hours) 
+   * Remaining time on countdown timer on bottom (works cleanly for timers of less than ten hours)
+   * Battery fill is shown as black dot in the hour hand 
    
 Next ideas
 --------
