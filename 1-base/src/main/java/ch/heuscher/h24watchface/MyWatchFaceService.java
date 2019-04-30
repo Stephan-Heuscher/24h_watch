@@ -343,6 +343,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int handPaintColor = Color.WHITE;
             float lightFactor = mDimmingController.getNextDimm() == null ? 1f : mDimmingController.getNextDimm();
+            if (!isAmbient() && lightFactor <= 2*mDimmingController.getMinLuminance()
+            && Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC == Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)) {
+                lightFactor *= 3; // counteract too much automatic dimming in very low light
+            }
             if (isDarkMode()) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
             }
@@ -452,7 +456,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (Math.abs(mDimmingController.getMinLuminance() - DimmingController.DEFAULT_MIN_LUMINANCE) >= 0.0001f) {
                 drawTextUprightFromCenter(75,mHourHandLength-40,
                         new DecimalFormat(".##").format(mDimmingController.getMinLuminance()) , mHandPaint, canvas, null);
-                // lux anzeigen
+                // lightFactor anzeigen
                 drawTextUprightFromCenter(105,mHourHandLength-40,
                         new DecimalFormat("#.##").format(lightFactor) , mHandPaint, canvas, null);
             }
