@@ -63,7 +63,7 @@ public class DimmingController implements SensorEventListener {
     }
 
     public boolean needsRedraw() {
-        return getDimmChange() >= 0.3 || (getNextDimm() < VERY_DARK && getDimmChange() >= 0.05 );
+        return getDimmChange() >= 0.3;
     }
 
     public boolean needsBoost() {
