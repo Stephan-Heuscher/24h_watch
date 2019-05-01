@@ -106,6 +106,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
+        boolean mMinimalMode = false;
 
         private float mHourHandLength;
         private int mWidth;
@@ -283,13 +284,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     if (y <= mCenterY / 2 ) {
                         setDarkMode(!isDarkMode());
                     }
-                    if (x <= mCenterX / 2 ) {
+                    else if (x <= mCenterX / 2 ) {
                         mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() - 0.01f);
                     }
-                    if (x >= mCenterX / 2 * 3 ) {
+                    else if (x >= mCenterX / 2 * 3 ) {
                         mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() + 0.01f);
                     }
-                    if (y >= mCenterY / 2 * 3) {
+                    else if (y >= mCenterY / 2 * 3) {
+                        mMinimalMode = !mMinimalMode;
+                    }
+                    else {
                         mRotate = mRotate == 0 ? 180 : 0;
                     }
                     invalidate();
@@ -306,6 +310,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             canvas.rotate(mRotate, mCenterX, mCenterY);
+            float hourTextDistance = mCenterX * 0.8f;
+            boolean active = !(isAmbient() || isDarkMode());
             long now = System.currentTimeMillis();
             mCalendar.setTimeInMillis(now);
 
@@ -345,7 +351,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float lightFactor = mDimmingController.getNextDimm() == null ? 1f : mDimmingController.getNextDimm();
             if (!isAmbient() && lightFactor <= 2*mDimmingController.getMinLuminance()
             && Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC == Settings.System.getInt(getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL)) {
-                lightFactor *= 3; // counteract too much automatic dimming in very low light
+                lightFactor += 0.15f; // counteract too much automatic dimming in very low light
             }
             if (isDarkMode()) {
                 handPaintColor = Color.HSVToColor(new float[]{13f, 0.04f, lightFactor});
@@ -356,7 +362,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Light typeface if there's enough light
             mHandPaint.setTypeface(isDarkMode() && lightFactor > DimmingController.VERY_DARK ? mLight : mNormal);
 
-            String hourText = "" + hour;
             mHourPaint.setStyle(Paint.Style.FILL);
             float strokeWidth = 6;
             int alphaHour = 160;
@@ -370,64 +375,58 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setStrokeWidth(strokeWidth);
             mHourPaint.setAlpha(alphaHour);
 
-            Rect boundsText = new Rect();
-            mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
-            float textSize = boundsText.height();
-            float decenteringCorrection = -12;
-            drawTextUprightFromCenter(0, decenteringCorrection, hourText,
-                    mHourPaint, canvas, null);
+            if (!mMinimalMode) {
+                String hourText = "" + hour;
+                Rect boundsText = new Rect();
+                mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
+                float textSize = boundsText.height();
+                float decenteringCorrection = -12;
+                drawTextUprightFromCenter(0, decenteringCorrection, hourText,
+                        mHourPaint, canvas, null);
 
-            // noch abzulaufende Zeit verdunkeln
-            float relativeHour = 1 - minutes / 60f;
-            mBackgroundPaint.setStrokeWidth(textSize * relativeHour);
-            float yFill = mCenterY + textSize/2 * (1-relativeHour);
-            canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
-                    mBackgroundPaint);
-            // nochmals den Umriss nachziehen
-            mHourPaint.setStyle(Paint.Style.STROKE);
-            drawTextUprightFromCenter(0, decenteringCorrection, hourText,
-                    mHourPaint, canvas, null);
+                // noch abzulaufende Zeit verdunkeln
+                float relativeHour = 1 - minutes / 60f;
+                mBackgroundPaint.setStrokeWidth(textSize * relativeHour);
+                float yFill = mCenterY + textSize/2 * (1-relativeHour);
+                canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
+                        mBackgroundPaint);
+                // nochmals den Umriss nachziehen
+                mHourPaint.setStyle(Paint.Style.STROKE);
+                drawTextUprightFromCenter(0, decenteringCorrection, hourText,
+                        mHourPaint, canvas, null);
 
-            // Minuten unten schreiben
-            String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
-            float hourTextSize = mHourPaint.getTextSize();
-            mHourPaint.setTextSize(55);
-            drawTextUprightFromCenter(180, 4.65f*mCenterY/8,
-                    minutesText.charAt(0) + " " + minutesText.charAt(1),
-                    mHourPaint, canvas, mLight);
-            mHourPaint.setTextSize(hourTextSize);
+                // Minuten unten schreiben
+                String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
+                float hourTextSize = mHourPaint.getTextSize();
+                mHourPaint.setTextSize(55);
+                drawTextUprightFromCenter(180, 4.65f*mCenterY/8,
+                        minutesText.charAt(0) + " " + minutesText.charAt(1),
+                        mHourPaint, canvas, mLight);
+                mHourPaint.setTextSize(hourTextSize);
 
-            // Minuten-"Zeiger" aus Kreisen über der mittleren Zahl
-            float minutesCircleRadius = mCenterX / 16;
-            drawCircle(0, 0, canvas, minutesCircleRadius, mBackgroundPaint);
-            drawCircle(minutesRotation, minutesCircleRadius, canvas, minutesCircleRadius, mBackgroundPaint);
-            drawLineFromCenter(minutesRotation, -4,
-                    2 * minutesCircleRadius - 6, mHandPaint, canvas);
+                // Platz für Minuten-Zeiger schaffen
+                float minutesCircleRadius = mCenterX / 16;
+                drawCircle(0, 0, canvas, minutesCircleRadius, mBackgroundPaint);
+                drawCircle(minutesRotation, minutesCircleRadius, canvas, minutesCircleRadius, mBackgroundPaint);
+                drawLineFromCenter(minutesRotation, -4,
+                        2 * minutesCircleRadius - 6, mHandPaint, canvas);
+            }
 
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
             drawLineFromCenter(hoursRotation, 0, mHourHandLength, mHandPaint, canvas);
-            if (batteryCharge <= 98) {
+            if (batteryCharge <= 95) {
                 // Schwarzer Punkt für Batteriestand
-                drawCircle(hoursRotation, (batteryCharge / 100) * mHourHandLength, canvas, 2, mBackgroundPaint);
+                drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f, canvas, 2, mBackgroundPaint);
             }
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
 
-            // DND + no Connection + "Message" + Wifi + Power anzeigen
-            String specials = getSpecials(batteryManager, canvas);
-
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
-            float radiusCenter = mCenterX * 0.8f;
             Date date = mCalendar.getTime();
-            boolean active = !(isAmbient() || isDarkMode());
-            for (int i = 0; i <= 23; i++) {
-                if(i == 0) {
-                    boolean isSpecial = specials.length() != 0;
-                    String topText = isSpecial ? specials : "24";
-                    if (isSpecial || active) {
-                        writeHour(canvas, radiusCenter, i, topText, true);
-                    }
+            for (int i = 1; i <= 24; i++) {
+                if (i == 24 && mMinimalMode){ // 0-Punkt immer zeichnen im minimal Mode
+                    writeHour(canvas, hourTextDistance,i, false);
                 }
-                else if (i == 12){
+                if (i == 12){
                     boolean isCountdownActive = mLastCountdownTime != null;
                     if (isCountdownActive) {
                         String countDownTime = "T-";
@@ -442,13 +441,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         else {
                             countDownTime += "<" + correctedTime.getSecond() + "s";
                         }
-                        drawTextUprightFromCenter(180, radiusCenter,
+                        drawTextUprightFromCenter(180, hourTextDistance,
                                 countDownTime, mHandPaint, canvas, null);
                     }
-                    if (active) writeHour(canvas, radiusCenter, i, !isCountdownActive);
+                    if (active) writeHour(canvas, hourTextDistance, i, !isCountdownActive);
                 }
                 else if (active && i % 2 == 0) {
-                    writeHour(canvas, radiusCenter,i, ( i!=2 && i != 22));
+                    writeHour(canvas, hourTextDistance,i, (mMinimalMode || (i!=24 && i!=2 && i != 22)));
                 }
             }
 
@@ -475,12 +474,23 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // Y für textzeilen
-            float currentY = getNextLine(mCenterY - radiusCenter);
+            float currentY = mCenterY - hourTextDistance;
+            // DND + no Connection + "Message" + Wifi + Power anzeigen
+            String specials = getSpecials(batteryManager, canvas);
+            String topText = mMinimalMode ? "" : new SimpleDateFormat("E", Locale.GERMAN).format(date);
+            topText += specials;
+            if (active && mMinimalMode && topText.length() > 0) {
+                currentY = getNextLine(currentY);
+            }
+            drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
 
-            // Datum
-            String dateDate = new SimpleDateFormat("E YYYY-MM-dd", Locale.GERMAN).format(date);
-            drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
+            // Datum
+            if (!mMinimalMode) {
+                String dateDate = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
+                drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas, null);
+                currentY = getNextLine(currentY);
+            }
 
             List<CalendarEvent> events = getCalendarEvents();
             events.sort(new Comparator<CalendarEvent>()
@@ -511,7 +521,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // minute hand on exterior ring as last
-            drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            if (!mMinimalMode) {
+                drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            }
 
             mDimmingController.setLastDimm(lightFactor);
         }
@@ -660,7 +672,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     }
 
     private float getNextLine(float currentY) {
-        return currentY + 1.05f * TEXT_SIZE;
+        return currentY + 1.1f * TEXT_SIZE;
     }
 
     private float getDegreesFromNorth(@NotNull Calendar time) {

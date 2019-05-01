@@ -7,6 +7,7 @@ Features
 --------
    * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
+   * Minimal mode with no minute hand or numbers (date or time)
    * Switch between dark and light mode by tabbing the top
    * Setting of minimal light emission (for 0 lux) by tabbing left and right
    * 24h watch with 24:00h at top
