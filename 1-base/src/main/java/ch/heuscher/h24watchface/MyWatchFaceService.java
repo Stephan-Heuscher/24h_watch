@@ -67,10 +67,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class MyWatchFaceService extends CanvasWatchFaceService {
 
-    /**
-     * Update rate in milliseconds for interactive mode. We update once a second to advance the
-     * second hand.
-     */
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
 
@@ -411,11 +407,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
-            drawLineFromCenter(hoursRotation, 0, mHourHandLength, mHandPaint, canvas);
+            drawLineFromCenter(hoursRotation, -8, mHourHandLength, mHandPaint, canvas);
+            float radius = mHandPaint.getStrokeWidth() / 2;
             if (batteryCharge <= 95) {
                 // Schwarzer Punkt für Batteriestand
-                drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f, canvas, 2, mBackgroundPaint);
+                drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f, canvas, radius, mBackgroundPaint);
             }
+            drawCircle(0, 0, canvas, radius *2, mHandPaint);
+            drawCircle(0, 0, canvas, radius *1.5f, mBackgroundPaint);
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
