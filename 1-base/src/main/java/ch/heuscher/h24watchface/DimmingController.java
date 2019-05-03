@@ -63,7 +63,8 @@ public class DimmingController implements SensorEventListener {
     }
 
     public boolean needsRedraw() {
-        return getDimmChange() >= 0.3;
+        return System.currentTimeMillis() > mEngine.getLastDraw() + 500
+                && getDimmChange() >= 0.4;
     }
 
     public boolean needsBoost() {

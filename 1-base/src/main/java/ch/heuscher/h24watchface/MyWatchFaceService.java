@@ -123,6 +123,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private AlarmManager mAmbientUpdateAlarmManager;
         private PendingIntent mAmbientUpdatePendingIntent;
+        private long mLastDraw;
 
 
         public boolean isAmbient() {
@@ -140,9 +141,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         public void setDarkMode(boolean mDarkMode) {
             this.mDarkMode = mDarkMode;
             if (mDarkMode){
+                mDimmingController.selfRegister();
                 setupNextDimCheck();
             }
             else {
+                mDimmingController.selfUnregister();
                 mAmbientUpdateAlarmManager.cancel(mAmbientUpdatePendingIntent);
             }
         }
@@ -249,11 +252,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 setAmbient(inAmbientMode);
                 invalidate();
             }
-            if (isDarkMode()) {
-                mDimmingController.selfRegister();
-            } else {
-                mDimmingController.selfUnregister();
-            }
         }
 
         @Override
@@ -291,10 +289,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() + 0.01f);
                     }
                     else if (y >= mCenterY / 2 * 3) {
-                        mMinimalMode = !mMinimalMode;
+                        mRotate = mRotate == 0 ? 180 : 0;
                     }
                     else {
-                        mRotate = mRotate == 0 ? 180 : 0;
+                        mMinimalMode = !mMinimalMode;
                     }
                     invalidate();
                     break;
@@ -312,8 +310,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             canvas.rotate(mRotate, mCenterX, mCenterY);
             float hourTextDistance = mCenterX * 0.8f;
             boolean active = !(isAmbient() || isDarkMode());
-            long now = System.currentTimeMillis();
-            mCalendar.setTimeInMillis(now);
+            setLastDraw(System.currentTimeMillis());
+            mCalendar.setTimeInMillis(getLastDraw());
 
             // Draw the background.
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), mBackgroundPaint);
@@ -466,7 +464,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
                 AlarmManager.AlarmClockInfo nextAlarmClock = alarm.getNextAlarmClock();
-                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < now) {
+                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < getLastDraw()) {
                     time.setTimeInMillis(nextAlarmClock.getTriggerTime());
                     String alarmText = "A";//String.format("%tR", time.getTime());
                     drawTextUprightFromCenter(getDegreesFromNorth(time),
@@ -674,6 +672,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     // check every second so we don't miss a wakeup --> android will slow down!
                     System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(1),
                     mAmbientUpdatePendingIntent);
+        }
+
+        public long getLastDraw() {
+            return mLastDraw;
+        }
+
+        public void setLastDraw(long mLastDraw) {
+            this.mLastDraw = mLastDraw;
         }
     }
 
