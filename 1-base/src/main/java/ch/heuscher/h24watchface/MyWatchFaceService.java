@@ -421,7 +421,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             Date date = mCalendar.getTime();
             for (int i = 1; i <= 24; i++) {
-                if (i == 24 && mMinimalMode){ // 0-Punkt immer zeichnen im minimal Mode
+                if (i == 24 && mMinimalMode && getInterruptionFilter() != INTERRUPTION_FILTER_PRIORITY){ // 0-Punkt immer zeichnen im minimal Mode
                     writeHour(canvas, hourTextDistance,i, false);
                 }
                 if (i == 12){
@@ -528,6 +528,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (!mMinimalMode) {
                 drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             }
+            // draw "silent" as the top point
+            if (mMinimalMode && getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
+                drawTextUprightFromCenter(0,mCenterY - 15, "Ø", mHandPaint, canvas, null);
+            }
 
             mDimmingController.setLastDimm(lightFactor);
         }
@@ -548,7 +552,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 else if (getNotificationCount() > 0) { // oder noch andere
                     specials += "¿";
                 }
-                if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
+                if (!mMinimalMode && getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
                     specials += "Ø";
                 }
                 if (Settings.System.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
