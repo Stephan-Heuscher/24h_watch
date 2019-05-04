@@ -474,8 +474,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float currentY = mCenterY - hourTextDistance;
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(batteryManager, canvas);
-            String topText = mMinimalMode ? "" : new SimpleDateFormat("E", Locale.GERMAN).format(date);
-            topText += specials;
+            String topText = mMinimalMode ? "" : (new SimpleDateFormat("E", Locale.GERMAN).format(date) + specials);
             if (active && mMinimalMode && topText.length() > 0) {
                 currentY = getNextLine(currentY);
             }
@@ -528,8 +527,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             }
             // draw "silent" as the top point
-            if (mMinimalMode && getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
-                drawTextUprightFromCenter(0,mCenterY - 15, "Ø", mHandPaint, canvas, null);
+            if (mMinimalMode && specials.length() > 0) {
+                drawTextUprightFromCenter(0,mCenterY - 15, "+", mHandPaint, canvas, null);
             }
 
             mDimmingController.setLastDimm(lightFactor);
@@ -551,7 +550,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 else if (getNotificationCount() > 0) { // oder noch andere
                     specials += "¿";
                 }
-                if (!mMinimalMode && getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
+                if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
                     specials += "Ø";
                 }
                 if (Settings.System.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {

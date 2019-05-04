@@ -9,7 +9,7 @@ Features
    * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
    * Switch between dark and light mode by tabbing the top
-   * Minimal mode with no minute hand or numbers (date or time)
+   * Minimal mode with no minute hand or numbers (date or time), minimal status & notifications (+ at top)
    * Turn minimal mode on/off by tabbing the center
    * Setting of minimal light emission (for 0 lux) by tabbing left and right
    * Display of next alarm and calendar events (+ 18h)
