@@ -402,14 +402,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 float minutesCircleRadius = mCenterX / 16;
                 drawCircle(0, 0, canvas, minutesCircleRadius, mBackgroundPaint);
                 drawCircle(minutesRotation, minutesCircleRadius, canvas, minutesCircleRadius, mBackgroundPaint);
-                drawLineFromCenter(minutesRotation, -4,
-                        2 * minutesCircleRadius - 6, mHandPaint, canvas);
+                drawLineFromCenter(minutesRotation, 0,
+                        2 * minutesCircleRadius - 4, mHandPaint, canvas);
             }
 
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
-            drawLineFromCenter(hoursRotation, -8, mHourHandLength, mHandPaint, canvas);
+            drawLineFromCenter(hoursRotation, 0, mHourHandLength, mHandPaint, canvas);
             float radius = mHandPaint.getStrokeWidth() / 2;
-            if (batteryCharge <= 95) {
+            if (batteryCharge <= 50) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f, canvas, radius, mBackgroundPaint);
             }
