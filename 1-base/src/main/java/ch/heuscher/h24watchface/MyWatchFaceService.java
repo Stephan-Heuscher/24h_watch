@@ -70,10 +70,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
 
-    // Action for updating the display in ambient mode, per our custom refresh cycle.
-    public static final String AMBIENT_UPDATE_ACTION = "ch.heuscher.h24watchface.AMBIENT_UPDATE";
-    private BroadcastReceiver mAmbientUpdateBroadcastReceiver;
-
     @Override
     public Engine onCreateEngine() {
         return new Engine();
@@ -117,8 +113,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private String mDebug = null;
 
-        private AlarmManager mAmbientUpdateAlarmManager;
-        private PendingIntent mAmbientUpdatePendingIntent;
         private long mLastDraw;
 
 
@@ -138,11 +132,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             this.mDarkMode = mDarkMode;
             if (mDarkMode){
                 mDimmingController.selfRegister();
-                setupNextDimCheck();
             }
             else {
                 mDimmingController.selfUnregister();
-                mAmbientUpdateAlarmManager.cancel(mAmbientUpdatePendingIntent);
             }
         }
 
@@ -180,21 +172,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                             "com.google.android.deskclock.complications.TimerProviderService"),
                     ComplicationData.TYPE_SHORT_TEXT);
             setActiveComplications(mCompilationId);
-
-            mAmbientUpdateBroadcastReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (mDimmingController.needsRedraw()) {
-                        invalidate(); // always redraw immediately
-                    }
-                    setupNextDimCheck();
-                }
-            };
-
-            mAmbientUpdateAlarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-            Intent ambientUpdateIntent = new Intent(MyWatchFaceService.AMBIENT_UPDATE_ACTION);
-            mAmbientUpdatePendingIntent = PendingIntent.getBroadcast(
-                    getBaseContext(), 0, ambientUpdateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
 
         @Override
@@ -414,13 +391,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f, canvas, radius, mBackgroundPaint);
             }
             drawCircle(0, 0, canvas, radius *2, mHandPaint);
-            drawCircle(0, 0, canvas, radius *1.5f, mBackgroundPaint);
+            drawCircle(0, 0, canvas, radius, mBackgroundPaint);
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
+
+            // DND + no Connection + "Message" + Wifi + Power anzeigen
+            String specials = getSpecials(batteryManager, canvas);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             Date date = mCalendar.getTime();
             for (int i = 1; i <= 24; i++) {
-                if (i == 24 && mMinimalMode && getInterruptionFilter() != INTERRUPTION_FILTER_PRIORITY){ // 0-Punkt immer zeichnen im minimal Mode
+                if (i == 24 && mMinimalMode && specials.length() == 0){ // 0-Punkt anzeigen, wenn keine Zeichnen im minimal Mode
                     writeHour(canvas, hourTextDistance,i, false);
                 }
                 if (i == 12){
@@ -472,8 +452,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             // Y für textzeilen
             float currentY = mCenterY - hourTextDistance;
-            // DND + no Connection + "Message" + Wifi + Power anzeigen
-            String specials = getSpecials(batteryManager, canvas);
             String topText = mMinimalMode ? "" : (new SimpleDateFormat("E", Locale.GERMAN).format(date) + specials);
             if (active && mMinimalMode && topText.length() > 0) {
                 currentY = getNextLine(currentY);
@@ -647,15 +625,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void registerReceiver() {
-            mDimmingController.selfRegister();
             if (mRegisteredReceivers) {
                 return;
             }
             mRegisteredReceivers = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             MyWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
-            IntentFilter updateFilter = new IntentFilter(AMBIENT_UPDATE_ACTION);
-            MyWatchFaceService.this.registerReceiver(mAmbientUpdateBroadcastReceiver, updateFilter);
         }
 
         private void unregisterReceiver() {
@@ -665,15 +640,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredReceivers = false;
             MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
-            MyWatchFaceService.this.unregisterReceiver(mAmbientUpdateBroadcastReceiver);
-        }
-        private void setupNextDimCheck(){
-            //wake up to check for redraw
-            mAmbientUpdateAlarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    // check every second so we don't miss a wakeup --> android will slow down!
-                    System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(1),
-                    mAmbientUpdatePendingIntent);
         }
 
         public long getLastDraw() {
