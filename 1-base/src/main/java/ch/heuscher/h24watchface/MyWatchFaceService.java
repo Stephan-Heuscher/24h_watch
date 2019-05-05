@@ -494,7 +494,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         currentY = getNextLine(currentY);
                         if (eventHrTitle.length() > minimizedLength){
                             drawTextUprightFromCenter(0,mCenterY - currentY,
-                                    eventHrTitle.substring(minimizedLength + 1, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
+                                    eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
                             currentY = getNextLine(currentY);
                         }
                     }
