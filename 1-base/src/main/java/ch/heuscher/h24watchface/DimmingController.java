@@ -76,7 +76,7 @@ public class DimmingController implements SensorEventListener {
     }
 
     private float computeLightFactor(float lux) {
-        return computeFactorFromLight(lux, 1f, 20f, getMinLuminance());
+        return computeFactorFromLight(lux, 1f, 15f, getMinLuminance());
     }
 
     private float computeFactorFromLight(float lux, float maxFactor, float luxDivider, float minFactor) {
