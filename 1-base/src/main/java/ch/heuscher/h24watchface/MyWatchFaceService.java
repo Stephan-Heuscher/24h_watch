@@ -531,7 +531,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
                     specials += "Ø";
                 }
-                if (Settings.System.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
+                if (Settings.Global.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
                     specials += "✈";
                 }
                 else {
