@@ -383,6 +383,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         2 * minutesCircleRadius - 4, mHandPaint, canvas);
             }
 
+            // buttons shown when active for switching dark and minimal mode on/off
+            if(!isAmbient()){
+                drawButton(isDarkMode() ? "D" : "d", 90, canvas);
+                drawButton(mMinimalMode ? "M" : "m", 270, canvas);
+            }
+
             mHandPaint.setStrokeWidth(STROKE_WIDTH*4);
             drawLineFromCenter(hoursRotation, 0, mHourHandLength, mHandPaint, canvas);
             float radius = mHandPaint.getStrokeWidth() / 2;
@@ -393,6 +399,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             drawCircle(0, 0, canvas, radius *2, mHandPaint);
             drawCircle(0, 0, canvas, radius, mBackgroundPaint);
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
+
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(batteryManager, canvas);
@@ -500,6 +507,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             mDimmingController.setLastDimm(lightFactor);
+        }
+
+        private void drawButton(String buttonText, float rotationFromNorth, Canvas canvas) {
+            float buttonRadius = mCenterX * 0.58f;
+            drawCircle(rotationFromNorth, buttonRadius, canvas, 20.25f, mHandPaint);
+            drawCircle(rotationFromNorth, buttonRadius, canvas, 19, mBackgroundPaint);
+            drawTextUprightFromCenter(rotationFromNorth, buttonRadius, buttonText, mHandPaint, canvas, null);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
