@@ -8,10 +8,9 @@ Features
    * 24h watch with 24:00h at top
    * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
-   * Switch between dark and light mode by tabbing the top
+   * Switch between dark and light mode by tabbing the right
    * Minimal mode with no minute hand or numbers (date or time), minimal status & notifications (+ at top)
-   * Turn minimal mode on/off by tabbing the center
-   * Setting of minimal light emission (for 0 lux) by tabbing left and right
+   * Turn minimal mode on/off by tabbing the left
    * Display of next alarm and calendar events (+ 18h)
    * Display title of next calendar event 30 minutes before event
    * Display of time to and time during calendar events (+ 30 minutes before)

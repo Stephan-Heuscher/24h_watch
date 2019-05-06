@@ -253,19 +253,19 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             switch (tapType) {
                 case WatchFaceService.TAP_TYPE_TAP:
                     if (y <= mCenterY / 2 ) {
-                        setDarkMode(!isDarkMode());
+                        // top
                     }
                     else if (x <= mCenterX / 2 ) {
-                        mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() - 0.01f);
+                        mMinimalMode = !mMinimalMode;
                     }
                     else if (x >= mCenterX / 2 * 3 ) {
-                        mDimmingController.setMinLuminance(mDimmingController.getMinLuminance() + 0.01f);
+                        setDarkMode(!isDarkMode());
                     }
                     else if (y >= mCenterY / 2 * 3) {
                         mRotate = mRotate == 0 ? 180 : 0;
                     }
                     else {
-                        mMinimalMode = !mMinimalMode;
+                        // center
                     }
                     invalidate();
                     break;
@@ -427,16 +427,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     writeHour(canvas, hourTextDistance,i, (mMinimalMode || (i!=24 && i!=2 && i != 22)));
                 }
             }
-
-            // luminanz zeigen wenn nötig
-            if (Math.abs(mDimmingController.getMinLuminance() - DimmingController.DEFAULT_MIN_LUMINANCE) >= 0.0001f) {
-                drawTextUprightFromCenter(75,mHourHandLength-40,
-                        new DecimalFormat(".##").format(mDimmingController.getMinLuminance()) , mHandPaint, canvas, null);
-                // lightFactor anzeigen
-                drawTextUprightFromCenter(105,mHourHandLength-40,
-                        new DecimalFormat("#.##").format(lightFactor) , mHandPaint, canvas, null);
-            }
-
 
             float alarmDistanceFromCenter = mHourHandLength;
             Calendar time = Calendar.getInstance();
