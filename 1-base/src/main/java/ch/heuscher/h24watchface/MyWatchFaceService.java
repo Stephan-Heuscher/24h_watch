@@ -98,7 +98,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
-        boolean mMinimalMode = false;
+        private boolean mMinimalMode = false;
 
         private float mHourHandLength;
         private int mWidth;
@@ -297,12 +297,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             setActiveComplications(SystemProviders.DATE);
             setActiveComplications(mCompilationId);
 
-
-            // Darkmode autom. umschaltung
-            if (minutes == 0 && hour == 19 && seconds <=1) {
-                    setDarkMode(true);
-            }
-
             /* These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
             final float minutesRotation = minutes * 6f;
             final float hoursRotation = getDegreesFromNorth(mCalendar);
@@ -385,10 +379,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // buttons shown when active for switching dark and minimal mode on/off
             if(!isAmbient()){
-                drawButton(isDarkMode() ? "D" : "d", 90,
-                        isDarkMode() ? null : mBold, canvas);
-                drawButton(mMinimalMode ? "M" : "m", 270,
-                        isDarkMode() ? null : mBold, canvas);
+                float buttonRadius = mCenterX * 0.66f;
+                drawTextUprightFromCenter(82, buttonRadius,
+                        "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
+                drawTextUprightFromCenter(98, buttonRadius,
+                        isDarkMode() ? "◯":"○" , mHandPaint, canvas, isDarkMode() ? mBold : mLight);
+                drawTextUprightFromCenter(278, buttonRadius,
+                        "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
+                drawTextUprightFromCenter(262, buttonRadius,
+                        "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
             }
 
             mHandPaint.setStrokeWidth(STROKE_WIDTH*(isDarkMode()?2:4));
@@ -509,13 +508,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             mDimmingController.setLastDimm(lightFactor);
-        }
-
-        private void drawButton(String buttonText, float rotationFromNorth, Typeface typeface, Canvas canvas) {
-            float buttonRadius = mCenterX * 0.58f;
-            drawCircle(rotationFromNorth, buttonRadius, canvas, 20.25f, mHandPaint);
-            drawCircle(rotationFromNorth, buttonRadius, canvas, 19, mBackgroundPaint);
-            drawTextUprightFromCenter(rotationFromNorth, buttonRadius, buttonText, mHandPaint, canvas, typeface);
         }
 
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
