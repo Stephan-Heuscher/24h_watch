@@ -379,15 +379,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // buttons shown when active for switching dark and minimal mode on/off
             if(!isAmbient()){
-                float buttonRadius = mCenterX * 0.66f;
+                float buttonRadius = mCenterX * 0.63f;
                 drawTextUprightFromCenter(82, buttonRadius,
                         "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
                 drawTextUprightFromCenter(98, buttonRadius,
                         isDarkMode() ? "◯":"○" , mHandPaint, canvas, isDarkMode() ? mBold : mLight);
                 drawTextUprightFromCenter(278, buttonRadius,
-                        "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
-                drawTextUprightFromCenter(262, buttonRadius,
                         "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
+                drawTextUprightFromCenter(262, buttonRadius,
+                        "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
             }
 
             mHandPaint.setStrokeWidth(STROKE_WIDTH*(isDarkMode()?2:4));
@@ -429,9 +429,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         drawTextUprightFromCenter(180, hourTextDistance,
                                 countDownTime, mHandPaint, canvas, null);
                     }
-                    if (active) writeHour(canvas, hourTextDistance, i, !isCountdownActive);
+                    if (!isAmbient()) writeHour(canvas, hourTextDistance, i, !isCountdownActive);
                 }
-                else if (active && i % 2 == 0) {
+                else if (!isAmbient() && i % 2 == 0) {
                     writeHour(canvas, hourTextDistance,i, (mMinimalMode || (i!=24 && i!=2 && i != 22)));
                 }
             }
