@@ -429,9 +429,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         drawTextUprightFromCenter(180, hourTextDistance,
                                 countDownTime, mHandPaint, canvas, null);
                     }
-                    if (!isAmbient()) writeHour(canvas, hourTextDistance, i, !isCountdownActive);
+                    if (active) writeHour(canvas, hourTextDistance, i, !isCountdownActive);
                 }
-                else if (!isAmbient() && i % 2 == 0) {
+                else if (active && i % 2 == 0) {
                     writeHour(canvas, hourTextDistance,i, (mMinimalMode || (i!=24 && i!=2 && i != 22)));
                 }
             }
