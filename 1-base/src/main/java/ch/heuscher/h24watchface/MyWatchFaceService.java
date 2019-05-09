@@ -46,6 +46,7 @@ import android.support.wearable.provider.WearableCalendarContract;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import org.jetbrains.annotations.NotNull;
@@ -185,7 +186,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         public void onComplicationDataUpdate(int watchFaceComplicationId, ComplicationData data) {
             super.onComplicationDataUpdate(watchFaceComplicationId, data);
             String timerValue = null;
-            if (watchFaceComplicationId == mCompilationId) {
+            if (watchFaceComplicationId == mCompilationId && data.getShortText() != null) {
                 // This is the timer complication
                 try {
                     mLastReadCountdownTime = System.currentTimeMillis();
@@ -208,6 +209,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 catch (Exception e){
                     // ignore --> I will look if I see no timer.
                     mDebug = timerValue;
+                    Log.d("Heuscher24h", timerValue, e);
                 }
             }
         }
@@ -383,7 +385,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(82, buttonRadius,
                         "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
                 drawTextUprightFromCenter(98, buttonRadius,
-                        isDarkMode() ? "◯":"○" , mHandPaint, canvas, isDarkMode() ? mBold : mLight);
+                        isDarkMode() ? "⨀":"○" , mHandPaint, canvas, isDarkMode() ? mBold : mLight);
                 drawTextUprightFromCenter(278, buttonRadius,
                         "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
                 drawTextUprightFromCenter(262, buttonRadius,
