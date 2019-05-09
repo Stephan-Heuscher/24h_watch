@@ -392,17 +392,20 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
             }
 
-            mHandPaint.setStrokeWidth(STROKE_WIDTH*(isDarkMode()?2:4));
+            if (!isDarkMode()) {
+                mHandPaint.setStrokeWidth(mHandPaint.getStrokeWidth()*2);
+                drawCircle(0, 0, canvas,
+                        mHandPaint.getStrokeWidth(), mHandPaint);
+                drawCircle(0, 0, canvas,
+                        mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
+            }
             drawLineFromCenter(hoursRotation, 0, mHourHandLength, mHandPaint, canvas);
-            float radius = mHandPaint.getStrokeWidth() / 2;
             if (batteryCharge <= 50) {
                 // Schwarzer Punkt für Batteriestand
-                drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f, canvas, radius, mBackgroundPaint);
+                drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f,
+                        canvas, mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
             }
-            drawCircle(0, 0, canvas, radius *2, mHandPaint);
-            drawCircle(0, 0, canvas, radius, mBackgroundPaint);
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
-
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(batteryManager, canvas);
