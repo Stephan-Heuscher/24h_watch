@@ -419,20 +419,22 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (i == 12){
                     boolean isCountdownActive = mLastCountdownTime != null;
                     if (isCountdownActive) {
-                        String countDownTime = "T-";
                         long correctedTimeMs = mLastCountdownTime.toSecondOfDay()*1000 - (System.currentTimeMillis() - mLastReadCountdownTime);
-                        LocalTime correctedTime = LocalTime.ofSecondOfDay(correctedTimeMs / 1000);
-                        if (correctedTime.getHour() >= 1){
-                            countDownTime += correctedTime.getHour() + "h";
+                        if (correctedTimeMs >= 0){
+                            LocalTime correctedTime = LocalTime.ofSecondOfDay(correctedTimeMs / 1000);
+                            String countDownTime = "T-";
+                            if (correctedTime.getHour() >= 1){
+                                countDownTime += correctedTime.getHour() + "h";
+                            }
+                            else if (correctedTime.getMinute() >= 1){
+                                countDownTime += correctedTime.getMinute() + "'";
+                            }
+                            else {
+                                countDownTime += "<" + correctedTime.getSecond() + "s";
+                            }
+                            drawTextUprightFromCenter(180, hourTextDistance,
+                                    countDownTime, mHandPaint, canvas, null);
                         }
-                        else if (correctedTime.getMinute() >= 1){
-                            countDownTime += correctedTime.getMinute() + "'";
-                        }
-                        else {
-                            countDownTime += "<" + correctedTime.getSecond() + "s";
-                        }
-                        drawTextUprightFromCenter(180, hourTextDistance,
-                                countDownTime, mHandPaint, canvas, null);
                     }
                     if (active) writeHour(canvas, hourTextDistance, i, !isCountdownActive);
                 }
