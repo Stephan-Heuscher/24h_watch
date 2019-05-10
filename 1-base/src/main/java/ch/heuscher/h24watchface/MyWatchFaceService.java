@@ -385,7 +385,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(82, buttonRadius,
                         "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
                 drawTextUprightFromCenter(98, buttonRadius,
-                        isDarkMode() ? "⨀":"◯" , mHandPaint, canvas, isDarkMode() ? mBold : mLight);
+                        "○", mHandPaint, canvas, isDarkMode() ? mBold : mLight);
+                // fill sun or mark moon
+                drawCircle(90 + (7* (isDarkMode() ?1:-1)), buttonRadius, canvas, 6, mHandPaint);
                 drawTextUprightFromCenter(278, buttonRadius,
                         "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
                 drawTextUprightFromCenter(262, buttonRadius,
