@@ -152,6 +152,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     getBaseContext(),
                     (PowerManager) getSystemService(POWER_SERVICE),
                     (SensorManager) getSystemService(SENSOR_SERVICE));
+            setDarkMode(true);
 
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
@@ -293,7 +294,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
             int minutes = mCalendar.get(Calendar.MINUTE);
-            int seconds = mCalendar.get(Calendar.SECOND);
 
             // Hack to set and re-set countdown-timer
             setActiveComplications(SystemProviders.DATE);
@@ -370,13 +370,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         minutesText.charAt(0) + " " + minutesText.charAt(1),
                         mHourPaint, canvas, mLight);
                 mHourPaint.setTextSize(hourTextSize);
-
-                // Platz für Minuten-Zeiger schaffen
-                float minutesCircleRadius = mCenterX / 16;
-                drawCircle(0, 0, canvas, minutesCircleRadius, mBackgroundPaint);
-                drawCircle(minutesRotation, minutesCircleRadius, canvas, minutesCircleRadius, mBackgroundPaint);
-                drawLineFromCenter(minutesRotation, 0,
-                        2 * minutesCircleRadius - 4, mHandPaint, canvas);
             }
 
             // buttons shown when active for switching dark and minimal mode on/off
@@ -507,11 +500,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
                 }
             }
-            // minute hand on exterior ring as last
-            if (!mMinimalMode) {
-                drawLineFromCenter(minutesRotation, mCenterX * 0.87f, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-            }
-            // draw "silent" as the top point
+            // draw top "plus" if things to show
             if (mMinimalMode && specials.length() > 0) {
                 drawTextUprightFromCenter(0,mCenterY - 15, "+", mHandPaint, canvas, null);
             }
