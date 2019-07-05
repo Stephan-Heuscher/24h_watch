@@ -9,7 +9,7 @@ Features
    * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
    * Switch between dark and light mode by tabbing the right (with "button")
-   * Minimal mode with no numbers (date or time), minimal status & notifications (+ at top for notifications)
+   * Minimal mode with no numbers (date or time), minimal status & notifications ("-,|,+" at top for notifications)
    * Turn minimal mode on/off by tabbing the left (with "button")
    * Display of next alarm and calendar events (+ 18h)
    * Display title of next calendar event 30 minutes before event

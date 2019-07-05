@@ -377,15 +377,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // buttons shown when active for switching dark and minimal mode on/off
             if(!isAmbient()){
                 float buttonRadius = mCenterX * 0.63f;
-                drawTextUprightFromCenter(82, buttonRadius,
+                drawTextUprightFromCenter(82 + mRotate, buttonRadius,
                         "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
-                drawTextUprightFromCenter(98, buttonRadius,
+                drawTextUprightFromCenter(98 + mRotate, buttonRadius,
                         "○", mHandPaint, canvas, isDarkMode() ? mBold : mLight);
                 // fill sun or mark moon
-                drawCircle(90 + (7* (isDarkMode() ?1:-1)), buttonRadius, canvas, 6, mHandPaint);
-                drawTextUprightFromCenter(278, buttonRadius,
+                drawCircle(90 + mRotate + (7* (isDarkMode() ?1:-1)), buttonRadius, canvas, 6, mHandPaint);
+                drawTextUprightFromCenter(278 - mRotate, buttonRadius,
                         "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
-                drawTextUprightFromCenter(262, buttonRadius,
+                drawTextUprightFromCenter(262 - mRotate, buttonRadius,
                         "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
             }
 
@@ -502,9 +502,18 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     }
                 }
             }
-            // draw top "plus" if things to show
+            // draw top if things to show
             if (mMinimalMode && specials.length() > 0) {
-                drawTextUprightFromCenter(0,mCenterY - 15, "+", mHandPaint, canvas, null);
+                String topNotification = "+";
+                if (specials.length() == 1) {
+                    if (specials.indexOf("Ø")>=0) {
+                        topNotification = "-";
+                    }
+                    else if (getUnreadCount()>0) {
+                        topNotification = "|";
+                    }
+                }
+                drawTextUprightFromCenter(0,mCenterY - 15, topNotification, mHandPaint, canvas, null);
             }
 
             mDimmingController.setLastDimm(lightFactor);
