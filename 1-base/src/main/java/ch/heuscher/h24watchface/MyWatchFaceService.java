@@ -258,27 +258,26 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 case WatchFaceService.TAP_TYPE_TAP:
                     if (y <= mCenterY / 2 ) {
                         // top
-                    }
-                    else if (x <= mCenterX / 2 ) {
-                        mMinimalMode = !mMinimalMode;
-                    }
-                    else if (x >= mCenterX / 2 * 3 ) {
-                        setDarkMode(!isDarkMode());
-                    }
-                    else if (y >= mCenterY / 2 * 3) {
                         mRotate = mRotate == 0 ? 180 : 0;
                     }
-                    else {
+                    else if (x <= mCenterX / 2 ) { // left
+                        mMinimalMode = !mMinimalMode;
+                    }
+                    else if (x >= mCenterX / 2 * 3 ) { // right
+                        setDarkMode(!isDarkMode());
+                    }
+                    else if (y >= mCenterY / 2 * 3) { // bottom
+
+                    }
+                    else { // center
                         mShowHours = !mShowHours;
                     }
-                    invalidate();
-                    break;
 
                 case WatchFaceService.TAP_TYPE_TOUCH:
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                 default:
                     super.onTapCommand(tapType, x, y, eventTime);
-                    break;
+                    invalidate();
             }
         }
 
@@ -503,17 +502,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // draw top if things to show
-            if (mMinimalMode && specials.length() > 0) {
+            if (specials.length() > 0) {
                 String topNotification = "+";
                 if (specials.length() == 1) {
                     if (specials.indexOf("Ø")>=0) {
-                        topNotification = "-";
+                        topNotification = "–";
                     }
                     else if (getUnreadCount()>0) {
-                        topNotification = "|";
+                        topNotification = "!";
                     }
                 }
-                drawTextUprightFromCenter(0,mCenterY - 15, topNotification, mHandPaint, canvas, null);
+                drawTextUprightFromCenter(0,mCenterY - 16, topNotification, mHandPaint, canvas, null);
             }
 
             mDimmingController.setLastDimm(lightFactor);
