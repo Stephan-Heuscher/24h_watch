@@ -367,9 +367,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 float hourTextSize = mHourPaint.getTextSize();
                 mHourPaint.setTextSize(70);
                 drawTextUprightFromCenter(180, 5.2f*mCenterY/8, minutesText, mHourPaint, canvas, mLight);
-/*                drawTextUprightFromCenter(180, 5.2f*mCenterY/8,
-                        minutesText.charAt(0) + " " + minutesText.charAt(1),
-                        mHourPaint, canvas, mLight); */
                 mHourPaint.setTextSize(hourTextSize);
             }
 
@@ -378,8 +375,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 float buttonRadius = mCenterX * 0.63f;
                 drawTextUprightFromCenter(82 + mRotate, buttonRadius,
                         "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
-                drawTextUprightFromCenter(98 + mRotate, buttonRadius,
-                        "○", mHandPaint, canvas, isDarkMode() ? mBold : mLight);
+                if (!isDarkMode()) {
+                    drawTextUprightFromCenter(98 + mRotate, buttonRadius,
+                            "○", mHandPaint, canvas, mLight);
+                }
                 // fill sun or mark moon
                 drawCircle(90 + mRotate + (7* (isDarkMode() ?1:-1)), buttonRadius, canvas, 6, mHandPaint);
                 drawTextUprightFromCenter(278 - mRotate, buttonRadius,
@@ -454,11 +453,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float currentY = mCenterY - hourTextDistance;
             String topText = mMinimalMode ? "" : (new SimpleDateFormat("E", Locale.GERMAN).format(date) + specials);
             topText = isCountdownActive ? countDownTime : topText;
-            if (active && mMinimalMode && topText.length() > 0) {
-                currentY = getNextLine(currentY);
-            }
             drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
-
             currentY = getNextLine(currentY);
             // Datum
             if (!mMinimalMode) {
