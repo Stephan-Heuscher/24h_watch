@@ -395,7 +395,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawCircle(0, 0, canvas,
                         mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
             }
-            if (batteryCharge <= 50) {
+            if (batteryCharge <= 50 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * mHourHandLength) / 100f,
                         canvas, mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
@@ -506,6 +506,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     else if (getUnreadCount()>0) {
                         topNotification = "!";
                     }
+                    else if (getNotificationCount()>0) {
+                        topNotification = "¡";
+                    }
                 }
                 drawTextUprightFromCenter(0,mCenterY - 16, topNotification, mHandPaint, canvas, null);
             }
@@ -516,9 +519,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
             String specials = "" + (mDebug != null ? mDebug : "");
             try {
-                if (batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0  ) {
-                    specials += "↯";
-                }
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 if (wifiManager != null && wifiManager.isWifiEnabled()) {
                     specials += "W";
@@ -527,7 +527,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     specials += "⚠";
                 }
                 else if (getNotificationCount() > 0) { // oder noch andere
-                    specials += "¿";
+                    specials += "¡";
                 }
                 if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
                     specials += "Ø";

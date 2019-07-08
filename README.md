@@ -9,16 +9,16 @@ Features
    * Dark mode with minimized light emission (dimming controlled by light sensor)
    * Light mode with extra big numbers
    * Switch between dark and light mode by tabbing the right (with "button")
-   * Minimal mode with no numbers (date or time), minimal status & notifications ("–,!,+" at top for 
-   silent, notification and/or more status information)
+   * Minimal mode with no numbers (date or time), minimal status & notifications ("–,¡,!,+" at top for 
+   silent, notification, unread and/or more status information)
    * Turn minimal mode on/off by tabbing the left (with "button")
    * Display of next alarm and calendar events (+ 18h)
    * Display title of next calendar event 30 minutes before event
    * Display of time to and time during calendar events (+ 30 minutes before)
    * Display of ISO date and german day
    * Toggling display by 180° by tabbing the bottom
-   * Display of status information at the top of the watch face:  ↯: Charging -- W: Wifi enabled
-   -- ⚠: Unread notifications -- ¿: Active notifications -- Ø: Do not disturb -- ✈: Flight mode
+   * Display of status information at the top of the watch face:  W: Wifi enabled
+   -- ⚠: Unread notifications -- ¡: Active notifications -- Ø: Do not disturb -- ✈: Flight mode
    -- #: No internet connection -- ⌖: GPS enabled
    * Remaining time on countdown timer on bottom (works cleanly for timers of less than ten hours)
    * Battery fill is shown as black dot in the hour hand on battery < 50% 
