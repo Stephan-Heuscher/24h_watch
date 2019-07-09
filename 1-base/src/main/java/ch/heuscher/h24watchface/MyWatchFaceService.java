@@ -403,7 +403,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
-            String specials = getSpecials(batteryManager, canvas);
+            String specials = getSpecials(canvas);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             Date date = mCalendar.getTime();
@@ -492,26 +492,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // draw top if things to show
-            if (specials.length() > 0) {
-                String topNotification = "+";
-                if (specials.length() == 1) {
-                    if (specials.indexOf("Ø")>=0) {
-                        topNotification = "–";
-                    }
-                    else if (getUnreadCount()>0) {
-                        topNotification = "!";
-                    }
-                    else if (getNotificationCount()>0) {
-                        topNotification = "¡";
-                    }
-                }
-                drawTextUprightFromCenter(0,mCenterY - 16, topNotification, mHandPaint, canvas, null);
-            }
+            String[] topNotificationValues = new String[]{"", specials, "+"};
+            drawTextUprightFromCenter(0,mCenterY - 16,
+                    topNotificationValues[Math.min(2,specials.length())], mHandPaint, canvas, null);
 
             mDimmingController.setLastDimm(lightFactor);
         }
 
-        private String getSpecials(BatteryManager batteryManager, Canvas canvas) {
+        private String getSpecials(Canvas canvas) {
             String specials = "" + (mDebug != null ? mDebug : "");
             try {
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -519,13 +507,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     specials += "W";
                 }
                 if (getUnreadCount() > 0) { // entweder ungelesene
-                    specials += "⚠";
+                    specials += "!";
                 }
                 else if (getNotificationCount() > 0) { // oder noch andere
-                    specials += "¡";
+                    specials += "i";
                 }
                 if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
-                    specials += "Ø";
+                    specials += "–";
                 }
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
                     specials += "✈";
@@ -534,7 +522,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     ConnectivityManager connectivityManager =(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                     Network activeNetwork = connectivityManager.getActiveNetwork();
                     if (activeNetwork == null) {
-                        specials += "#";
+                        specials += "X";
                     }
                 }
                 LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
