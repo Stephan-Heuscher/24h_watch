@@ -446,7 +446,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Y für textzeilen
             float currentY = mCenterY - hourTextDistance;
-            String topText = mMinimalMode ? "" : (new SimpleDateFormat("E", Locale.GERMAN).format(date) + specials);
+            String topText = new SimpleDateFormat("E", Locale.GERMAN).format(date) +
+                    (specials.length()>1 ? specials : ""); // hide specials if displayed on top
+            topText = mMinimalMode ? "" : topText;
             topText = isCountdownActive ? countDownTime : topText;
             drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
