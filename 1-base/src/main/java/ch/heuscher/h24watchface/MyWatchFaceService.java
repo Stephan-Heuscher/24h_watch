@@ -492,7 +492,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
             // draw top if things to show
-            String[] topNotificationValues = new String[]{"", specials, "+"};
+            String[] topNotificationValues = {"", specials, "+"};
             drawTextUprightFromCenter(0,mCenterY - 16,
                     topNotificationValues[Math.min(2,specials.length())], mHandPaint, canvas, null);
 
