@@ -50,7 +50,9 @@ public class DimmingController implements SensorEventListener {
         mLux = event.values[0];
         setNextDimm(computeLightFactor(mLux));
         if (mWakeLock != null && !needsBoost()) {
-            mWakeLock.release();
+            if (mWakeLock.isHeld()) {
+                mWakeLock.release();
+            }
             mWakeLock = null;
         }
         else if (mWakeLock == null && needsBoost()) {
