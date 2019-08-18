@@ -407,6 +407,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             Date date = mCalendar.getTime();
+            if(specials.length() == 0  && mMinimalMode){
+                writeHour(canvas, hourTextDistance,24, false);
+            }
             for (int i = 2; active && i <= 24 - 2 * Math.min(1,specials.length()); i = i + 2) {
                 boolean writeNumber = mShowHours && (mMinimalMode || (i != 24 && i != 2 && i != 12 && i != 22));
                 writeHour(canvas, hourTextDistance,i, writeNumber);
@@ -515,8 +518,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 else if (getNotificationCount() > 0) { // oder noch andere
                     specials += "i";
                 }
-                if (getInterruptionFilter() == INTERRUPTION_FILTER_PRIORITY) {
-                    specials += "‒";
+                if (getInterruptionFilter() != INTERRUPTION_FILTER_PRIORITY) {
+                    specials += "<";
                 }
                 if (Settings.Global.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
                     specials += ">";
