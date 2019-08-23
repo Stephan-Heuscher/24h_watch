@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.PowerManager;
+import android.util.TimeUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -19,6 +20,7 @@ public class DimmingController implements SensorEventListener {
     private PowerManager.WakeLock mWakeLock;
     private Sensor mLight;
     private boolean mIsRegistered = false;
+    private long mLastSensorChangeTime = 0;
 
     private float mLux = 100f;
     private Float mNextDimm = 1f;
@@ -26,6 +28,12 @@ public class DimmingController implements SensorEventListener {
     private float mMinLuminance = DEFAULT_MIN_LUMINANCE;
 
     public float getLux() {
+        // Check if long time no upgrade, but should --> re-register
+        if (mIsRegistered &&
+                System.currentTimeMillis() - mLastSensorChangeTime > TimeUnit.SECONDS.toMillis(65)) {
+            selfUnregister();
+            selfRegister();
+        }
         return mLux;
     }
 
@@ -46,6 +54,7 @@ public class DimmingController implements SensorEventListener {
     public final void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() != Sensor.TYPE_LIGHT)
             return;
+        mLastSensorChangeTime = System.currentTimeMillis();
         // The light sensor returns a single value.
         mLux = event.values[0];
         setNextDimm(computeLightFactor(mLux));
