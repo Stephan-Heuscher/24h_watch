@@ -273,12 +273,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     else { // center
                         mShowHours = !mShowHours;
                     }
-
-                case WatchFaceService.TAP_TYPE_TOUCH:
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
+                    invalidate();
+                case WatchFaceService.TAP_TYPE_TOUCH:
                 default:
                     super.onTapCommand(tapType, x, y, eventTime);
-                    invalidate();
             }
         }
 
