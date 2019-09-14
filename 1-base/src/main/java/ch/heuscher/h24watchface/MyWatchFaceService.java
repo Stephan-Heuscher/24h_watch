@@ -365,8 +365,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 // Minuten unten schreiben
                 String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
                 float hourTextSize = mHourPaint.getTextSize();
-                mHourPaint.setTextSize(70);
-                drawTextUprightFromCenter(180, 6f*mCenterY/8, minutesText, mHourPaint, canvas, mLight);
+                mHourPaint.setTextSize(mCenterY/2);
+                drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mHourPaint, canvas, mLight);
                 mHourPaint.setTextSize(hourTextSize);
             }
 
