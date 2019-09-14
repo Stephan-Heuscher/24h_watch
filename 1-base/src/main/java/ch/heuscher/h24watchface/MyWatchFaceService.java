@@ -165,6 +165,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHandPaint.setStrokeCap(Paint.Cap.ROUND);
             mHandPaint.setTextSize(TEXT_SIZE);
             mHandPaint.setTypeface(mNormal);
+            mHandPaint.setShadowLayer(10,0,0,Color.BLACK);
 
             mHourPaint = new Paint();
             mHourPaint.setAntiAlias(true);
@@ -358,6 +359,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         mBackgroundPaint);
                 // nochmals den Umriss nachziehen
                 mHourPaint.setStyle(Paint.Style.STROKE);
+                mHourPaint.setAlpha(255);
                 drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                         mHourPaint, canvas, null);
 
