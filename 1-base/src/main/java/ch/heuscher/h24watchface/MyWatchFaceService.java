@@ -387,14 +387,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
             }
 
-            drawLineFromCenter(hoursRotation, 0, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-            if (!isDarkMode()) {
-                mHandPaint.setStrokeWidth(mHandPaint.getStrokeWidth()*2);
-                drawCircle(0, 0, canvas,
-                        mHandPaint.getStrokeWidth(), mHandPaint);
-                drawCircle(0, 0, canvas,
-                        mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
-            }
+            drawLineFromCenter(hoursRotation, -40, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             if (batteryCharge <= 50 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * (mCenterX+RAND_RESERVE)) / 100f,
