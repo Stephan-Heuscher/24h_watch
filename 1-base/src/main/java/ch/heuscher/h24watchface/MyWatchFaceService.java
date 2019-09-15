@@ -92,6 +92,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private Paint mBackgroundPaint;
         private Paint mHandPaint;
         private Paint mHourPaint;
+        private Paint mMinutesPaint;
 
         private Typeface mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
         private Typeface mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
@@ -165,10 +166,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHandPaint.setStrokeCap(Paint.Cap.ROUND);
             mHandPaint.setTextSize(TEXT_SIZE);
             mHandPaint.setTypeface(mNormal);
-            mHandPaint.setShadowLayer(10,0,0,Color.BLACK);
+            mHandPaint.setShadowLayer(8,0,0,Color.BLACK);
 
             mHourPaint = new Paint();
             mHourPaint.setAntiAlias(true);
+
+            mMinutesPaint = new Paint();
+            mMinutesPaint.setAntiAlias(true);
+            mMinutesPaint.setShadowLayer(8,0,0,Color.BLACK);
 
             mCalendar = Calendar.getInstance();
 
@@ -250,6 +255,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
              */
             mHourHandLength = mCenterX - RAND_RESERVE - 7;
             mHourPaint.setTextSize(mHeight);
+            mMinutesPaint.setTextSize(mCenterY/3);
         }
 
         @Override
@@ -324,11 +330,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mHandPaint.setColor(handPaintColor);
             mHourPaint.setColor(handPaintColor);
+            mMinutesPaint.setColor(handPaintColor);
 
             // Light typeface if there's enough light
             mHandPaint.setTypeface(isDarkMode() && lightFactor > DimmingController.VERY_DARK ? mLight : mNormal);
 
-            mHourPaint.setStyle(Paint.Style.FILL);
             float strokeWidth = 6;
             int alphaHour = 160;
             Typeface typeface = mBold;
@@ -338,11 +344,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 typeface = lightFactor < DimmingController.VERY_DARK ? mLight : mNormal;
             }
             mHourPaint.setTypeface(typeface);
+            mMinutesPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
+            mMinutesPaint.setStrokeWidth(strokeWidth);
             mHourPaint.setAlpha(alphaHour);
 
             if (!mMinimalMode) {
                 String hourText = "" + hour;//(int)(Math.random()*25);//
+                mHourPaint.setStyle(Paint.Style.FILL);
                 Rect boundsText = new Rect();
                 mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
                 float textSize = boundsText.height();
@@ -364,10 +373,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
                 // Minuten unten schreiben
                 String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
-                float hourTextSize = mHourPaint.getTextSize();
-                mHourPaint.setTextSize(mCenterY/2);
-                drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mHourPaint, canvas, mLight);
-                mHourPaint.setTextSize(hourTextSize);
+                drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
             }
 
             // buttons shown when active for switching dark and minimal mode on/off
