@@ -16,11 +16,11 @@ Features
    * Display title of next calendar event 30 minutes before event
    * Display of time to and time during calendar events (+ 30 minutes before)
    * Display of ISO date and german day
-   * Toggling display by 180° by tabbing the bottom
+   * Toggling display by 180° by tabbing the top
    * Display of status information at the top of the watch face (if more than one info):  W: Wifi enabled
    -- !: Unread notifications -- i: Active notifications -- <: Not silenced -- >: Flight mode
    -- X: No internet connection -- ⌖: GPS enabled 
-   * Remaining time on countdown timer on bottom (works cleanly for timers of less than ten hours)
+   * Remaining time on countdown timer on top (works cleanly for timers of less than ten hours)
    * Battery fill is shown as black dot in the hour hand on battery < 50% 
    
 Next ideas
