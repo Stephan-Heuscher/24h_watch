@@ -129,7 +129,4 @@ public class DimmingController implements SensorEventListener {
         return mMinLuminance;
     }
 
-    public void setMinLuminance(float mMinLuminance) {
-        this.mMinLuminance = mMinLuminance;
-    }
 }
