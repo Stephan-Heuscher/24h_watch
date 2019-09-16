@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class DimmingController implements SensorEventListener {
     public static final float VERY_DARK = 0.3f;
-    public static final float DEFAULT_MIN_LUMINANCE = 0.08f;
+    public static final float DEFAULT_MIN_LUMINANCE = 0.066f;
     public static final float BOOST_MINIMUM_LUX = 100f;
     private MyWatchFaceService.Engine mEngine;
     private SensorManager mSensorManager;
