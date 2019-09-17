@@ -6,22 +6,22 @@ A 24h watchface for my needs (Huawei Watch 2).  Codelab see https://watchface-co
 Features
 --------
    * 24h watch with 24:00h at top - no minute hand
-   * Dark mode with minimized light emission (dimming controlled by light sensor)
-   * Light mode with extra big numbers
+   * Dark mode with minimized light emission (dimming controlled by light sensor of the watch)
+   * Light mode with extra big numbers (hour-number filled relative to minutes in hour passed)
    * Switch between dark and light mode by tabbing the right (with "button")
    * Minimal mode with no numbers (date or time), minimal status & notifications (status at top if
    only one status info, else "+" for more
    * Turn minimal mode on/off by tabbing the left (with "button")
-   * Display of next alarm and calendar events (+ 18h)
+   * Display of next alarm and calendar events (18h in future)
    * Display title of next calendar event 30 minutes before event
-   * Display of time to and time during calendar events (+ 30 minutes before)
+   * Display of time to and time during calendar events (30 minutes before)
    * Display of ISO date and german day
    * Toggling display by 180° by tabbing the top
    * Display of status information at the top of the watch face (if more than one info):  W: Wifi enabled
    -- !: Unread notifications -- i: Active notifications -- <: Not silenced -- >: Flight mode
    -- X: No internet connection -- ⌖: GPS enabled 
    * Remaining time on countdown timer on top (works cleanly for timers of less than ten hours)
-   * Battery fill is shown as black dot in the hour hand on battery < 50% 
+   * Battery fill is shown as black dot in the hour hand if battery < 50% 
    
 Next ideas
 --------
