@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/1-base/1-base.iml" filepath="$PROJECT_DIR$/1-base/1-base.iml" />
-      <module fileurl="file://$PROJECT_DIR$/2019_24h_watch.iml" filepath="$PROJECT_DIR$/2019_24h_watch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/24h_watch.iml" filepath="$PROJECT_DIR$/24h_watch.iml" />
     </modules>
   </component>
 </project>
