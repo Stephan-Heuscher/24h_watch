@@ -263,21 +263,20 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 @TapType int tapType, int x, int y, long eventTime) {
             switch (tapType) {
                 case WatchFaceService.TAP_TYPE_TAP:
-                    if (y <= mHeight / 3 ) {
-                        // top
-                        mRotate = mRotate == 0 ? 180 : 0;
-                    }
-                    else if (x <= mWidth / 3 ) { // left
+                    if (y <= mHeight / 3 ) { // top
                         setDarkMode(!isDarkMode());
                     }
+                    else if (x <= mWidth / 3 ) { // left
+                        mShowHours = !mShowHours;
+                    }
                     else if (x >= mWidth / 3 * 2 ) { // right
-                        mMinimalMode = !mMinimalMode;
+                        mShowHours = !mShowHours;
                     }
                     else if (y >= mHeight / 3 * 2) { // bottom
-
+                        mRotate = mRotate == 0 ? 180 : 0;
                     }
                     else { // center
-                        mShowHours = !mShowHours;
+                        mMinimalMode = !mMinimalMode;
                     }
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     invalidate();
@@ -376,33 +375,24 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
             }
 
-            // buttons shown when active for switching dark and minimal mode on/off
+            // buttons shown when active for switching dark mode and numbers on/off
             if(!isAmbient()){
-                float buttonRadius = mCenterX * 0.5f;
+                float buttonRadius = mCenterX / 2;
                 if (!isDarkMode()) {
-                    drawTextUprightFromCenter(270 - mRotate, buttonRadius,
-                            "☼", mHandPaint, canvas, mBold);
-                    // fill sun or mark moon
-                    drawCircle(270 - mRotate - 1, buttonRadius, canvas, 6, mHandPaint);
+                    drawTextUprightFromCenter(mRotate, buttonRadius,"☼", mHandPaint, canvas, mBold);
+                    drawCircle(mRotate, buttonRadius - 1, canvas, 6, mHandPaint);
                 }
                 else {
-                    drawTextUprightFromCenter(270 - mRotate, buttonRadius,
-                            "○", mHandPaint, canvas, mLight);
+                    drawTextUprightFromCenter(mRotate, buttonRadius,"○", mHandPaint, canvas, mLight);
                 }
-                // minimal Mode
-                if (mMinimalMode)
-                {
-                    drawTextUprightFromCenter(90 + mRotate, buttonRadius,
-                            "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
-                }
-                else {
-                    drawTextUprightFromCenter(90 + mRotate, buttonRadius,
-                            "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
-                }
+                drawTextUprightFromCenter(270, hourTextDistance,
+                        "18", mHandPaint, canvas, mShowHours ? mBold : mLight);
+                drawTextUprightFromCenter(90, hourTextDistance,
+                        "6", mHandPaint, canvas, mShowHours ? mBold : mLight);
             }
 
             drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-            if (batteryCharge <= 50 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
+            if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * (mCenterX+RAND_RESERVE)) / 100f,
                         canvas, mHandPaint.getStrokeWidth()/2, mBackgroundPaint);

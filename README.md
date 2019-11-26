@@ -8,20 +8,21 @@ Features
    * 24h watch with 24:00h at top - no minute hand
    * Dark mode with minimized light emission (dimming controlled by light sensor of the watch)
    * Light mode with extra big numbers (hour-number filled relative to minutes in hour passed)
-   * Switch between dark and light mode by tabbing the left (with "button")
+   * Switch between dark and light mode by tabbing the top (with "button")
    * Minimal mode with no numbers (date or time), minimal status & notifications (status at top if
    only one status info, else "+" for more
-   * Turn minimal mode on/off by tabbing the right (with "button")
+   * Turn minimal mode on/off by tabbing the middle (no "button" shown)
    * Display of next alarm and calendar events (18h in future)
    * Display title of next calendar event 30 minutes before event
    * Display of time to and time during calendar events (30 minutes before)
    * Display of ISO date and german day
-   * Toggling display by 180° by tabbing the top
+   * Toggling display by 180° by tabbing the bottom
    * Display of status information at the top of the watch face (if more than one info):  W: Wifi enabled
    -- !: Unread notifications -- i: Active notifications -- <: Not silenced -- >: Flight mode
    -- X: No internet connection -- ⌖: GPS enabled 
    * Remaining time on countdown timer on top (works cleanly for timers of less than ten hours)
-   * Battery fill is shown as black dot in the hour hand if battery < 50% 
+   * Turn on/off numbers of watch by tabbing right or left (numbers as buttons), numbers are never shown in dark mode)
+   * Battery fill is shown as black dot in the hour hand if battery < 37% 
    
 Next ideas
 --------
