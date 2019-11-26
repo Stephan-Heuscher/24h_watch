@@ -379,19 +379,26 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // buttons shown when active for switching dark and minimal mode on/off
             if(!isAmbient()){
                 float buttonRadius = mCenterX * 0.5f;
-                drawTextUprightFromCenter(283 - mRotate, buttonRadius,
-                        "☼" , mHandPaint, canvas, isDarkMode() ? mLight : mBold );
                 if (!isDarkMode()) {
-                    drawTextUprightFromCenter(257 - mRotate, buttonRadius,
+                    drawTextUprightFromCenter(270 - mRotate, buttonRadius,
+                            "☼", mHandPaint, canvas, mBold);
+                    // fill sun or mark moon
+                    drawCircle(270 - mRotate - 1, buttonRadius, canvas, 6, mHandPaint);
+                }
+                else {
+                    drawTextUprightFromCenter(270 - mRotate, buttonRadius,
                             "○", mHandPaint, canvas, mLight);
                 }
-                // fill sun or mark moon
-                drawCircle(270 - mRotate + (12* (isDarkMode() ?-1:1)), buttonRadius, canvas, 6, mHandPaint);
                 // minimal Mode
-                drawTextUprightFromCenter(77 + mRotate, buttonRadius,
-                        "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
-                drawTextUprightFromCenter(103 + mRotate, buttonRadius,
-                        "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
+                if (mMinimalMode)
+                {
+                    drawTextUprightFromCenter(90 + mRotate, buttonRadius,
+                            "0", mHandPaint, canvas, mMinimalMode ? mBold : mLight);
+                }
+                else {
+                    drawTextUprightFromCenter(90 + mRotate, buttonRadius,
+                            "1", mHandPaint, canvas, mMinimalMode ? mLight : mBold );
+                }
             }
 
             drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
@@ -450,16 +457,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Y für textzeilen
             float currentY = mCenterY - hourTextDistance;
-            String topText = new SimpleDateFormat("E", Locale.GERMAN).format(date) +
-                    (specials.length()>1 ? specials : ""); // hide specials if displayed on top
+            String topText = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
             topText = mMinimalMode ? "" : topText;
             topText = isCountdownActive ? countDownTime : topText;
             drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
             // Datum
             if (!mMinimalMode) {
-                String dateDate = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
-                drawTextUprightFromCenter(0,mCenterY - currentY, dateDate, mHandPaint, canvas, null);
+                String dayInfo = new SimpleDateFormat("E", Locale.GERMAN).format(date) +
+                        (specials.length()>1 ? specials : ""); // hide specials if displayed on top
+                drawTextUprightFromCenter(0,mCenterY - currentY, dayInfo, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
             }
 
