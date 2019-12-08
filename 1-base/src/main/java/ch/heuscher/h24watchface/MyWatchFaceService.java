@@ -289,7 +289,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             canvas.rotate(mRotate, mCenterX, mCenterY);
-            float hourTextDistance = mCenterX * 0.8f;
+            float hourTextDistance = mCenterX * 0.9f;
             boolean active = !(isAmbient() || isDarkMode());
             setLastDraw(System.currentTimeMillis());
             mCalendar.setTimeInMillis(getLastDraw());
@@ -385,10 +385,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 else {
                     drawTextUprightFromCenter(mRotate, buttonRadius,"○", mHandPaint, canvas, mLight);
                 }
-                drawTextUprightFromCenter(270, hourTextDistance,
-                        "18", mHandPaint, canvas, mShowHours ? mBold : mLight);
-                drawTextUprightFromCenter(90, hourTextDistance,
-                        "6", mHandPaint, canvas, mShowHours ? mBold : mLight);
+                if (!isDarkMode()) {
+                    drawTextUprightFromCenter(270, hourTextDistance,
+                            "18", mHandPaint, canvas, mShowHours ? mBold : mLight);
+                    drawTextUprightFromCenter(90, hourTextDistance,
+                            "6", mHandPaint, canvas, mShowHours ? mBold : mLight);
+                }
             }
 
             drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
@@ -404,12 +406,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             Date date = mCalendar.getTime();
-            if(specials.length() == 0  && mMinimalMode){
-                writeHour(canvas, hourTextDistance,24, false);
+            if(!active && specials.length() == 0  && mMinimalMode){
+                writeHour(canvas, hourTextDistance,24, false, true);
             }
-            for (int i = 2; active && i <= 24 - 2 * Math.min(1,specials.length()); i = i + 2) {
-                boolean writeNumber = mShowHours && (mMinimalMode || (i != 24 && i != 2 && i != 12 && i != 22));
-                writeHour(canvas, hourTextDistance,i, writeNumber);
+            for (int i = 1; active && i <= 24 - 1 * Math.min(1,specials.length()); i++) {
+                boolean writeNumber = mShowHours && i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
+                writeHour(canvas, hourTextDistance, i, writeNumber, i % 2 == 1);
             }
 
             float alarmDistanceFromCenter = mHourHandLength;
@@ -446,7 +448,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
 
             // Y für textzeilen
-            float currentY = mCenterY - hourTextDistance;
+            float currentY = mCenterY - mCenterX * 0.8f;
             String topText = new SimpleDateFormat("YYYY-MM-dd", Locale.GERMAN).format(date);
             topText = mMinimalMode ? "" : topText;
             topText = isCountdownActive ? countDownTime : topText;
@@ -539,11 +541,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             return specials;
         }
 
-        private void writeHour(Canvas canvas, float radiusCenter, int hour, boolean writeNumber) {
-            writeHour(canvas, radiusCenter, hour, ""+hour, writeNumber);
+        private void writeHour(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean writeMarker) {
+            writeHour(canvas, radiusCenter, hour, ""+hour, writeNumber, writeMarker);
         }
 
-        private void writeHour(Canvas canvas, float radiusCenter, int hour, String hourText, boolean writeNumber) {
+        private void writeHour(Canvas canvas, float radiusCenter, int hour, String hourText,
+                                boolean writeNumber, boolean writeMarker) {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
             float dotDistance = mHourHandLength;
@@ -552,12 +555,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         hourText, mHandPaint, canvas, null);
             }
-            drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
-            // black dot in the middle
-            Float nextDimmObject = mDimmingController.getNextDimm();
-            float nextDimm = nextDimmObject == null ? 1 : nextDimmObject;
-            drawCircle(degreesFromNorth, dotDistance, canvas,
-                    isDarkMode() && nextDimm < DimmingController.VERY_DARK ? 3 : 2, mBackgroundPaint);
+            if (writeMarker) {
+                drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
+                // black dot in the middle
+                Float nextDimmObject = mDimmingController.getNextDimm();
+                float nextDimm = nextDimmObject == null ? 1 : nextDimmObject;
+                drawCircle(degreesFromNorth, dotDistance, canvas,
+                        isDarkMode() && nextDimm < DimmingController.VERY_DARK ? 3 : 2, mBackgroundPaint);
+            }
         }
 
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
