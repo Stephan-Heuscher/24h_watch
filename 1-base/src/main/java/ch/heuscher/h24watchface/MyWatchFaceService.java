@@ -87,7 +87,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         };
 
         private boolean mRegisteredReceivers = false;
-        private static final float STROKE_WIDTH = 1f;
+        private static final float STROKE_WIDTH = 2f;
         private Calendar mCalendar;
         private Paint mBackgroundPaint;
         private Paint mHandPaint;
@@ -332,7 +332,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mMinutesPaint.setColor(handPaintColor);
 
             // Light typeface if there's enough light
-            mHandPaint.setTypeface(isDarkMode() && lightFactor > DimmingController.VERY_DARK ? mLight : mNormal);
+            boolean betterReadableInDarkMode = isDarkMode() && lightFactor <= DimmingController.VERY_DARK;
+            mHandPaint.setTypeface(betterReadableInDarkMode ? mNormal : mLight);
+            mHandPaint.setStrokeWidth(STROKE_WIDTH * (betterReadableInDarkMode ? 2 : 1));
 
             float strokeWidth = 6;
             int alphaHour = 160;
@@ -399,7 +401,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawCircle(hoursRotation, (batteryCharge * (mCenterX+RAND_RESERVE)) / 100f,
                         canvas, mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
             }
-            mHandPaint.setStrokeWidth(STROKE_WIDTH*2);
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(canvas);
