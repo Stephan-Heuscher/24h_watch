@@ -333,7 +333,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Light typeface if there's enough light
             boolean betterReadableInDarkMode = isDarkMode() && lightFactor <= DimmingController.VERY_DARK;
-            mHandPaint.setTypeface(betterReadableInDarkMode ? mNormal : mLight);
+            mHandPaint.setTypeface((!isDarkMode() || betterReadableInDarkMode) ? mNormal : mLight);
             mHandPaint.setStrokeWidth(STROKE_WIDTH * (betterReadableInDarkMode ? 2 : 1));
 
             float strokeWidth = 6;
