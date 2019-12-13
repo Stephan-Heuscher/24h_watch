@@ -412,7 +412,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             for (int i = 1; active && i <= 24 - 1 * Math.min(1,specials.length()); i++) {
                 boolean writeNumber = mShowHours && i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
-                writeHour(canvas, hourTextDistance, i, writeNumber, i % 2 == 1);
+                writeHour(canvas, hourTextDistance, i, writeNumber, !writeNumber);
             }
 
             float alarmDistanceFromCenter = mHourHandLength;
