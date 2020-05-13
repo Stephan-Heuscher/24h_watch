@@ -30,6 +30,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -53,6 +56,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -86,6 +91,33 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
         };
 
+        private int mSteps = 0; //very ugly hack
+        private int mStepsAtMidnight = 0;
+        private final SensorEventListener mStepCounterListener = new SensorEventListener() {
+            private LocalDateTime lastStepDateTime = LocalDateTime.now();
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
+                 /* from https://github.com/android/sensors-samples/blob/master/BatchStepSensor/Application/src/main/java/com/example/android/batchstepsensor/BatchStepSensorFragment.java
+                A step counter event contains the total number of steps since the listener
+                was first registered. We need to keep track of this initial value to calculate the
+                number of steps taken, as the first value a listener receives is undefined.
+                 */
+                    mSteps = (int) event.values[0];
+                    LocalDateTime currentStepDateTime = LocalDateTime.now();
+                    if (Duration.between(currentStepDateTime, lastStepDateTime).toDays() != 0){
+                        mStepsAtMidnight = mSteps;
+                    }
+                    lastStepDateTime = currentStepDateTime;
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) {
+                // ignore
+            }
+        };
+
         private boolean mRegisteredReceivers = false;
         private static final float STROKE_WIDTH = 2f;
         private Calendar mCalendar;
@@ -113,6 +145,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private int mCompilationId = 1974;
         private long mLastReadCountdownTime;
         private LocalTime mLastCountdownTime;
+
+        private SensorManager mSystemService;
+        private Sensor mStepCounter;
 
         private String mDebug = null;
 
@@ -149,11 +184,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     setShowUnreadCountIndicator(true). // so dass Unread-Punkt nicht mehr sichtbar
                     setHideStatusBar(true).build());
 
+            mSystemService = (SensorManager) getSystemService(SENSOR_SERVICE);
+            mStepCounter = mSystemService.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+
             mDimmingController = new DimmingController(
                     this,
                     getBaseContext(),
                     (PowerManager) getSystemService(POWER_SERVICE),
-                    (SensorManager) getSystemService(SENSOR_SERVICE));
+                    mSystemService);
             setDarkMode(true);
 
             mBackgroundPaint = new Paint();
@@ -226,6 +264,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         public void onTimeTick() {
             super.onTimeTick();
             invalidate();
+
         }
 
         @Override
@@ -376,6 +415,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
                 drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
             }
+            else {
+                // Steps schreiben nur im Minimal Modus
+                drawTextUprightFromCenter(0, 0, "" + (mSteps - mStepsAtMidnight), mHandPaint, canvas, mLight);
+            }
+
 
             // buttons shown when active for switching dark mode and numbers on/off
             if(!isAmbient()){
@@ -623,6 +667,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredReceivers = true;
             IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+            mSystemService.registerListener(mStepCounterListener, mStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
             MyWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
         }
 
@@ -632,6 +677,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredReceivers = false;
+            mSystemService.unregisterListener(mStepCounterListener);
             MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
