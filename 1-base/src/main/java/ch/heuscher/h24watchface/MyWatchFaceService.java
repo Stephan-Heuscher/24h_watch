@@ -17,7 +17,6 @@
 package ch.heuscher.h24watchface;
 
 import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentUris;
@@ -54,9 +53,8 @@ import android.view.SurfaceHolder;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -103,11 +101,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 was first registered. We need to keep track of this initial value to calculate the
                 number of steps taken, as the first value a listener receives is undefined.
                  */
-                    mSteps = (int) event.values[0];
                     LocalDateTime currentStepDateTime = LocalDateTime.now();
-                    if (Duration.between(currentStepDateTime, lastStepDateTime).toDays() != 0){
+                    // If the day changes, store current step count
+                    if ((currentStepDateTime.getDayOfYear() - lastStepDateTime.getDayOfYear()) != 0){
                         mStepsAtMidnight = mSteps;
                     }
+                    mSteps = (int) event.values[0];
                     lastStepDateTime = currentStepDateTime;
                 }
             }
@@ -414,12 +413,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 // Minuten unten schreiben
                 String minutesText = new SimpleDateFormat("mm", Locale.GERMAN).format(mCalendar.getTime());
                 drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
-            }
-            else {
-                // Steps schreiben nur im Minimal Modus
-                drawTextUprightFromCenter(0, 0, "" + (mSteps - mStepsAtMidnight), mHandPaint, canvas, mLight);
-            }
 
+                // Anzahl Schritte schreiben (heute und total)
+                if(!isAmbient()) {
+                    NumberFormat formatter = NumberFormat.getNumberInstance(Locale.forLanguageTag("de-CH"));
+                    drawTextUprightFromCenter(180, mCenterY / 3 * 1.2f, (formatter.format(mSteps - mStepsAtMidnight) + " " +
+                            formatter.format(mSteps)), mHandPaint, canvas, null);
+                }
+            }
 
             // buttons shown when active for switching dark mode and numbers on/off
             if(!isAmbient()){
