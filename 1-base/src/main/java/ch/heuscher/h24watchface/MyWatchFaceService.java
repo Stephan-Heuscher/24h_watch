@@ -107,8 +107,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 number of steps taken, as the first value a listener receives is undefined.
                  */
                     LocalDateTime currentStepDateTime = LocalDateTime.now();
-                    // If the day changes, store current step count
-                    if ((currentStepDateTime.getDayOfYear() - lastStepDateTime.getDayOfYear()) != 0){
+                    // After init and if the day changes, store current step count
+                    if (mStepsAtMidnight == 0 || (currentStepDateTime.getDayOfYear() - lastStepDateTime.getDayOfYear()) != 0){
                         mStepsAtMidnight = mSteps;
                     }
                     mSteps = (int) event.values[0];
