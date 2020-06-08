@@ -20,6 +20,7 @@ Features
    * Remaining time on countdown timer on top (works cleanly for timers of less than ten hours)
    * Turn on/off numbers of watch by tabbing right or left (numbers as buttons), numbers are never shown in dark mode)
    * Battery fill is shown as black dot in the hour hand if battery < 37% 
+   * Color-wheel for hour display
    
 Next ideas
 --------

@@ -94,7 +94,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
         };
 
-        private int mSteps = 0; //very ugly hack
+        private int mSteps = 0; //very ugly hack (shared variables)
         private int mStepsAtMidnight = 0;
         private final SensorEventListener mStepCounterListener = new SensorEventListener() {
             private LocalDateTime lastStepDateTime = LocalDateTime.now();
@@ -444,7 +444,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
+            mHandPaint.setColor(getColorDegrees(hoursRotation));
             drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            mHandPaint.setColor(handPaintColor);
             if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * (mCenterX+RAND_RESERVE)) / 100f,
@@ -601,6 +603,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float degreesFromNorth = hour * rotatePerHour;
             float dotDistance = mHourHandLength;
 
+            int handColor = mHandPaint.getColor();
+            mHandPaint.setColor(getColorDegrees(degreesFromNorth));
+
             if (writeNumber) {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
                         hourText, mHandPaint, canvas, null);
@@ -613,6 +618,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawCircle(degreesFromNorth, dotDistance, canvas,
                         isDarkMode() && nextDimm < DimmingController.VERY_DARK ? 3 : 2, mBackgroundPaint);
             }
+            mHandPaint.setColor(handColor);
         }
 
         private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
@@ -693,6 +699,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         public void setLastDraw(long mLastDraw) {
             this.mLastDraw = mLastDraw;
         }
+    }
+
+    private int getColorDegrees(float degreesFromNorth) {
+        degreesFromNorth = degreesFromNorth % 360;
+        return Color.rgb(degreesFromNorth < 240 ? 1- Math.abs(degreesFromNorth-120)/120 : 0,
+                        degreesFromNorth > 120 ? 1- Math.abs(240-degreesFromNorth)/120 : 0,
+                        degreesFromNorth> 240 || degreesFromNorth < 120 ? Math.abs(120-degreesFromNorth)/120 : 0);
     }
 
     private float getNextLine(float currentY) {
