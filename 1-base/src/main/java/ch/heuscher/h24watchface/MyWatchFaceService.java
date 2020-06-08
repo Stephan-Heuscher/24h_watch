@@ -459,7 +459,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
             Date date = mCalendar.getTime();
             if(!active && specials.length() == 0  && mMinimalMode){
-                writeHour(canvas, hourTextDistance,24, false, true);
+                writeHour(canvas, hourTextDistance,24, "", false, true, false);
             }
             for (int i = 1; active && i <= 24 - 1 * Math.min(1,specials.length()); i++) {
                 boolean writeNumber = mShowHours && i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
@@ -594,17 +594,19 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void writeHour(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean writeMarker) {
-            writeHour(canvas, radiusCenter, hour, ""+hour, writeNumber, writeMarker);
+            writeHour(canvas, radiusCenter, hour, ""+hour, writeNumber, writeMarker, true);
         }
 
         private void writeHour(Canvas canvas, float radiusCenter, int hour, String hourText,
-                                boolean writeNumber, boolean writeMarker) {
+                                boolean writeNumber, boolean writeMarker, boolean adjustColor) {
             float rotatePerHour = 15f;
             float degreesFromNorth = hour * rotatePerHour;
             float dotDistance = mHourHandLength;
 
             int handColor = mHandPaint.getColor();
-            mHandPaint.setColor(getColorDegrees(degreesFromNorth));
+            if (adjustColor) {
+                mHandPaint.setColor(getColorDegrees(degreesFromNorth));
+            }
 
             if (writeNumber) {
                 drawTextUprightFromCenter(degreesFromNorth, radiusCenter,
