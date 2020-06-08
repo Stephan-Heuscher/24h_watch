@@ -391,10 +391,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mMinutesPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
             mMinutesPaint.setStrokeWidth(strokeWidth);
-            mHourPaint.setAlpha(alphaHour);
+
+            int colorFromHour = getColorDegrees(hoursRotation);
 
             if (!mMinimalMode) {
                 String hourText = "" + hour;//(int)(Math.random()*25);//
+                mHourPaint.setColor(colorFromHour);
+                mHourPaint.setAlpha(alphaHour);
                 mHourPaint.setStyle(Paint.Style.FILL);
                 Rect boundsText = new Rect();
                 mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
@@ -402,6 +405,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 float decenteringCorrection = -24;
                 drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                         mHourPaint, canvas, null);
+                mHourPaint.setColor(handPaintColor);
 
                 // noch abzulaufende Zeit verdunkeln
                 float relativeHour = 1 - minutes / 60f;
@@ -444,7 +448,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            mHandPaint.setColor(getColorDegrees(hoursRotation));
+            mHandPaint.setColor(colorFromHour);
             drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             mHandPaint.setColor(handPaintColor);
             if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
