@@ -397,7 +397,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (!mMinimalMode) {
                 String hourText = "" + hour;//(int)(Math.random()*25);//
                 mHourPaint.setColor(colorFromHour);
-                mHourPaint.setAlpha(alphaHour);
+                mHourPaint.setAlpha((int) (alphaHour * (isDarkMode() ? lightFactor : 1f)));
                 mHourPaint.setStyle(Paint.Style.FILL);
                 Rect boundsText = new Rect();
                 mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
@@ -449,6 +449,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             mHandPaint.setColor(colorFromHour);
+            mHandPaint.setAlpha((int) (255 * (isDarkMode() ? lightFactor : 1f)));
             drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             mHandPaint.setColor(handPaintColor);
             if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {

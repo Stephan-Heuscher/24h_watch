@@ -6,7 +6,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.PowerManager;
-import android.util.TimeUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -90,6 +89,9 @@ public class DimmingController implements SensorEventListener {
         return computeFactorFromLight(lux, 1f, 15f, getMinLuminance());
     }
 
+    /**
+     * Konvertiert @lux zu einem Linearen Wert zwischen @maxFactor und @minFactor mit Steigung @luxDivider (für positive Lux)
+     */
     private float computeFactorFromLight(float lux, float maxFactor, float luxDivider, float minFactor) {
         return Math.min(maxFactor,  lux/ luxDivider + minFactor);
     }
