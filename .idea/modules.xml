@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/1-base/1-base.iml" filepath="$PROJECT_DIR$/1-base/1-base.iml" group="24h_watch/1-base" />
-      <module fileurl="file://$PROJECT_DIR$/24h_watch.iml" filepath="$PROJECT_DIR$/24h_watch.iml" group="24h_watch" />
+      <module fileurl="file://$PROJECT_DIR$/24h_watch.iml" filepath="$PROJECT_DIR$/24h_watch.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.iml" filepath="$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.iml" />
     </modules>
   </component>
 </project>
