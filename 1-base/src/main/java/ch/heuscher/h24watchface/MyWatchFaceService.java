@@ -212,6 +212,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             mHourPaint = new Paint();
             mHourPaint.setAntiAlias(true);
+            mHourPaint.setLetterSpacing(-0.065f);
 
             mMinutesPaint = new Paint();
             mMinutesPaint.setAntiAlias(true);
@@ -307,16 +308,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             switch (tapType) {
                 case WatchFaceService.TAP_TYPE_TAP:
                     if (y <= mHeight / 3 ) { // top
-                        setDarkMode(!isDarkMode());
+                        mRotate = mRotate == 0 ? 180 : 0;
                     }
                     else if (x <= mWidth / 3 ) { // left
                         mShow24Hours = !mShow24Hours;
                     }
                     else if (x >= mWidth / 3 * 2 ) { // right
-                        mShowMinutesDateAndMeetings = !mShowMinutesDateAndMeetings;
+                        setDarkMode(!isDarkMode());
                     }
                     else if (y >= mHeight / 3 * 2) { // bottom
-                        mRotate = mRotate == 0 ? 180 : 0;
+                        mShowMinutesDateAndMeetings = !mShowMinutesDateAndMeetings;
                     }
                     else { // center
                         mMinimalMode = !mMinimalMode;
@@ -396,7 +397,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // draw hour
             float decenteringCorrection = -24;
-            String hourText = "" + hour;//(int)(Math.random()*25);//
+            String hourText = "" + hour;//Math.random()*25;//
             if (!mMinimalMode) {
                 mHourPaint.setColor(colorFromHour);
                 mHourPaint.setAlpha((int) (alphaHour * (isDarkMode() ? lightFactor : 1f)));
@@ -443,19 +444,19 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // buttons shown when active for switching dark mode and numbers on/off
             if(!isAmbient()){
-                float buttonRadius = mCenterX / 2;
+                float buttonRadius = mCenterX / 3 * 2;
                 if (!isDarkMode()) {
-                    drawTextUprightFromCenter(mRotate, buttonRadius,"☼", mHandPaint, canvas, mBold);
-                    drawCircle(mRotate, buttonRadius - 1, canvas, 6, mHandPaint);
+                    drawTextUprightFromCenter(mRotate + 90, buttonRadius,"☼", mHandPaint, canvas, mBold);
+                    drawCircle(mRotate + 90, buttonRadius, canvas, 6, mHandPaint);
                     drawTextUprightFromCenter(270 + mRotate, hourTextDistance,
                             mRotate == 0 ? "18" : "6", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
                 }
                 else {
-                    drawTextUprightFromCenter(mRotate, buttonRadius,"○", mHandPaint, canvas, mLight);
+                    drawTextUprightFromCenter(mRotate + 90, buttonRadius,"○", mHandPaint, canvas, mLight);
                 }
-                if (!mMinimalMode) {
-                    drawTextUprightFromCenter(90 + mRotate, hourTextDistance * 0.8f,
-                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mShowMinutesDateAndMeetings ? mBold : mLight);
+                if (!mMinimalMode && !mShowMinutesDateAndMeetings) {
+                    drawTextUprightFromCenter(180 + mRotate, mCenterY/3*2,
+                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mLight);
                 }
             }
 
