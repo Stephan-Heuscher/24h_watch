@@ -26,7 +26,6 @@ Next ideas
 --------
    * Why does the watchface crash occasionally? --> no reports found in log
    * Make minutes display optional
-   * Display remaining time on line below date
    * Handle display state and style in separate class
 
 License

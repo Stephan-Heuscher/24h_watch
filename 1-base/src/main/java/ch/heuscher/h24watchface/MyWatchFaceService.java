@@ -509,12 +509,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
             topText = topText.substring(0, topText.length()-1);
             topText = mMinimalMode ? "" : topText;
-            topText = isCountdownActive ? countDownTime : topText;
             drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
             // Datum
-            if (!mMinimalMode && specials.length()>1) { // hide specials if displayed on top
-                drawTextUprightFromCenter(0,mCenterY - currentY, specials, mHandPaint, canvas, null);
+            if (!mMinimalMode && (specials.length()>1 || isCountdownActive)) { // hide specials if displayed on top
+                String secondLine = isCountdownActive ? specials + " " + countDownTime : specials;
+                drawTextUprightFromCenter(0,mCenterY - currentY, secondLine, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
             }
 
