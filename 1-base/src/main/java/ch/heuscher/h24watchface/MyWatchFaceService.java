@@ -74,10 +74,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
     public static final Locale DE_CH_LOCALE = Locale.forLanguageTag("de-CH");
-    public static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm", DE_CH_LOCALE);
+    public static final SimpleDateFormat MINUTES = new SimpleDateFormat("", DE_CH_LOCALE);
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
+    public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("YYYY-MM-dd E", DE_CH_LOCALE);
     public static final SimpleDateFormat ISO_DATE = new SimpleDateFormat("YYYY-MM-dd", DE_CH_LOCALE);
-    public static final SimpleDateFormat DATUM = new SimpleDateFormat("E", DE_CH_LOCALE);
 
     @Override
     public Engine onCreateEngine() {
@@ -506,16 +506,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Y für textzeilen
             float currentY = mCenterY - mCenterX * 0.8f;
-            String topText = ISO_DATE.format(date);
+            String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
+            topText = topText.substring(0, topText.length()-1);
             topText = mMinimalMode ? "" : topText;
             topText = isCountdownActive ? countDownTime : topText;
             drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
             currentY = getNextLine(currentY);
             // Datum
-            if (!mMinimalMode) {
-                String dayInfo = DATUM.format(date) +
-                        (specials.length()>1 ? specials : ""); // hide specials if displayed on top
-                drawTextUprightFromCenter(0,mCenterY - currentY, dayInfo, mHandPaint, canvas, null);
+            if (!mMinimalMode && specials.length()>1) { // hide specials if displayed on top
+                drawTextUprightFromCenter(0,mCenterY - currentY, specials, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
             }
 
