@@ -447,14 +447,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (!isDarkMode()) {
                     drawTextUprightFromCenter(mRotate, buttonRadius,"☼", mHandPaint, canvas, mBold);
                     drawCircle(mRotate, buttonRadius - 1, canvas, 6, mHandPaint);
-                    drawTextUprightFromCenter(270, hourTextDistance,
-                            "18", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
+                    drawTextUprightFromCenter(270 + mRotate, hourTextDistance,
+                            mRotate == 0 ? "18" : "6", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
                 }
                 else {
                     drawTextUprightFromCenter(mRotate, buttonRadius,"○", mHandPaint, canvas, mLight);
                 }
                 if (!mMinimalMode) {
-                    drawTextUprightFromCenter(90, hourTextDistance * 0.8f,
+                    drawTextUprightFromCenter(90 + mRotate, hourTextDistance * 0.8f,
                             MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mShowMinutesDateAndMeetings ? mBold : mLight);
                 }
             }
