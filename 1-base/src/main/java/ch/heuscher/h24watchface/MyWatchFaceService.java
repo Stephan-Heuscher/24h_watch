@@ -137,7 +137,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private boolean mDarkMode = true;
         private boolean mMinimalMode = false;
         private boolean mShow24Hours = false;
-        private boolean mShowMinutes = true;
+        private boolean mShowMinutesDateAndMeetings = true;
 
         private float mHourHandLength;
         private int mWidth;
@@ -313,7 +313,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         mShow24Hours = !mShow24Hours;
                     }
                     else if (x >= mWidth / 3 * 2 ) { // right
-                        mShowMinutes = !mShowMinutes;
+                        mShowMinutesDateAndMeetings = !mShowMinutesDateAndMeetings;
                     }
                     else if (y >= mHeight / 3 * 2) { // bottom
                         mRotate = mRotate == 0 ? 180 : 0;
@@ -394,33 +394,28 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int colorFromHour = getColorDegrees(hoursRotation);
 
+            // draw hour
+            float decenteringCorrection = -24;
+            String hourText = "" + hour;//(int)(Math.random()*25);//
             if (!mMinimalMode) {
-                String hourText = "" + hour;//(int)(Math.random()*25);//
                 mHourPaint.setColor(colorFromHour);
                 mHourPaint.setAlpha((int) (alphaHour * (isDarkMode() ? lightFactor : 1f)));
                 mHourPaint.setStyle(Paint.Style.FILL);
                 Rect boundsText = new Rect();
                 mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
                 float textSize = boundsText.height();
-                float decenteringCorrection = -24;
                 drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                         mHourPaint, canvas, null);
                 mHourPaint.setColor(handPaintColor);
-
                 // noch abzulaufende Zeit verdunkeln
                 float relativeHour = 1 - minutes / 60f;
                 mBackgroundPaint.setStrokeWidth(textSize * relativeHour);
                 float yFill = mCenterY + textSize/2 * (1-relativeHour);
                 canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
                         mBackgroundPaint);
-                // nochmals den Umriss nachziehen
-                mHourPaint.setStyle(Paint.Style.STROKE);
-                mHourPaint.setAlpha(255);
-                drawTextUprightFromCenter(0, decenteringCorrection, hourText,
-                        mHourPaint, canvas, null);
 
                 // Minuten unten schreiben
-                if (mShowMinutes) {
+                if (mShowMinutesDateAndMeetings) {
                     String minutesText = MINUTES.format(mCalendar.getTime());
                     drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
                 }
@@ -430,6 +425,20 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     drawTextUprightFromCenter(180, mCenterY / 3 * 1.2f, (DE_CH_NUMBER.format(mSteps - mStepsAtMidnight) + " " +
                             DE_CH_NUMBER.format(mSteps)), mHandPaint, canvas, null);
                 }
+            }
+
+            // draw hand
+            mHandPaint.setColor(colorFromHour);
+            mHandPaint.setAlpha((int) (255 * (isDarkMode() ? lightFactor : 1f)));
+            drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            mHandPaint.setColor(handPaintColor);
+
+            if (!mMinimalMode) {
+                // nochmals den Umriss nachziehen, damit der Zeiger vom Umriss überschrieben wird
+                mHourPaint.setStyle(Paint.Style.STROKE);
+                mHourPaint.setAlpha(255);
+                drawTextUprightFromCenter(0, decenteringCorrection, hourText,
+                        mHourPaint, canvas, null);
             }
 
             // buttons shown when active for switching dark mode and numbers on/off
@@ -446,14 +455,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
                 if (!mMinimalMode) {
                     drawTextUprightFromCenter(90, hourTextDistance * 0.8f,
-                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mShowMinutes ? mBold : mLight);
+                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mShowMinutesDateAndMeetings ? mBold : mLight);
                 }
             }
 
-            mHandPaint.setColor(colorFromHour);
-            mHandPaint.setAlpha((int) (255 * (isDarkMode() ? lightFactor : 1f)));
-            drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-            mHandPaint.setColor(handPaintColor);
+
             if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * (mCenterX+RAND_RESERVE)) / 100f,
@@ -508,48 +514,50 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Y für textzeilen
             float currentY = mCenterY - mCenterX * 0.8f;
-            String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
-            topText = topText.substring(0, topText.length()-1);
-            topText = mMinimalMode ? "" : topText;
-            drawTextUprightFromCenter(0,mCenterY - currentY, topText, mHandPaint, canvas, null);
-            currentY = getNextLine(currentY);
-            // Datum
-            if (!mMinimalMode && (specials.length()>1 || isCountdownActive)) { // hide specials if displayed on top
-                String secondLine = isCountdownActive ? specials + " " + countDownTime : specials;
-                drawTextUprightFromCenter(0,mCenterY - currentY, secondLine, mHandPaint, canvas, null);
+            if (mShowMinutesDateAndMeetings || !isAmbient()) {
+                String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
+                topText = topText.substring(0, topText.length() - 1);
+                topText = mMinimalMode ? "" : topText;
+                drawTextUprightFromCenter(0, mCenterY - currentY, topText, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
-            }
+                // Datum
+                if (!mMinimalMode && (specials.length() > 1 || isCountdownActive)) { // hide specials if displayed on top
+                    String secondLine = isCountdownActive ? specials + " " + countDownTime : specials;
+                    drawTextUprightFromCenter(0, mCenterY - currentY, secondLine, mHandPaint, canvas, null);
+                    currentY = getNextLine(currentY);
+                }
 
-            List<CalendarEvent> events = getCalendarEvents();
-            events.sort(new Comparator<CalendarEvent>()
-            {
-                public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
-            });
-            for (CalendarEvent event : events) {
-                long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
-                if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
-                    time.setTimeInMillis(event.getBegin().getTime());
-                    float degreesFromNorth = getDegreesFromNorth(time);
-                    mHandPaint.setStyle(Paint.Style.STROKE);
-                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, mMinimalMode ? 1 : 6.5f, mHandPaint);
-                    mHandPaint.setStyle(Paint.Style.FILL);
-                    long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
-                    if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
-                        String title = event.getTitle();
-                        if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
-                        boolean isInFuture = inFuture < 0;
-                        String eventHrTitle = isInFuture ?
-                                "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
-                                : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
-                        eventHrTitle +=  " " + title;
-                        int minimizedLength = Math.min(22, eventHrTitle.length());
-                        drawTextUprightFromCenter(0,mCenterY - currentY,
-                                eventHrTitle.substring(0, minimizedLength), mHandPaint, canvas, isInFuture ? mLight : null);
-                        currentY = getNextLine(currentY);
-                        if (eventHrTitle.length() > minimizedLength){
+                List<CalendarEvent> events = getCalendarEvents();
+                events.sort(new Comparator<CalendarEvent>()
+                {
+                    public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
+                });
+                for (CalendarEvent event : events) {
+                    long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
+                    if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
+                        time.setTimeInMillis(event.getBegin().getTime());
+                        float degreesFromNorth = getDegreesFromNorth(time);
+                        mHandPaint.setStyle(Paint.Style.STROKE);
+                        drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, mMinimalMode ? 1 : 6.5f, mHandPaint);
+                        mHandPaint.setStyle(Paint.Style.FILL);
+                        long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
+                        if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
+                            String title = event.getTitle();
+                            if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
+                            boolean isInFuture = inFuture < 0;
+                            String eventHrTitle = isInFuture ?
+                                    "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
+                                    : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
+                            eventHrTitle +=  " " + title;
+                            int minimizedLength = Math.min(22, eventHrTitle.length());
                             drawTextUprightFromCenter(0,mCenterY - currentY,
-                                    eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
+                                    eventHrTitle.substring(0, minimizedLength), mHandPaint, canvas, isInFuture ? mLight : null);
                             currentY = getNextLine(currentY);
+                            if (eventHrTitle.length() > minimizedLength){
+                                drawTextUprightFromCenter(0,mCenterY - currentY,
+                                        eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
+                                currentY = getNextLine(currentY);
+                            }
                         }
                     }
                 }
