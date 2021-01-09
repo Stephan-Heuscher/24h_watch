@@ -25,7 +25,6 @@ Features
 Next ideas
 --------
    * Why does the watchface crash occasionally? --> no reports found in log
-   * Make minutes display optional
    * Handle display state and style in separate class
 
 License

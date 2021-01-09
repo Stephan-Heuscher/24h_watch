@@ -74,10 +74,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
     public static final Locale DE_CH_LOCALE = Locale.forLanguageTag("de-CH");
-    public static final SimpleDateFormat MINUTES = new SimpleDateFormat("", DE_CH_LOCALE);
+    public static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm", DE_CH_LOCALE);
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
     public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("YYYY-MM-dd E", DE_CH_LOCALE);
-    public static final SimpleDateFormat ISO_DATE = new SimpleDateFormat("YYYY-MM-dd", DE_CH_LOCALE);
 
     @Override
     public Engine onCreateEngine() {
@@ -137,7 +136,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private boolean mAmbient;
         private boolean mDarkMode = true;
         private boolean mMinimalMode = false;
-        private boolean mShowHours = false;
+        private boolean mShow24Hours = false;
+        private boolean mShowMinutes = true;
 
         private float mHourHandLength;
         private int mWidth;
@@ -310,10 +310,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         setDarkMode(!isDarkMode());
                     }
                     else if (x <= mWidth / 3 ) { // left
-                        mShowHours = !mShowHours;
+                        mShow24Hours = !mShow24Hours;
                     }
                     else if (x >= mWidth / 3 * 2 ) { // right
-                        mShowHours = !mShowHours;
+                        mShowMinutes = !mShowMinutes;
                     }
                     else if (y >= mHeight / 3 * 2) { // bottom
                         mRotate = mRotate == 0 ? 180 : 0;
@@ -420,8 +420,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         mHourPaint, canvas, null);
 
                 // Minuten unten schreiben
-                String minutesText = MINUTES.format(mCalendar.getTime());
-                drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
+                if (mShowMinutes) {
+                    String minutesText = MINUTES.format(mCalendar.getTime());
+                    drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
+                }
 
                 // Anzahl Schritte schreiben (heute und total)
                 if(!isAmbient()) {
@@ -436,15 +438,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 if (!isDarkMode()) {
                     drawTextUprightFromCenter(mRotate, buttonRadius,"☼", mHandPaint, canvas, mBold);
                     drawCircle(mRotate, buttonRadius - 1, canvas, 6, mHandPaint);
+                    drawTextUprightFromCenter(270, hourTextDistance,
+                            "18", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
                 }
                 else {
                     drawTextUprightFromCenter(mRotate, buttonRadius,"○", mHandPaint, canvas, mLight);
                 }
-                if (!isDarkMode()) {
-                    drawTextUprightFromCenter(270, hourTextDistance,
-                            "18", mHandPaint, canvas, mShowHours ? mBold : mLight);
-                    drawTextUprightFromCenter(90, hourTextDistance,
-                            "6", mHandPaint, canvas, mShowHours ? mBold : mLight);
+                if (!mMinimalMode) {
+                    drawTextUprightFromCenter(90, hourTextDistance * 0.8f,
+                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mShowMinutes ? mBold : mLight);
                 }
             }
 
@@ -467,7 +469,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 writeHour(canvas, hourTextDistance,24, "", false, true, false);
             }
             for (int i = 1; active && i <= 24 - 1 * Math.min(1,specials.length()); i++) {
-                boolean writeNumber = mShowHours && i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
+                boolean writeNumber = mShow24Hours && i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
                 writeHour(canvas, hourTextDistance, i, writeNumber, !writeNumber);
             }
 
