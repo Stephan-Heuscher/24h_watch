@@ -308,13 +308,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             switch (tapType) {
                 case WatchFaceService.TAP_TYPE_TAP:
                     if (y <= mHeight / 3 ) { // top
-                        mRotate = mRotate == 0 ? 180 : 0;
+                        setDarkMode(!isDarkMode());
                     }
                     else if (x <= mWidth / 3 ) { // left
                         mShow24Hours = !mShow24Hours;
                     }
                     else if (x >= mWidth / 3 * 2 ) { // right
-                        setDarkMode(!isDarkMode());
+                        mRotate = mRotate == 0 ? 180 : 0;
                     }
                     else if (y >= mHeight / 3 * 2) { // bottom
                         mShowMinutesDateAndMeetings = !mShowMinutesDateAndMeetings;
@@ -446,17 +446,18 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if(!isAmbient()){
                 float buttonRadius = mCenterX / 3 * 2;
                 if (!isDarkMode()) {
-                    drawTextUprightFromCenter(mRotate + 90, buttonRadius,"☼", mHandPaint, canvas, mBold);
-                    drawCircle(mRotate + 90, buttonRadius, canvas, 6, mHandPaint);
+                    drawTextUprightFromCenter(0, buttonRadius,"☼", mHandPaint, canvas, mBold);
+                    drawCircle(0, buttonRadius, canvas, 6, mHandPaint);
                     drawTextUprightFromCenter(270 + mRotate, hourTextDistance,
                             mRotate == 0 ? "18" : "6", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
                 }
                 else {
-                    drawTextUprightFromCenter(mRotate + 90, buttonRadius,"○", mHandPaint, canvas, mLight);
+                    drawTextUprightFromCenter(0, buttonRadius,"○", mHandPaint, canvas, mLight);
                 }
+                drawTextUprightFromCenter(mRotate + 90, buttonRadius,"↷", mHandPaint, canvas, mBold);
                 if (!mMinimalMode && !mShowMinutesDateAndMeetings) {
-                    drawTextUprightFromCenter(180 + mRotate, mCenterY/3*2,
-                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, mLight);
+                    drawTextUprightFromCenter(180, mCenterY/3*2,
+                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, null);
                 }
             }
 
@@ -515,7 +516,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Y für textzeilen
             float currentY = mCenterY - mCenterX * 0.8f;
-            if (mShowMinutesDateAndMeetings || !isAmbient()) {
+            boolean bShowMinutesDateMeetingsOrNotAmbient = mShowMinutesDateAndMeetings || !isAmbient();
+            if (bShowMinutesDateMeetingsOrNotAmbient) {
                 String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
                 topText = topText.substring(0, topText.length() - 1);
                 topText = mMinimalMode ? "" : topText;
@@ -527,41 +529,42 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     drawTextUprightFromCenter(0, mCenterY - currentY, secondLine, mHandPaint, canvas, null);
                     currentY = getNextLine(currentY);
                 }
+            }
 
-                List<CalendarEvent> events = getCalendarEvents();
-                events.sort(new Comparator<CalendarEvent>()
-                {
-                    public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
-                });
-                for (CalendarEvent event : events) {
-                    long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
-                    if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
-                        time.setTimeInMillis(event.getBegin().getTime());
-                        float degreesFromNorth = getDegreesFromNorth(time);
-                        mHandPaint.setStyle(Paint.Style.STROKE);
-                        drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, mMinimalMode ? 1 : 6.5f, mHandPaint);
-                        mHandPaint.setStyle(Paint.Style.FILL);
-                        long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
-                        if (inFuture <= TimeUnit.MINUTES.toMillis(30)) {
-                            String title = event.getTitle();
-                            if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
-                            boolean isInFuture = inFuture < 0;
-                            String eventHrTitle = isInFuture ?
-                                    "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
-                                    : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
-                            eventHrTitle +=  " " + title;
-                            int minimizedLength = Math.min(22, eventHrTitle.length());
+            List<CalendarEvent> events = getCalendarEvents();
+            events.sort(new Comparator<CalendarEvent>()
+            {
+                public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
+            });
+            for (CalendarEvent event : events) {
+                long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
+                if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
+                    time.setTimeInMillis(event.getBegin().getTime());
+                    float degreesFromNorth = getDegreesFromNorth(time);
+                    mHandPaint.setStyle(Paint.Style.STROKE);
+                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, mMinimalMode ? 1 : 6.5f, mHandPaint);
+                    mHandPaint.setStyle(Paint.Style.FILL);
+                    long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
+                    if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(30)) {
+                        String title = event.getTitle();
+                        if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
+                        boolean isInFuture = inFuture < 0;
+                        String eventHrTitle = isInFuture ?
+                                "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
+                                : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
+                        eventHrTitle +=  " " + title;
+                        int minimizedLength = Math.min(22, eventHrTitle.length());
+                        drawTextUprightFromCenter(0,mCenterY - currentY,
+                                eventHrTitle.substring(0, minimizedLength), mHandPaint, canvas, isInFuture ? mLight : null);
+                        currentY = getNextLine(currentY);
+                        if (eventHrTitle.length() > minimizedLength){
                             drawTextUprightFromCenter(0,mCenterY - currentY,
-                                    eventHrTitle.substring(0, minimizedLength), mHandPaint, canvas, isInFuture ? mLight : null);
+                                    eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
                             currentY = getNextLine(currentY);
-                            if (eventHrTitle.length() > minimizedLength){
-                                drawTextUprightFromCenter(0,mCenterY - currentY,
-                                        eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
-                                currentY = getNextLine(currentY);
-                            }
                         }
                     }
                 }
+
             }
             // draw top if things to show
             String[] topNotificationValues = {"", specials, "+"};
