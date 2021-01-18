@@ -77,6 +77,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     public static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm", DE_CH_LOCALE);
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
     public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("YYYY-MM-dd E", DE_CH_LOCALE);
+    public static final int MEETING_PRE_ANNOUNCE_DURATION = 50;
 
     @Override
     public Engine onCreateEngine() {
@@ -395,6 +396,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int colorFromHour = getColorDegrees(hoursRotation);
 
+            List<CalendarEvent> events = getCalendarEvents();
+            events.sort(new Comparator<CalendarEvent>()
+            {
+                public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
+            });
+
             // draw hour
             float decenteringCorrection = -24;
             String hourText = "" + hour;//Math.random()*25;//
@@ -409,11 +416,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         mHourPaint, canvas, null);
                 mHourPaint.setColor(handPaintColor);
                 // noch abzulaufende Zeit verdunkeln
-                float relativeHour = 1 - minutes / 60f;
-                mBackgroundPaint.setStrokeWidth(textSize * relativeHour);
-                float yFill = mCenterY + textSize/2 * (1-relativeHour);
-                canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
-                        mBackgroundPaint);
+                adaptBackGroundNrWithMeetings(canvas, minutes, textSize, events);
 
                 // Minuten unten schreiben
                 if (mShowMinutesDateAndMeetings) {
@@ -531,11 +534,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            List<CalendarEvent> events = getCalendarEvents();
-            events.sort(new Comparator<CalendarEvent>()
-            {
-                public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
-            });
             for (CalendarEvent event : events) {
                 long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
                 if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
@@ -545,7 +543,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, mMinimalMode ? 1 : 6.5f, mHandPaint);
                     mHandPaint.setStyle(Paint.Style.FILL);
                     long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
-                    if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(30)) {
+                    if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
                         String title = event.getTitle();
                         if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
                         boolean isInFuture = inFuture < 0;
@@ -572,6 +570,43 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     topNotificationValues[Math.min(2,specials.length())], mHandPaint, canvas, null);
 
             mDimmingController.setLastDimm(lightFactor);
+        }
+
+        private void adaptBackGroundNrWithMeetings(Canvas canvas, int minutes, float textSize, List<CalendarEvent> events) {
+            Calendar time = Calendar.getInstance();
+            float minuteWidth = textSize * 1 / 60f;
+            float remainingRelativeHour = 1 - minutes / 60f;
+            for (CalendarEvent event : events) {
+                long eventLengthMs = -event.getBegin().getTime() + event.getEnd().getTime();
+                if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
+                    time.setTimeInMillis(event.getBegin().getTime());
+                    long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
+                    if (inFuture > 0 && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
+                        // events sind geordnet -> langsam auffüllen, und wechseln, wenn zukunft + min > 60
+                        long minutesInFuture = minutes + TimeUnit.MILLISECONDS.toMinutes(inFuture);
+                        if(minutesInFuture >= 60){
+                            float relativeMeetingHour = (minutesInFuture - 60) / 60f;
+                            float yFill = mCenterY - (textSize * (0.5f - relativeMeetingHour));
+                            mBackgroundPaint.setStrokeWidth(minuteWidth);
+                            canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
+                                    mBackgroundPaint);
+                        }
+                        else {
+                            float relativeHourToBlank = (minutesInFuture - minutes) / 60f - 1f/60f;
+                            float blankHeight = textSize * (relativeHourToBlank);
+                            mBackgroundPaint.setStrokeWidth(blankHeight);
+                            remainingRelativeHour = remainingRelativeHour - relativeHourToBlank - 1/60f;
+                            float yFill = mCenterY + textSize * (0.5f - remainingRelativeHour) - blankHeight/2;
+                            canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
+                                    mBackgroundPaint);
+                        }
+                    }
+                }
+            }
+            mBackgroundPaint.setStrokeWidth(textSize * remainingRelativeHour);
+            float yFill = mCenterY + textSize/2 * (1-remainingRelativeHour);
+            canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
+                    mBackgroundPaint);
         }
 
         private String getSpecials(Canvas canvas) {
