@@ -576,6 +576,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             Calendar time = Calendar.getInstance();
             float minuteWidth = textSize * 1 / 60f;
             float remainingRelativeHour = 1 - minutes / 60f;
+            int lastMinutes = minutes;
             for (CalendarEvent event : events) {
                 long eventLengthMs = -event.getBegin().getTime() + event.getEnd().getTime();
                 if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
@@ -592,10 +593,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                                     mBackgroundPaint);
                         }
                         else {
-                            float relativeHourToBlank = (minutesInFuture - minutes) / 60f - 1f/60f;
+                            float relativeHourToBlank = (minutesInFuture - lastMinutes) / 60f - 1f/60f;
                             float blankHeight = textSize * (relativeHourToBlank);
                             mBackgroundPaint.setStrokeWidth(blankHeight);
                             remainingRelativeHour = remainingRelativeHour - relativeHourToBlank - 1/60f;
+                            lastMinutes = (int) minutesInFuture + 1;
                             float yFill = mCenterY + textSize * (0.5f - remainingRelativeHour) - blankHeight/2;
                             canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
                                     mBackgroundPaint);
