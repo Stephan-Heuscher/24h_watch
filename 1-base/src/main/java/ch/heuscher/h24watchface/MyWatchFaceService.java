@@ -431,19 +431,24 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 }
             }
 
-            // draw hand
-            mHandPaint.setColor(colorFromHour);
-            mHandPaint.setAlpha((int) (255 * (isDarkMode() ? lightFactor : 1f)));
-            drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
-            mHandPaint.setColor(handPaintColor);
 
             if (!mMinimalMode) {
-                // nochmals den Umriss nachziehen, damit der Zeiger vom Umriss überschrieben wird
+                // nochmals den Umriss nachziehen, damit man die Zahl sieht
                 mHourPaint.setStyle(Paint.Style.STROKE);
                 mHourPaint.setAlpha(255);
                 drawTextUprightFromCenter(0, decenteringCorrection, hourText,
                         mHourPaint, canvas, null);
             }
+
+            // draw hand
+            mHandPaint.setColor(colorFromHour);
+            mHandPaint.setAlpha((int) (255 * (isDarkMode() ? lightFactor : 1f)));
+            drawCircle(hoursRotation, mHourHandLength, canvas, 12, mHandPaint);
+//            drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            mHandPaint.setColor(handPaintColor);
+            mHandPaint.setStyle(Paint.Style.STROKE);
+            drawCircle(hoursRotation, mHourHandLength, canvas, 12, mHandPaint);
+            mHandPaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
             // buttons shown when active for switching dark mode and numbers on/off
             if(!isAmbient()){
