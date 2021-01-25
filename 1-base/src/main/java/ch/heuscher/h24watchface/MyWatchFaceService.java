@@ -448,7 +448,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHandPaint.setColor(handPaintColor);
             mHandPaint.setStyle(Paint.Style.STROKE);
             drawCircle(hoursRotation, mHourHandLength, canvas, 12, mHandPaint);
-            mHandPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            if (mMinimalMode) {
+                // Mitte-Orientierung
+                drawCircle(hoursRotation, 0, canvas, mCenterX / 75, mHandPaint);
+            }
+            mHandPaint.setStyle(Paint.Style.FILL);
 
             // buttons shown when active for switching dark mode and numbers on/off
             if(!isAmbient()){
@@ -470,11 +474,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
 
-            if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
+            /*if (batteryCharge <= 37 || batteryManager.getIntProperty(BatteryManager.BATTERY_STATUS_CHARGING) > 0 ) {
                 // Schwarzer Punkt für Batteriestand
                 drawCircle(hoursRotation, (batteryCharge * (mCenterX+RAND_RESERVE)) / 100f,
                         canvas, mHandPaint.getStrokeWidth()/2, mBackgroundPaint);
-            }
+            }*/
 
             // DND + no Connection + "Message" + Wifi + Power anzeigen
             String specials = getSpecials(canvas);
