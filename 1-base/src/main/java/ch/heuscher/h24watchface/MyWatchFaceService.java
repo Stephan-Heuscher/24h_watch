@@ -593,23 +593,21 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
                     if (inFuture > 0 && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
                         // events sind geordnet -> langsam auffüllen, und wechseln, wenn zukunft + min > 60
-                        long minutesInFuture = minutes + TimeUnit.MILLISECONDS.toMinutes(inFuture);
-                        if(minutesInFuture >= 60){
-                            float relativeMeetingHour = (minutesInFuture - 60) / 60f;
+                        long minutesOfEvent = minutes + TimeUnit.MILLISECONDS.toMinutes(inFuture);
+                        if(minutesOfEvent >= 60){
+                            float relativeMeetingHour = (minutesOfEvent - 60) / 60f;
                             float yFill = mCenterY - (textSize * (0.5f - relativeMeetingHour));
                             mBackgroundPaint.setStrokeWidth(minuteWidth);
                             canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
                                     mBackgroundPaint);
                         }
                         else {
-                            float relativeHourToBlank = (minutesInFuture - lastMinutes) / 60f - 1f/60f;
+                            float relativeHourToBlank = (minutesOfEvent - lastMinutes) / 60f - 1f/60f;
                             float blankHeight = textSize * (relativeHourToBlank);
-                            mBackgroundPaint.setStrokeWidth(blankHeight);
+                            float startY  = mCenterY + textSize * (0.5f - remainingRelativeHour);
+                            lastMinutes = (int) minutesOfEvent + 1;
+                            canvas.drawRect(mCenterX - textSize, startY, mCenterX + textSize, startY + blankHeight, mBackgroundPaint);
                             remainingRelativeHour = remainingRelativeHour - relativeHourToBlank - 1/60f;
-                            lastMinutes = (int) minutesInFuture + 1;
-                            float yFill = mCenterY + textSize * (0.5f - remainingRelativeHour) - blankHeight/2;
-                            canvas.drawLine(mCenterX - textSize, yFill, mCenterX + textSize, yFill,
-                                    mBackgroundPaint);
                         }
                     }
                 }
