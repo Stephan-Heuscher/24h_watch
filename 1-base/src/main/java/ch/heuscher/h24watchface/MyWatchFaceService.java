@@ -777,7 +777,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         int firstColorIndex = (int) relativeAdvance;
         float amountFirstColor = relativeAdvance - firstColorIndex;
         int secondColorIndex = (firstColorIndex + 1) % (colors.length);
-        return ColorUtils.blendARGB(colors[firstColorIndex], colors[secondColorIndex], amountFirstColor);
+        int colorForTime = ColorUtils.blendARGB(colors[firstColorIndex], colors[secondColorIndex], amountFirstColor);
+        float[] hsvVals = new float[3];
+        Color.colorToHSV(colorForTime, hsvVals);
+        // full luminance
+        hsvVals[2] = 1;
+        return Color.HSVToColor(hsvVals);
     }
 
     private float getNextLine(float currentY) {
