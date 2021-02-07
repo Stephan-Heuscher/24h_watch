@@ -42,6 +42,7 @@ import android.os.BatteryManager;
 import android.os.PowerManager;
 import android.provider.CalendarContract;
 import android.provider.Settings;
+import android.support.v4.graphics.ColorUtils;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.SystemProviders;
 import android.support.wearable.provider.WearableCalendarContract;
@@ -767,9 +768,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
     private int getColorDegrees(float degreesFromNorth) {
         degreesFromNorth = degreesFromNorth % 360;
-        return Color.rgb(degreesFromNorth < 240 ? 1- Math.abs(degreesFromNorth-120)/120 : 0,
-                        degreesFromNorth > 120 ? 1- Math.abs(240-degreesFromNorth)/120 : 0,
-                        degreesFromNorth> 240 || degreesFromNorth < 120 ? Math.abs(120-degreesFromNorth)/120 : 0);
+        int color6h = Color.argb(255, 0, 255, 0);
+        int color12h = Color.argb(255, 255, 255, 0);
+        int color18h = Color.argb(255, 0, 0, 255);
+        int color24h = Color.argb(255, 255, 0, 255);
+        int[] colors = new int[]{color24h, color6h, color12h, color18h};
+        float relativeAdvance = degreesFromNorth / 360 * (colors.length);
+        int firstColorIndex = (int) relativeAdvance;
+        float amountFirstColor = relativeAdvance - firstColorIndex;
+        int secondColorIndex = (firstColorIndex + 1) % (colors.length);
+        return ColorUtils.blendARGB(colors[firstColorIndex], colors[secondColorIndex], amountFirstColor);
     }
 
     private float getNextLine(float currentY) {
