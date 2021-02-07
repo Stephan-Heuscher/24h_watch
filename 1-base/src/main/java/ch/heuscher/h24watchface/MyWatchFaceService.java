@@ -780,7 +780,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         int colorForTime = ColorUtils.blendARGB(colors[firstColorIndex], colors[secondColorIndex], amountFirstColor);
         float[] hsvVals = new float[3];
         Color.colorToHSV(colorForTime, hsvVals);
-        // full luminance
+        // More luminance
         hsvVals[2] = hsvVals[2] * 1.5f;
         return Color.HSVToColor(hsvVals);
     }
