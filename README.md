@@ -21,7 +21,7 @@ Features
    * Remaining time on countdown timer on top (works cleanly for timers of less than ten hours)
    * Turn on/off numbers of watch by tabbing right (numbers as buttons), numbers are never shown in dark mode)
    * Battery fill is shown as black dot in the hour hand if battery < 37% 
-   * Color-wheel for hour display
+   * Color-changes according to hour
    * Upcoming meetings in the next 50 minutes are shown either as black (on color) or color (on black) lines in the bit hour numbers (when they are displayed)
    
 Next ideas
