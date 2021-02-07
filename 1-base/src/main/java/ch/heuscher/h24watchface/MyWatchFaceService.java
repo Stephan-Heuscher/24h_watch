@@ -79,6 +79,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
     public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("YYYY-MM-dd E", DE_CH_LOCALE);
     public static final int MEETING_PRE_ANNOUNCE_DURATION = 50;
+    public static final int COLOR_6_H = Color.argb(255, 0, 255, 0);
+    public static final int COLOR_12_H = Color.argb(255, 255, 255, 0);
+    public static final int COLOR_18_H = Color.argb(255, 0, 0, 255);
+    public static final int COLOR_24_H = Color.argb(255, 255, 0, 255);
+    public static final int[] COLORS = new int[]{COLOR_24_H, COLOR_6_H, COLOR_12_H, COLOR_18_H};
+    // public static final int[] COLORS = new int[]{Color.BLUE, Color.GREEN, Color.RED};  // (Previous colors)
 
     @Override
     public Engine onCreateEngine() {
@@ -768,20 +774,15 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
     private int getColorDegrees(float degreesFromNorth) {
         degreesFromNorth = degreesFromNorth % 360;
-        int color6h = Color.argb(255, 0, 255, 0);
-        int color12h = Color.argb(255, 255, 255, 0);
-        int color18h = Color.argb(255, 0, 0, 255);
-        int color24h = Color.argb(255, 255, 0, 255);
-        int[] colors = new int[]{color24h, color6h, color12h, color18h};
-        float relativeAdvance = degreesFromNorth / 360 * (colors.length);
+        float relativeAdvance = degreesFromNorth / 360 * (COLORS.length);
         int firstColorIndex = (int) relativeAdvance;
         float amountFirstColor = relativeAdvance - firstColorIndex;
-        int secondColorIndex = (firstColorIndex + 1) % (colors.length);
-        int colorForTime = ColorUtils.blendARGB(colors[firstColorIndex], colors[secondColorIndex], amountFirstColor);
+        int secondColorIndex = (firstColorIndex + 1) % (COLORS.length);
+        int colorForTime = ColorUtils.blendARGB(COLORS[firstColorIndex], COLORS[secondColorIndex], amountFirstColor);
         float[] hsvVals = new float[3];
         Color.colorToHSV(colorForTime, hsvVals);
-        // More luminance
-        hsvVals[2] = hsvVals[2] * 1.5f;
+        // full luminance
+        hsvVals[2] = 1;
         return Color.HSVToColor(hsvVals);
     }
 
