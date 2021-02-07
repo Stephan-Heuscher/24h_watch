@@ -781,7 +781,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         float[] hsvVals = new float[3];
         Color.colorToHSV(colorForTime, hsvVals);
         // full luminance
-        hsvVals[2] = 1;
+        hsvVals[2] = hsvVals[2] * 1.5f;
         return Color.HSVToColor(hsvVals);
     }
 
