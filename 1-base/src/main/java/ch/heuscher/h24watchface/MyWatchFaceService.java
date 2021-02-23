@@ -431,10 +431,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
                 }
 
-                // Anzahl Schritte schreiben (heute und total)
+                // Anzahl Schritte schreiben (total und heute)
                 if(!isAmbient()) {
-                    drawTextUprightFromCenter(180, mCenterY / 3 * 1.2f, (DE_CH_NUMBER.format(mSteps - mStepsAtMidnight) + " " +
-                            DE_CH_NUMBER.format(mSteps)), mHandPaint, canvas, null);
+                    drawTextUprightFromCenter(180, mCenterY / 3 * 0.65f,
+                            DE_CH_NUMBER.format(mSteps), mHandPaint, canvas, null);
+                    drawTextUprightFromCenter(180, mCenterY / 3 * 1.2f,
+                            DE_CH_NUMBER.format(mSteps - mStepsAtMidnight), mHandPaint, canvas, null);
                 }
             }
 
