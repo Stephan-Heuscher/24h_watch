@@ -539,6 +539,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Y für textzeilen
             float currentY = mCenterY - mCenterX * 0.8f;
+            if (isCountdownActive) { // always show active countdown
+                drawTextUprightFromCenter(0, mCenterY - currentY, countDownTime, mHandPaint, canvas, null);
+                currentY = getNextLine(currentY);
+            }
+
             boolean bShowMinutesDateMeetingsOrNotAmbient = mShowMinutesDateAndMeetings || !isAmbient();
             if (bShowMinutesDateMeetingsOrNotAmbient) {
                 String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
@@ -547,12 +552,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(0, mCenterY - currentY, topText, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
                 // Datum
-                if (!mMinimalMode && (specials.length() > 1 || isCountdownActive)) { // hide specials if displayed on top
-                    String secondLine = isCountdownActive ? specials + " " + countDownTime : specials;
-                    drawTextUprightFromCenter(0, mCenterY - currentY, secondLine, mHandPaint, canvas, null);
+                if (!mMinimalMode && (specials.length() > 1)) { // hide specials if displayed on top
+                    drawTextUprightFromCenter(0, mCenterY - currentY, specials, mHandPaint, canvas, null);
                     currentY = getNextLine(currentY);
                 }
             }
+
 
             for (CalendarEvent event : events) {
                 long eventLengthMs = - event.getBegin().getTime() + event.getEnd().getTime();
