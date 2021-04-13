@@ -305,7 +305,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             /*
              * Calculate the lengths of the watch hands and store them in member variables.
              */
-            mHourHandLength = mCenterX - RAND_RESERVE - 7;
+            mHourHandLength = mCenterX - 2 * RAND_RESERVE;
             mHourPaint.setTextSize(mHeight);
             mMinutesPaint.setTextSize(mCenterY/3);
         }
@@ -452,11 +452,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             // draw hand
             mHandPaint.setColor(colorFromHour);
             mHandPaint.setAlpha((int) (255 * (isDarkMode() ? lightFactor : 1f)));
-            drawCircle(hoursRotation, mHourHandLength, canvas, 12, mHandPaint);
-//            drawLineFromCenter(hoursRotation, -50, mCenterX + RAND_RESERVE, mHandPaint, canvas);
+            float hourDotCenter = mHourHandLength + 2 * RAND_RESERVE;
+            int hourDotRadius = RAND_RESERVE * 3;
+            drawCircle(hoursRotation, hourDotCenter, canvas, hourDotRadius, mHandPaint);
             mHandPaint.setColor(handPaintColor);
+            drawLineFromCenter(hoursRotation, hourDotCenter - hourDotRadius, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             mHandPaint.setStyle(Paint.Style.STROKE);
-            drawCircle(hoursRotation, mHourHandLength, canvas, 12, mHandPaint);
+            drawCircle(hoursRotation, hourDotCenter, canvas, hourDotRadius, mHandPaint);
             if (mMinimalMode) {
                 // Mitte-Orientierung
                 drawCircle(hoursRotation, 0, canvas, mCenterX / 75, mHandPaint);
