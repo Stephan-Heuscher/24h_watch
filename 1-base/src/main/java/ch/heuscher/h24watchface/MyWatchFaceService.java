@@ -455,14 +455,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float hourDotCenter = mHourHandLength + 2 * RAND_RESERVE;
             float hourDotRadius = RAND_RESERVE * 2f;
             float hourDotOuterRadius = RAND_RESERVE * 3.5f;
-            drawCircle(hoursRotation, hourDotCenter, canvas, hourDotRadius, mHandPaint);
+            drawCircle(hoursRotation, hourDotCenter, hourDotRadius, mHandPaint, canvas);
             mHandPaint.setColor(handPaintColor);
             drawLineFromCenter(hoursRotation, hourDotCenter - hourDotOuterRadius, mCenterX + RAND_RESERVE, mHandPaint, canvas);
             mHandPaint.setStyle(Paint.Style.STROKE);
-            drawCircle(hoursRotation, hourDotCenter, canvas, hourDotOuterRadius, mHandPaint);
+            drawCircle(hoursRotation, hourDotCenter, hourDotOuterRadius, mHandPaint, canvas);
             if (mMinimalMode) {
                 // Mitte-Orientierung
-                drawCircle(hoursRotation, 0, canvas, mCenterX / 75, mHandPaint);
+                drawCircle(hoursRotation, 0, mCenterX / 75, mHandPaint, canvas);
+                drawLineFromCenter(hoursRotation, mCenterX / 75, mCenterX / 10, mHandPaint, canvas);
+                drawLineFromCenter(hoursRotation, mCenterX /2 - mCenterX / 15, mCenterX /2 + mCenterX / 15, mHandPaint, canvas);
             }
             mHandPaint.setStyle(Paint.Style.FILL);
 
@@ -471,7 +473,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 float buttonRadius = mCenterX / 3 * 2;
                 if (!isDarkMode()) {
                     drawTextUprightFromCenter(0, buttonRadius,"☼", mHandPaint, canvas, mBold);
-                    drawCircle(0, buttonRadius, canvas, 6, mHandPaint);
+                    drawCircle(0, buttonRadius, 6, mHandPaint, canvas);
                     drawTextUprightFromCenter(270 + mRotate, hourTextDistance,
                             mRotate == 0 ? "18" : "6", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
                 }
@@ -566,7 +568,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     time.setTimeInMillis(event.getBegin().getTime());
                     float degreesFromNorth = getDegreesFromNorth(time);
                     mHandPaint.setStyle(Paint.Style.STROKE);
-                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, canvas, mMinimalMode ? 1 : 6.5f, mHandPaint);
+                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, mMinimalMode ? 1 : 6.5f, mHandPaint, canvas);
                     mHandPaint.setStyle(Paint.Style.FILL);
                     long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
                     if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
@@ -692,17 +694,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                         hourText, mHandPaint, canvas, null);
             }
             if (writeMarker) {
-                drawCircle(degreesFromNorth, dotDistance, canvas, 4, mHandPaint);
+                drawCircle(degreesFromNorth, dotDistance, 4, mHandPaint, canvas);
                 // black dot in the middle
                 Float nextDimmObject = mDimmingController.getNextDimm();
                 float nextDimm = nextDimmObject == null ? 1 : nextDimmObject;
-                drawCircle(degreesFromNorth, dotDistance, canvas,
-                        isDarkMode() && nextDimm < DimmingController.VERY_DARK ? 3 : 2, mBackgroundPaint);
+                drawCircle(degreesFromNorth, dotDistance, isDarkMode() && nextDimm < DimmingController.VERY_DARK ? 3 : 2, mBackgroundPaint, canvas
+                );
             }
             mHandPaint.setColor(handColor);
         }
 
-        private void drawCircle(float rotationFromNorth, float distanceFromCenter, Canvas canvas, float radius, Paint paint) {
+        private void drawCircle(float rotationFromNorth, float distanceFromCenter, float radius, Paint paint, Canvas canvas) {
             canvas.save();
             canvas.rotate(rotationFromNorth, mCenterX, mCenterY);
             canvas.drawCircle(mCenterX, mCenterY - distanceFromCenter, radius, paint);
