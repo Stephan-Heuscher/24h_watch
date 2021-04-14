@@ -463,8 +463,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if (mMinimalMode) {
                 // Mitte-Orientierung
                 drawCircle(hoursRotation, 0, mCenterX / 75, mHandPaint, canvas);
-                drawLineFromCenter(hoursRotation, mCenterX / 75, mCenterX / 10, mHandPaint, canvas);
-                drawLineFromCenter(hoursRotation, mCenterX /2 - mCenterX / 15, mCenterX /2 + mCenterX / 15, mHandPaint, canvas);
+                drawLineFromCenter(hoursRotation, mCenterX / 75, mCenterX / 6.5f, mHandPaint, canvas);
             }
             mHandPaint.setStyle(Paint.Style.FILL);
 
@@ -606,9 +605,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             float remainingRelativeHour = 1 - minutes / 60f;
             int lastMinutes = minutes;
             for (CalendarEvent event : events) {
-                long eventLengthMs = -event.getBegin().getTime() + event.getEnd().getTime();
+                Date begin = event.getBegin();
+                long eventLengthMs = -begin.getTime() + event.getEnd().getTime();
                 if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
-                    time.setTimeInMillis(event.getBegin().getTime());
+//                    LocalDateTime beginDateTime = Instant.ofEpochMilli(begin.getTime())
+//                            .atZone(ZoneId.systemDefault())
+//                            .toLocalDateTime();
+//                    if (beginDateTime.getMinute() == 0) {
+//                        hasHourMeeting = true;
+//                    }
+                    time.setTimeInMillis(begin.getTime());
                     long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
                     if (inFuture > 0 && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
                         // events sind geordnet -> langsam auffüllen, und wechseln, wenn zukunft + min > 60
