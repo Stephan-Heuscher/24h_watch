@@ -839,6 +839,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             cal.setTimeInMillis(endVal);
             newEvent.setEnd(cal.getTime());
             newEvent.setAllDay(isAllDay);
+            // todo: why does it not filter out non-available meetings?
             boolean isBusy = cursor.getInt(4) == CalendarContract.Instances.AVAILABILITY_BUSY;
             if (isBusy && !isAllDay){
                 events.add(newEvent);
