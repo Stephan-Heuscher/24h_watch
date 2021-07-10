@@ -144,7 +144,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private boolean mAmbient;
         private boolean mDarkMode = true;
         private boolean mMinimalMode = false;
-        private boolean mShow24Hours = false;
         private boolean mShowMinutesDateAndMeetings = true;
 
         private float mHourHandLength;
@@ -318,8 +317,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     if (y <= mHeight / 3 ) { // top
                         setDarkMode(!isDarkMode());
                     }
-                    else if (x <= mWidth / 3 ) { // left
-                        mShow24Hours = !mShow24Hours;
+                    else if (x <= mWidth / 3 ) {
+                        // left
                     }
                     else if (x >= mWidth / 3 * 2 ) { // right
                         mRotate = mRotate == 0 ? 180 : 0;
@@ -471,10 +470,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if(!isAmbient()){
                 float buttonRadius = mCenterX / 3 * 2;
                 if (!isDarkMode()) {
-                    drawTextUprightFromCenter(0, buttonRadius,"☼", mHandPaint, canvas, mBold);
-                    drawCircle(0, buttonRadius, 6, mHandPaint, canvas);
-                    drawTextUprightFromCenter(270 + mRotate, hourTextDistance,
-                            mRotate == 0 ? "18" : "6", mHandPaint, canvas, mShow24Hours ? mBold : mLight);
+                    // left button comes here
                 }
                 else {
                     drawTextUprightFromCenter(0, buttonRadius,"○", mHandPaint, canvas, mLight);
@@ -502,7 +498,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 writeHour(canvas, hourTextDistance,24, "", false, true, false);
             }
             for (int i = 1; active && i <= 24 - 1 * Math.min(1,specials.length()); i++) {
-                boolean writeNumber = mShow24Hours && i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
+                boolean writeNumber = i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
                 writeHour(canvas, hourTextDistance, i, writeNumber, !writeNumber);
             }
 
