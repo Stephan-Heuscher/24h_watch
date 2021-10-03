@@ -27,6 +27,9 @@ Features
 Next ideas
 --------
    * Why does the watchface restart occasionally? --> no reports found in log
+   * Use "🔆 Bright Button" and "🔅 Dim Button" instead of sun in the UI
+   * Show calendar events only if they have a notification or if status is "busy"
+   * Reserve the 24h space for notifications (move dot to 12h / bottom)  
    * Handle display state and style in separate class
 
 License
