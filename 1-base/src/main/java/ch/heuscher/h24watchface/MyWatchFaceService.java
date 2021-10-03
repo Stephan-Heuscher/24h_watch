@@ -470,12 +470,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if(!isAmbient()){
                 float buttonRadius = mCenterX / 3 * 2;
                 if (!isDarkMode()) {
-                    drawTextUprightFromCenter(0, buttonRadius,"☼", mHandPaint, canvas, mBold);
-                    drawCircle(0, buttonRadius, 6, mHandPaint, canvas);
-                    // left button comes here
+                    drawTextUprightFromCenter(0, buttonRadius,"\uD83D\uDD06", mHandPaint, canvas, mBold);
                 }
                 else {
-                    drawTextUprightFromCenter(0, buttonRadius,"○", mHandPaint, canvas, mLight);
+                    drawTextUprightFromCenter(0, buttonRadius,"\uD83D\uDD05", mHandPaint, canvas, mLight);
                 }
                 drawTextUprightFromCenter(mRotate + 90, buttonRadius,"↷", mHandPaint, canvas, mBold);
                 if (!mMinimalMode && !mShowMinutesDateAndMeetings) {
