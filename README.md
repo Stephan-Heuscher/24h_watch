@@ -27,7 +27,6 @@ Features
 Next ideas
 --------
    * Why does the watchface restart occasionally? --> no reports found in log
-   * Show calendar events only if they have a notification or if status is "busy"
    * Handle display state and style in separate class
 
 License

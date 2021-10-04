@@ -557,29 +557,31 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
 
-            for (CalendarEvent event : events) {
-                time.setTimeInMillis(event.getBegin().getTime());
-                float degreesFromNorth = getDegreesFromNorth(time);
-                mHandPaint.setStyle(Paint.Style.STROKE);
-                drawCircle(degreesFromNorth, alarmDistanceFromCenter, mMinimalMode ? 1 : 6.5f, mHandPaint, canvas);
-                mHandPaint.setStyle(Paint.Style.FILL);
-                long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
-                if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
-                    String title = event.getTitle();
-                    if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
-                    boolean isInFuture = inFuture < 0;
-                    String eventHrTitle = isInFuture ?
-                            "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
-                            : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
-                    eventHrTitle +=  " " + title;
-                    int minimizedLength = Math.min(22, eventHrTitle.length());
-                    drawTextUprightFromCenter(0,mCenterY - currentY,
-                            eventHrTitle.substring(0, minimizedLength), mHandPaint, canvas, isInFuture ? mLight : null);
-                    currentY = getNextLine(currentY);
-                    if (eventHrTitle.length() > minimizedLength){
+            if (mShowMinutesDateAndMeetings){
+                for (CalendarEvent event : events) {
+                    time.setTimeInMillis(event.getBegin().getTime());
+                    float degreesFromNorth = getDegreesFromNorth(time);
+                    mHandPaint.setStyle(Paint.Style.STROKE);
+                    drawCircle(degreesFromNorth, alarmDistanceFromCenter, mMinimalMode ? 1 : 6.5f, mHandPaint, canvas);
+                    mHandPaint.setStyle(Paint.Style.FILL);
+                    long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
+                    if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
+                        String title = event.getTitle();
+                        if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
+                        boolean isInFuture = inFuture < 0;
+                        String eventHrTitle = isInFuture ?
+                                "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
+                                : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
+                        eventHrTitle +=  " " + title;
+                        int minimizedLength = Math.min(22, eventHrTitle.length());
                         drawTextUprightFromCenter(0,mCenterY - currentY,
-                                eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
+                                eventHrTitle.substring(0, minimizedLength), mHandPaint, canvas, isInFuture ? mLight : null);
                         currentY = getNextLine(currentY);
+                        if (eventHrTitle.length() > minimizedLength){
+                            drawTextUprightFromCenter(0,mCenterY - currentY,
+                                    eventHrTitle.substring(minimizedLength, Math.min(50, eventHrTitle.length())), mHandPaint, canvas, isInFuture ? mLight : null);
+                            currentY = getNextLine(currentY);
+                        }
                     }
                 }
             }
