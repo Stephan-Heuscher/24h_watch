@@ -402,16 +402,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int colorFromHour = getColorDegrees(hoursRotation);
 
-            List<CalendarEvent> events = getCalendarEvents();
-            events.sort(new Comparator<CalendarEvent>()
-            {
-                public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
-            });
+            List<CalendarEvent> events = new ArrayList<CalendarEvent>();
 
             // draw hour
             float decenteringCorrection = -24;
             String hourText = "" + hour;//Math.random()*25;//
             if (!mMinimalMode) {
+                events = getCalendarEvents();
+                events.sort(new Comparator<CalendarEvent>()
+                {
+                    public int compare(CalendarEvent event1, CalendarEvent event2){ return event1.getBegin().compareTo(event2.getBegin()); }
+                });
                 mHourPaint.setColor(colorFromHour);
                 mHourPaint.setAlpha((int) (alphaHour * (isDarkMode() ? lightFactor : 1f)));
                 mHourPaint.setStyle(Paint.Style.FILL);
