@@ -77,7 +77,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     public static final Locale DE_CH_LOCALE = Locale.forLanguageTag("de-CH");
     public static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm", DE_CH_LOCALE);
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
-    public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("YYYY-MM-dd E", DE_CH_LOCALE);
+    public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("E YYYY-MM-dd", DE_CH_LOCALE);
     public static final int MEETING_PRE_ANNOUNCE_DURATION = 50;
     public static final int COLOR_6_H = Color.argb(255, 0, 255, 0);
     public static final int COLOR_12_H = Color.argb(255, 255, 255, 0);
@@ -546,7 +546,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             boolean bShowMinutesDateMeetingsOrNotAmbient = mShowMinutesDateAndMeetings || !isAmbient();
             if (bShowMinutesDateMeetingsOrNotAmbient) {
                 String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
-                topText = topText.substring(0, topText.length() - 1);
                 topText = mMinimalMode ? "" : topText;
                 drawTextUprightFromCenter(0, mCenterY - currentY, topText, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
