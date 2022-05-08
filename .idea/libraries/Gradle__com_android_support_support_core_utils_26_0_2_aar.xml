@@ -5,9 +5,11 @@
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/18329ae621b47c4ac5a80a71587a9a80/support-core-utils-26.0.2/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/346c1f8d68a68c66f3750e35e32163f8/support-core-utils-26.0.2/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/de61cb9296034b02564098333a5d498d/transformed/support-core-utils-26.0.2/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/05f3d8d3e346e0249a7c757c05fee90b/transformed/support-core-utils-26.0.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/05f3d8d3e346e0249a7c757c05fee90b/transformed/support-core-utils-26.0.2/AndroidManifest.xml" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/05f3d8d3e346e0249a7c757c05fee90b/transformed/support-core-utils-26.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/e3bf9b53696f208351a6780211cdd807/transformed/support-core-utils-26.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/ef6363dbb4fb762981bdccaee693fd82/transformed/support-core-utils-26.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/ef6363dbb4fb762981bdccaee693fd82/transformed/support-core-utils-26.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/ef6363dbb4fb762981bdccaee693fd82/transformed/support-core-utils-26.0.2/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
