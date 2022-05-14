@@ -72,6 +72,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class MyWatchFaceService extends CanvasWatchFaceService {
 
+    // damit es im zentrum steht
+    public static final float DECENTERING_CORRECTION = -24;
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
     public static final Locale DE_CH_LOCALE = Locale.forLanguageTag("de-CH");
@@ -305,8 +307,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
              * Calculate the lengths of the watch hands and store them in member variables.
              */
             mHourHandLength = mCenterX - 2 * RAND_RESERVE;
-            mHourPaint.setTextSize(mHeight);
-            mMinutesPaint.setTextSize(mCenterY/3);
+            mHourPaint.setTextSize(mHeight * 0.9f);
+            mMinutesPaint.setTextSize(mCenterY/2);
         }
 
         @Override
@@ -405,8 +407,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             List<CalendarEvent> events = new ArrayList<CalendarEvent>();
 
             // draw hour
-            float decenteringCorrection = -24;
-            String hourText = "" + hour;//Math.random()*25;//
+            float decenter = 15 + DECENTERING_CORRECTION;
+            String hourText = "" + hour;// (int)(Math.random()*25);
             if (!mMinimalMode) {
                 events = getCalendarEvents();
                 events.sort(new Comparator<CalendarEvent>()
@@ -419,7 +421,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 Rect boundsText = new Rect();
                 mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
                 float textSize = boundsText.height();
-                drawTextUprightFromCenter(0, decenteringCorrection, hourText,
+                drawTextUprightFromCenter(0, decenter, hourText,
                         mHourPaint, canvas, null);
                 mHourPaint.setColor(handPaintColor);
                 // noch abzulaufende Zeit verdunkeln
@@ -428,14 +430,16 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 // Minuten unten schreiben
                 if (mShowMinutesDateAndMeetings) {
                     String minutesText = MINUTES.format(mCalendar.getTime());
-                    drawTextUprightFromCenter(180, mCenterY/3*2, minutesText, mMinutesPaint, canvas, null);
+                    minutesText = minutesText.charAt(0) + "  " + minutesText.charAt(1);
+                    drawTextUprightFromCenter(180, mCenterY/3*1.6f, minutesText,
+                            mMinutesPaint, canvas, mDarkMode? mLight : null);
                 }
 
                 // Anzahl Schritte schreiben (total und heute)
                 if(!isAmbient()) {
-                    drawTextUprightFromCenter(180, mCenterY / 3 * 0.65f,
+                    drawTextUprightFromCenter(180, mCenterY / 3 * 0.1f,
                             DE_CH_NUMBER.format(mSteps), mHandPaint, canvas, null);
-                    drawTextUprightFromCenter(180, mCenterY / 3 * 1.2f,
+                    drawTextUprightFromCenter(180, mCenterY / 3 * 0.65f,
                             DE_CH_NUMBER.format(mSteps - mStepsAtMidnight), mHandPaint, canvas, null);
                 }
             }
@@ -445,7 +449,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 // nochmals den Umriss nachziehen, damit man die Zahl sieht
                 mHourPaint.setStyle(Paint.Style.STROKE);
                 mHourPaint.setAlpha(255);
-                drawTextUprightFromCenter(0, decenteringCorrection, hourText,
+                drawTextUprightFromCenter(0, decenter, hourText,
                         mHourPaint, canvas, null);
             }
 
