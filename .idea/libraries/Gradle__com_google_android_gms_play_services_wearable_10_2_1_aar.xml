@@ -7,9 +7,10 @@
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/322dc9890d83fc88e98d6c466f5dfe60/transformed/play-services-wearable-10.2.1/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/26c3068f57522b98a6420aa24b50f9ad/transformed/play-services-wearable-10.2.1/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/f84851ece7110612da88605ba4468a94/transformed/play-services-wearable-10.2.1/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/0d304cce3c0a1ed6b8cbfefa41dd54bf/transformed/play-services-wearable-10.2.1/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/0d304cce3c0a1ed6b8cbfefa41dd54bf/transformed/play-services-wearable-10.2.1/AndroidManifest.xml" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/0d304cce3c0a1ed6b8cbfefa41dd54bf/transformed/play-services-wearable-10.2.1/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a0fd180f7fd4d945ad6e2bcbe0ed34cc/transformed/play-services-wearable-10.2.1/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a0fd180f7fd4d945ad6e2bcbe0ed34cc/transformed/play-services-wearable-10.2.1/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/a0fd180f7fd4d945ad6e2bcbe0ed34cc/transformed/play-services-wearable-10.2.1/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

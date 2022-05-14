@@ -7,9 +7,10 @@
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/0680dc6b09f01e3ad76a761fe34644b0/transformed/support-core-ui-26.0.2/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/a7e4db4b550d83ca6647e4caed1e8214/transformed/support-core-ui-26.0.2/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/94725e9583c0fd26655c3760360e86e6/transformed/support-core-ui-26.0.2/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/ccc8b0ed400b22fae697b6b389b225f5/transformed/support-core-ui-26.0.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/ccc8b0ed400b22fae697b6b389b225f5/transformed/support-core-ui-26.0.2/AndroidManifest.xml" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/ccc8b0ed400b22fae697b6b389b225f5/transformed/support-core-ui-26.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/793921b5d4731791b5e9dbdbf6029de9/transformed/support-core-ui-26.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/793921b5d4731791b5e9dbdbf6029de9/transformed/support-core-ui-26.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/793921b5d4731791b5e9dbdbf6029de9/transformed/support-core-ui-26.0.2/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

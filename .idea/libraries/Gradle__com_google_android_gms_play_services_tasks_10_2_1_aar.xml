@@ -8,8 +8,9 @@
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/125b87b86388930dc8ae81d622d41aef/transformed/play-services-tasks-10.2.1/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5076fc0e158c1461ac5328e55b2acd02/transformed/play-services-tasks-10.2.1/res" />
       <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4f3df606b28fa119d06d23b66d458d62/transformed/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4f3df606b28fa119d06d23b66d458d62/transformed/play-services-tasks-10.2.1/AndroidManifest.xml" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/4f3df606b28fa119d06d23b66d458d62/transformed/play-services-tasks-10.2.1/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/5aaad42e2827c0fc24255392bd9532e2/transformed/play-services-tasks-10.2.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5aaad42e2827c0fc24255392bd9532e2/transformed/play-services-tasks-10.2.1/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5aaad42e2827c0fc24255392bd9532e2/transformed/play-services-tasks-10.2.1/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
