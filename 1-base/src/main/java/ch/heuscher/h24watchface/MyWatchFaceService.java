@@ -226,6 +226,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mMinutesPaint = new Paint();
             mMinutesPaint.setAntiAlias(true);
             mMinutesPaint.setShadowLayer(8,0,0,Color.BLACK);
+            mMinutesPaint.setStyle(Paint.Style.STROKE);
 
             mCalendar = Calendar.getInstance();
 
@@ -400,7 +401,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mHourPaint.setTypeface(typeface);
             mMinutesPaint.setTypeface(typeface);
             mHourPaint.setStrokeWidth(strokeWidth);
-            mMinutesPaint.setStrokeWidth(strokeWidth);
+            mMinutesPaint.setStrokeWidth(strokeWidth * 0.5f);
 
             int colorFromHour = getColorDegrees(hoursRotation);
 
@@ -427,19 +428,12 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 // noch abzulaufende Zeit verdunkeln
                 adaptBackGroundNrWithMeetings(canvas, minutes, textSize, events);
 
-                // Minuten unten schreiben
-                if (mShowMinutesDateAndMeetings) {
-                    String minutesText = MINUTES.format(mCalendar.getTime());
-                    minutesText = minutesText.charAt(0) + "  " + minutesText.charAt(1);
-                    drawTextUprightFromCenter(180, mCenterY/3*1.6f, minutesText,
-                            mMinutesPaint, canvas, mDarkMode? mLight : null);
-                }
-
                 // Anzahl Schritte schreiben (total und heute)
+                float showMinutesCorrection = mShowMinutesDateAndMeetings ? 0 : 0.75f;
                 if(!isAmbient()) {
-                    drawTextUprightFromCenter(180, mCenterY / 3 * 0.1f,
+                    drawTextUprightFromCenter(180, mCenterY / 3 * (0.1f + showMinutesCorrection),
                             DE_CH_NUMBER.format(mSteps), mHandPaint, canvas, null);
-                    drawTextUprightFromCenter(180, mCenterY / 3 * 0.65f,
+                    drawTextUprightFromCenter(180, mCenterY / 3 * (0.65f + showMinutesCorrection),
                             DE_CH_NUMBER.format(mSteps - mStepsAtMidnight), mHandPaint, canvas, null);
                 }
             }
@@ -451,6 +445,14 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 mHourPaint.setAlpha(255);
                 drawTextUprightFromCenter(0, decenter, hourText,
                         mHourPaint, canvas, null);
+            }
+
+            // Minuten unten schreiben
+            if (!mMinimalMode && mShowMinutesDateAndMeetings) {
+                String minutesText = MINUTES.format(mCalendar.getTime());
+                minutesText = minutesText.charAt(0) + "  " + minutesText.charAt(1);
+                drawTextUprightFromCenter(180, mCenterY/3*1.6f, minutesText,
+                        mMinutesPaint, canvas, mDarkMode ? mLight : null);
             }
 
             // draw hand
