@@ -4,6 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/24h_watch.iml" filepath="$PROJECT_DIR$/24h_watch.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.iml" filepath="$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.main.iml" filepath="$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/1-base/24h_watch.1-base.unitTest.iml" />
     </modules>
   </component>
 </project>
