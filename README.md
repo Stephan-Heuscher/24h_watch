@@ -17,7 +17,7 @@ Features
    * Display of ISO date and german day
    * Toggling display by 180° by tabbing the right
    * Toggling minutes, date and meeting title display by tabbing the bottom
-   * Display of status information at the top of the watch face (if more than one info):  W: Wifi enabled -- !: Unread notifications -- i: Active notifications -- <: Not silenced -- >: Flight mode  -- X: No internet connection -- ⌖: GPS enabled
+   * Display of status information at the top of the watch face (if more than one info):  W: Wifi enabled -- i: Unread notifications -- <: Not silenced -- >: Flight mode  -- X: No internet connection -- ⌖: GPS enabled
    * Remaining time on countdown timer on top (works cleanly for timers of less than ten hours)
    * Turn on/off numbers of watch by tabbing right (numbers as buttons), numbers are never shown in dark mode)
    * Battery fill is shown as black dot in the hour hand if battery < 37% 
