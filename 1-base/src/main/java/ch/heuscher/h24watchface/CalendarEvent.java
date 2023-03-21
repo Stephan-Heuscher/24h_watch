@@ -30,13 +30,6 @@ public class CalendarEvent implements Comparable<CalendarEvent>{
 
     }
 
-    public CalendarEvent(String title, Date begin, Date end, boolean allDay) {
-        setTitle(title);
-        setBegin(begin);
-        setEnd(end);
-        setAllDay(allDay);
-    }
-
     public String getTitle() {
         return title;
     }
