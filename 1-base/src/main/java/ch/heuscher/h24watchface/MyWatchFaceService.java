@@ -52,8 +52,6 @@ import android.support.wearable.watchface.WatchFaceStyle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -810,7 +808,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         return currentY + 1.1f * TEXT_SIZE;
     }
 
-    private float getDegreesFromNorth(@NotNull Calendar time) {
+    private float getDegreesFromNorth(Calendar time) {
         return time.get(Calendar.HOUR_OF_DAY)*15f + time.get(Calendar.MINUTE)/4f;
     }
 

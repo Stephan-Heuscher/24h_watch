@@ -1,16 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.android.support:support-v4:26.0.2@aar">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8a77c1b3014e8bee4483d4491d375097/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/d31fe9d4356ca1dc23faf5f560b71f69/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/f1b39339f4092aa027522c4cc290545d/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4fee0b0f2b550d98266c5a87d3b8a6fd/transformed/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4622b28f17e9a750db4660c2d056b176/transformed/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/86a8c37ff716f8e28b2ec0380501ac32/transformed/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/8f98b398143ceefc9e294f4e5ae12223/transformed/support-v4-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/fe6cdbf758ea2aeca60b2977778be94d/transformed/support-v4-26.0.2/AndroidManifest.xml" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/fe6cdbf758ea2aeca60b2977778be94d/transformed/support-v4-26.0.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/fe6cdbf758ea2aeca60b2977778be94d/transformed/support-v4-26.0.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/0c4ef024adfd453a91f569e8dc26009e/transformed/support-v4-26.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/0c4ef024adfd453a91f569e8dc26009e/transformed/support-v4-26.0.2/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>

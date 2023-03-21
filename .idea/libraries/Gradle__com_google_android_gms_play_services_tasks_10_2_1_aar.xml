@@ -1,16 +1,8 @@
 <component name="libraryTable">
   <library name="Gradle: com.google.android.gms:play-services-tasks:10.2.1@aar">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/6865bdc6631f8763ac34d0ca4cdf44b7/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/7022475004c527f5f9d0205dec0d8b33/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/0986d5e8c6d683a48c1349157e56811f/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/c864cd46b2304eab497474d3270de6a7/transformed/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/125b87b86388930dc8ae81d622d41aef/transformed/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5076fc0e158c1461ac5328e55b2acd02/transformed/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/4f3df606b28fa119d06d23b66d458d62/transformed/play-services-tasks-10.2.1/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/5aaad42e2827c0fc24255392bd9532e2/transformed/play-services-tasks-10.2.1/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5aaad42e2827c0fc24255392bd9532e2/transformed/play-services-tasks-10.2.1/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/5aaad42e2827c0fc24255392bd9532e2/transformed/play-services-tasks-10.2.1/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/f7cf929fa0b2c543a0640523c3560685/transformed/play-services-tasks-10.2.1/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/f7cf929fa0b2c543a0640523c3560685/transformed/play-services-tasks-10.2.1/AndroidManifest.xml" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
