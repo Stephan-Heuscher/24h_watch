@@ -77,7 +77,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     public static final Locale DE_CH_LOCALE = Locale.forLanguageTag("de-CH");
     public static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm", DE_CH_LOCALE);
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
-    public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("E YYYY-MM-dd", DE_CH_LOCALE);
+    public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("E yyyy-MM-dd", DE_CH_LOCALE);
     public static final int MEETING_PRE_ANNOUNCE_DURATION = 50;
     public static final int COLOR_6_H = Color.argb(255, 0, 255, 0);
     public static final int COLOR_12_H = Color.argb(255, 255, 255, 0);
@@ -137,9 +137,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private Paint mHourPaint;
         private Paint mMinutesPaint;
 
-        private Typeface mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
-        private Typeface mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
-        private Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
+        private final Typeface mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
+        private final Typeface mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
+        private final Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
@@ -153,7 +153,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private float mCenterY;
         private DimmingController mDimmingController;
         private float mRotate = 0;
-        private int mCompilationId = 1974;
+        private final int mCompilationId = 1974;
         private long mLastReadCountdownTime;
         private LocalTime mLastCountdownTime;
 
@@ -404,7 +404,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             int colorFromHour = getColorDegrees(hoursRotation);
 
-            List<CalendarEvent> events = new ArrayList<CalendarEvent>();
+            List<CalendarEvent> events = new ArrayList<>();
 
             // draw hour
             float decenter = DECENTERING_CORRECTION; // + 15;
@@ -503,7 +503,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             if(!active && mMinimalMode){
                 writeHour(canvas, hourTextDistance,12, "", false, true, false);
             }
-            for (int i = 1; active && i <= 24 - 1 * Math.min(1,specials.length()); i++) {
+            for (int i = 1; active && i <= 24 - Math.min(1,specials.length()); i++) {
                 boolean writeNumber = i % 2 == 0 && (mMinimalMode || (i <= 21 && i >= 3));
                 writeHour(canvas, hourTextDistance, i, writeNumber, !writeNumber);
             }
@@ -524,7 +524,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             boolean isCountdownActive = mLastCountdownTime != null;
             String countDownTime = "";
             if (isCountdownActive) {
-                long correctedTimeMs = mLastCountdownTime.toSecondOfDay()*1000 - (System.currentTimeMillis() - mLastReadCountdownTime);
+                long correctedTimeMs = mLastCountdownTime.toSecondOfDay()*1000L - (System.currentTimeMillis() - mLastReadCountdownTime);
                 if (correctedTimeMs >= 0){
                     LocalTime correctedTime = LocalTime.ofSecondOfDay(correctedTimeMs / 1000);
                     countDownTime = "T-";
