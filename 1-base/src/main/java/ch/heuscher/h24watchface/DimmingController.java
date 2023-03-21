@@ -13,11 +13,11 @@ public class DimmingController implements SensorEventListener {
     public static final float VERY_DARK = 0.3f;
     public static final float DEFAULT_MIN_LUMINANCE = 0.072f;
     public static final float BOOST_MINIMUM_LUX = 100f;
-    private MyWatchFaceService.Engine mEngine;
-    private SensorManager mSensorManager;
-    private PowerManager mPowerManager;
+    private final MyWatchFaceService.Engine mEngine;
+    private final SensorManager mSensorManager;
+    private final PowerManager mPowerManager;
     private PowerManager.WakeLock mWakeLock;
-    private Sensor mLight;
+    private final Sensor mLight;
     private boolean mIsRegistered = false;
     private long mLastSensorChangeTime = 0;
 
