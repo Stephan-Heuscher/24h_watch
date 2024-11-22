@@ -1,9 +1,9 @@
 <component name="libraryTable">
-  <library name="Gradle: com.google.android.gms:play-services-base:10.2.1@aar">
+  <library name="Gradle: com.google.android.gms:play-services-base:10.2.1@aar" external-system-id="GRADLE">
     <CLASSES>
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/efd7be7f3823daf621e592b80d2cf863/transformed/play-services-base-10.2.1/res" />
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/efd7be7f3823daf621e592b80d2cf863/transformed/play-services-base-10.2.1/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/efd7be7f3823daf621e592b80d2cf863/transformed/play-services-base-10.2.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/8.9/transforms/80ee6e4dde9e26471fe3e1f315a43569/transformed/play-services-base-10.2.1/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/8.9/transforms/80ee6e4dde9e26471fe3e1f315a43569/transformed/play-services-base-10.2.1/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/8.9/transforms/80ee6e4dde9e26471fe3e1f315a43569/transformed/play-services-base-10.2.1/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

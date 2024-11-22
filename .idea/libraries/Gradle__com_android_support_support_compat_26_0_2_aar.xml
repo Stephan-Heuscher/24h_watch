@@ -1,9 +1,9 @@
 <component name="libraryTable">
-  <library name="Gradle: com.android.support:support-compat:26.0.2@aar">
+  <library name="Gradle: com.android.support:support-compat:26.0.2@aar" external-system-id="GRADLE">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/9ee0ef0acc3b332f21860e70c36c5e4f/transformed/support-compat-26.0.2/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/9ee0ef0acc3b332f21860e70c36c5e4f/transformed/support-compat-26.0.2/res" />
-      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/9ee0ef0acc3b332f21860e70c36c5e4f/transformed/support-compat-26.0.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/8.9/transforms/f2b72a36174903bc93d7fe437fbe126e/transformed/support-compat-26.0.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/8.9/transforms/f2b72a36174903bc93d7fe437fbe126e/transformed/support-compat-26.0.2/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/8.9/transforms/f2b72a36174903bc93d7fe437fbe126e/transformed/support-compat-26.0.2/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
