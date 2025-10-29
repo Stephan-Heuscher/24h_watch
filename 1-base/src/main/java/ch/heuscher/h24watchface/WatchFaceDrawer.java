@@ -64,7 +64,7 @@ public class WatchFaceDrawer {
         int colorFromHour = getColorDegrees(hoursRotation);
         int handPaintColor = getHandPaintColor(lightFactor);
 
-        updatePaints(lightFactor, handPaintColor, mZonedDateTime);
+        updatePaints(lightFactor, handPaintColor);
 
         boolean active = !(mEngine.isAmbient() || mEngine.isDarkMode());
 
@@ -103,7 +103,7 @@ public class WatchFaceDrawer {
         }
     }
 
-    private void updatePaints(float lightFactor, int handPaintColor, ZonedDateTime mZonedDateTime) {
+    private void updatePaints(float lightFactor, int handPaintColor) {
         mEngine.getHandPaint().setColor(handPaintColor);
         mEngine.getHourPaint().setColor(handPaintColor);
         mEngine.getMinutesPaint().setColor(handPaintColor);
@@ -121,7 +121,7 @@ public class WatchFaceDrawer {
         mEngine.getHourPaint().setTypeface(typeface);
         mEngine.getMinutesPaint().setTypeface(typeface);
         mEngine.getHourPaint().setStrokeWidth(strokeWidth);
-        mEngine.getHourPaint().setStrokeWidth(Math.min(4f, strokeWidth));
+        mEngine.getMinutesPaint().setStrokeWidth(Math.min(4f, strokeWidth));
     }
 
     private List<CalendarEvent> drawHourAndEvents(Canvas canvas, ZonedDateTime mZonedDateTime, int colorFromHour, int handPaintColor, float lightFactor) {
