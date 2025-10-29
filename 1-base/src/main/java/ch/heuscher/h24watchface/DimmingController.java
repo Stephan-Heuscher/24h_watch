@@ -5,7 +5,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.PowerManager;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,8 +14,6 @@ public class DimmingController implements SensorEventListener {
     public static final float BOOST_MINIMUM_LUX = 100f;
     private final MyWatchFaceService.Engine mEngine;
     private final SensorManager mSensorManager;
-    private final PowerManager mPowerManager;
-    private PowerManager.WakeLock mWakeLock;
     private final Sensor mLight;
     private boolean mIsRegistered = false;
     private long mLastSensorChangeTime = 0;
@@ -36,9 +33,8 @@ public class DimmingController implements SensorEventListener {
         return mLux;
     }
 
-    public DimmingController(MyWatchFaceService.Engine engine, Context context, PowerManager powerManager,  SensorManager sensorManager) {
+    public DimmingController(MyWatchFaceService.Engine engine, Context context, SensorManager sensorManager) {
         mEngine = engine;
-        mPowerManager = powerManager;
         mSensorManager = sensorManager;
         mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         selfRegister();
@@ -57,17 +53,8 @@ public class DimmingController implements SensorEventListener {
         // The light sensor returns a single value.
         mLux = event.values[0];
         setNextDimm(computeLightFactor(mLux));
-        if (mWakeLock != null && !needsBoost()) {
-            if (mWakeLock.isHeld()) {
-                mWakeLock.release();
-            }
-            mWakeLock = null;
-        }
-        else if (mWakeLock == null && needsBoost()) {
-            mWakeLock = mPowerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.FULL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "heuscher24h:tag");
-            mWakeLock.acquire(TimeUnit.SECONDS.toMillis(3));
-        }
-        else if (needsRedraw()){
+
+        if (needsRedraw()){
             mEngine.invalidate();
         }
     }

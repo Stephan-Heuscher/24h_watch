@@ -17,12 +17,9 @@
 package ch.heuscher.h24watchface;
 
 import android.app.AlarmManager;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -39,7 +36,6 @@ import android.net.Network;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
-import android.os.PowerManager;
 import android.provider.CalendarContract;
 import android.provider.Settings;
 import android.support.v4.graphics.ColorUtils;
@@ -53,16 +49,14 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,9 +69,9 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
     private static final float TEXT_SIZE = 30f;
     private static final int RAND_RESERVE = 7;
     public static final Locale DE_CH_LOCALE = Locale.forLanguageTag("de-CH");
-    public static final SimpleDateFormat MINUTES = new SimpleDateFormat("mm", DE_CH_LOCALE);
+    public static final DateTimeFormatter MINUTES_FORMATTER = DateTimeFormatter.ofPattern("mm");
     public static final NumberFormat DE_CH_NUMBER = NumberFormat.getNumberInstance(DE_CH_LOCALE);
-    public static final SimpleDateFormat ISO_DATE_WITH_DAYOFWEEK = new SimpleDateFormat("E yyyy-MM-dd", DE_CH_LOCALE);
+    public static final DateTimeFormatter ISO_DATE_WITH_DAYOFWEEK = DateTimeFormatter.ofPattern("E yyyy-MM-dd");
     public static final int MEETING_PRE_ANNOUNCE_DURATION = 50;
     public static final int COLOR_6_H = Color.argb(255, 0, 255, 0);
     public static final int COLOR_12_H = Color.argb(255, 255, 255, 0);
@@ -93,13 +87,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
     public class Engine extends CanvasWatchFaceService.Engine {
 
-        private final BroadcastReceiver mTimeZoneReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                mCalendar.setTimeZone(TimeZone.getDefault());
-                invalidate();
-            }
-        };
+        private ZonedDateTime mZonedDateTime;
 
         private int mSteps = 0; //very ugly hack (shared variables)
         private int mStepsAtMidnight = 0;
@@ -131,7 +119,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
         private boolean mRegisteredReceivers = false;
         private static final float STROKE_WIDTH = 2f;
-        private Calendar mCalendar;
         private Paint mBackgroundPaint;
         private Paint mHandPaint;
         private Paint mHourPaint;
@@ -161,8 +148,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private Sensor mStepCounter;
 
         private String mDebug = null;
-
-        private long mLastDraw;
 
 
         public boolean isAmbient() {
@@ -201,7 +186,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mDimmingController = new DimmingController(
                     this,
                     getBaseContext(),
-                    (PowerManager) getSystemService(POWER_SERVICE),
                     mSystemService);
             setDarkMode(true);
 
@@ -227,7 +211,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mMinutesPaint.setStyle(Paint.Style.STROKE);
             //mMinutesPaint.setLetterSpacing(1.4f);
 
-            mCalendar = Calendar.getInstance();
+            mZonedDateTime = ZonedDateTime.now();
 
             setDefaultComplicationProvider(mCompilationId, new ComponentName("com.google.android.deskclock",
                             "com.google.android.deskclock.complications.TimerProviderService"),
@@ -344,21 +328,20 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             canvas.rotate(mRotate, mCenterX, mCenterY);
             float hourTextDistance = mCenterX * 0.9f;
             boolean active = !(isAmbient() || isDarkMode());
-            setLastDraw(System.currentTimeMillis());
-            mCalendar.setTimeInMillis(getLastDraw());
+            mZonedDateTime = ZonedDateTime.now();
 
             // Draw the background.
             canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), mBackgroundPaint);
 
-            int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
-            int minutes = mCalendar.get(Calendar.MINUTE);
+            int hour = mZonedDateTime.getHour();
+            int minutes = mZonedDateTime.getMinute();
 
             // Hack to set and re-set countdown-timer
             setActiveComplications(SystemProviders.DATE);
             setActiveComplications(mCompilationId);
 
             /* These calculations reflect the rotation in degrees per unit of time, e.g., 360 / 60 = 6 and 360 / 12 = 30. */
-            final float hoursRotation = getDegreesFromNorth(mCalendar);
+            final float hoursRotation = getDegreesFromNorth(mZonedDateTime);
 
             int batteryCharge = 100;
             BatteryManager batteryManager = (BatteryManager) getSystemService(Context.BATTERY_SERVICE);
@@ -448,7 +431,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             // Minuten unten schreiben
             if (!mMinimalMode && mShowMinutesDateAndMeetings) {
-                String minutesText = MINUTES.format(mCalendar.getTime());
+                String minutesText = mZonedDateTime.format(MINUTES_FORMATTER);
                 //minutesText = minutesText.charAt(0) + "  " + minutesText.charAt(1);
                 drawTextUprightFromCenter(180, mCenterY/3*1.01f, minutesText,
                         mMinutesPaint, canvas, mDarkMode ? mLight : null);
@@ -484,7 +467,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 drawTextUprightFromCenter(mRotate + 90, buttonRadius,"↷", mHandPaint, canvas, mBold);
                 if (!mMinimalMode && !mShowMinutesDateAndMeetings) {
                     drawTextUprightFromCenter(180, mCenterY/3*2,
-                            MINUTES.format(mCalendar.getTime()), mHandPaint, canvas, null);
+                            mZonedDateTime.format(MINUTES_FORMATTER), mHandPaint, canvas, null);
                 }
             }
 
@@ -499,7 +482,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             String specials = getSpecials(canvas);
 
             // Stunden-Zahl anzeigen (genau auf Stunde) & Stunden-Punkte zeichnen
-            Date date = mCalendar.getTime();
             if(!active && mMinimalMode){
                 writeHour(canvas, hourTextDistance,12, "", false, true, false);
             }
@@ -509,14 +491,13 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
 
             float alarmDistanceFromCenter = mHourHandLength;
-            Calendar time = Calendar.getInstance();
             AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
             if (alarm != null) {
                 AlarmManager.AlarmClockInfo nextAlarmClock = alarm.getNextAlarmClock();
-                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < getLastDraw()) {
-                    time.setTimeInMillis(nextAlarmClock.getTriggerTime());
+                if (nextAlarmClock != null && nextAlarmClock.getTriggerTime() - TimeUnit.HOURS.toMillis(18) < mZonedDateTime.toInstant().toEpochMilli()) {
+                    ZonedDateTime alarmTime = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(nextAlarmClock.getTriggerTime()), mZonedDateTime.getZone());
                     String alarmText = "A";//String.format("%tR", time.getTime());
-                    drawTextUprightFromCenter(getDegreesFromNorth(time),
+                    drawTextUprightFromCenter(getDegreesFromNorth(alarmTime),
                             alarmDistanceFromCenter, alarmText, mHandPaint, canvas, null);
                 }
             }
@@ -550,7 +531,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             boolean bShowMinutesDateMeetingsOrNotAmbient = mShowMinutesDateAndMeetings || !isAmbient();
             if (bShowMinutesDateMeetingsOrNotAmbient) {
-                String topText = ISO_DATE_WITH_DAYOFWEEK.format(date);
+                String topText = mZonedDateTime.format(ISO_DATE_WITH_DAYOFWEEK);
                 topText = mMinimalMode ? "" : topText;
                 drawTextUprightFromCenter(0, mCenterY - currentY, topText, mHandPaint, canvas, null);
                 currentY = getNextLine(currentY);
@@ -564,18 +545,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             if (mShowMinutesDateAndMeetings){
                 for (CalendarEvent event : events) {
-                    time.setTimeInMillis(event.getBegin().getTime());
-                    float degreesFromNorth = getDegreesFromNorth(time);
+                    float degreesFromNorth = getDegreesFromNorth(event.getBegin());
                     mHandPaint.setStyle(Paint.Style.STROKE);
                     drawCircle(degreesFromNorth, alarmDistanceFromCenter, mMinimalMode ? 1 : 6.5f, mHandPaint, canvas);
                     mHandPaint.setStyle(Paint.Style.FILL);
-                    long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
+                    long inFuture = event.getBegin().toInstant().toEpochMilli() - mZonedDateTime.toInstant().toEpochMilli();
                     if (!mMinimalMode && bShowMinutesDateMeetingsOrNotAmbient && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
                         String title = event.getTitle();
                         if (title == null || title.trim().length() == 0) title = "(ohne Titel)";
                         boolean isInFuture = inFuture < 0;
                         String eventHrTitle = isInFuture ?
-                                "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().getTime() - mCalendar.getTimeInMillis())
+                                "-" + TimeUnit.MILLISECONDS.toMinutes(event.getEnd().toInstant().toEpochMilli() - mZonedDateTime.toInstant().toEpochMilli())
                                 : "" + TimeUnit.MILLISECONDS.toMinutes(inFuture);
                         eventHrTitle +=  " " + title;
                         int minimizedLength = Math.min(22, eventHrTitle.length());
@@ -599,22 +579,17 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void adaptBackGroundNrWithMeetings(Canvas canvas, int minutes, float textSize, List<CalendarEvent> events) {
-            Calendar time = Calendar.getInstance();
             float minuteWidth = textSize * 1 / 60f;
             float remainingRelativeHour = 1 - minutes / 60f;
             int lastMinutes = minutes;
             for (CalendarEvent event : events) {
-                Date begin = event.getBegin();
-                long eventLengthMs = -begin.getTime() + event.getEnd().getTime();
+                ZonedDateTime begin = event.getBegin();
+                long eventLengthMs = -begin.toInstant().toEpochMilli() + event.getEnd().toInstant().toEpochMilli();
                 if (!event.isAllDay() && !(eventLengthMs >= TimeUnit.HOURS.toMillis(24))) {
-//                    LocalDateTime beginDateTime = Instant.ofEpochMilli(begin.getTime())
-//                            .atZone(ZoneId.systemDefault())
-//                            .toLocalDateTime();
-//                    if (beginDateTime.getMinute() == 0) {
+//                    if (begin.getMinute() == 0) {
 //                        hasHourMeeting = true;
 //                    }
-                    time.setTimeInMillis(begin.getTime());
-                    long inFuture = time.getTimeInMillis() - mCalendar.getTimeInMillis();
+                    long inFuture = begin.toInstant().toEpochMilli() - mZonedDateTime.toInstant().toEpochMilli();
                     if (inFuture > 0 && inFuture <= TimeUnit.MINUTES.toMillis(MEETING_PRE_ANNOUNCE_DURATION)) {
                         // events sind geordnet -> langsam auffüllen, und wechseln, wenn zukunft + min > 60
                         long minutesOfEvent = minutes + TimeUnit.MILLISECONDS.toMinutes(inFuture);
@@ -753,8 +728,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             if (visible) {
                 registerReceiver();
-                // Update time zone in case it changed while we weren't visible.
-                mCalendar.setTimeZone(TimeZone.getDefault());
                 invalidate();
             } else {
                 unregisterReceiver();
@@ -766,9 +739,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 return;
             }
             mRegisteredReceivers = true;
-            IntentFilter filter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
             mSystemService.registerListener(mStepCounterListener, mStepCounter, SensorManager.SENSOR_DELAY_NORMAL);
-            MyWatchFaceService.this.registerReceiver(mTimeZoneReceiver, filter);
         }
 
         private void unregisterReceiver() {
@@ -778,15 +749,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             }
             mRegisteredReceivers = false;
             mSystemService.unregisterListener(mStepCounterListener);
-            MyWatchFaceService.this.unregisterReceiver(mTimeZoneReceiver);
         }
 
         public long getLastDraw() {
-            return mLastDraw;
-        }
-
-        public void setLastDraw(long mLastDraw) {
-            this.mLastDraw = mLastDraw;
+            return mZonedDateTime.toInstant().toEpochMilli();
         }
     }
 
@@ -808,8 +774,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         return currentY + 1.1f * TEXT_SIZE;
     }
 
-    private float getDegreesFromNorth(Calendar time) {
-        return time.get(Calendar.HOUR_OF_DAY)*15f + time.get(Calendar.MINUTE)/4f;
+    private float getDegreesFromNorth(ZonedDateTime time) {
+        return time.getHour()*15f + time.getMinute()/4f;
     }
 
     private final String[] PROJECTION = {
@@ -831,7 +797,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         if (cursor == null) {
             return events;
         }
-        Calendar cal = Calendar.getInstance();
         while (cursor.moveToNext()) {
             long beginVal = cursor.getLong(0);
             long endVal = cursor.getLong(1);
@@ -840,10 +805,10 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     || endVal - beginVal >= TimeUnit.HOURS.toMillis(24) - TimeUnit.MINUTES.toMillis(1);
             CalendarEvent newEvent = new CalendarEvent();
             newEvent.setTitle(title);
-            cal.setTimeInMillis(beginVal);
-            newEvent.setBegin(cal.getTime());
-            cal.setTimeInMillis(endVal);
-            newEvent.setEnd(cal.getTime());
+            ZonedDateTime beginTime = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(beginVal), java.time.ZoneId.systemDefault());
+            newEvent.setBegin(beginTime);
+            ZonedDateTime endTime = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(endVal), java.time.ZoneId.systemDefault());
+            newEvent.setEnd(endTime);
             newEvent.setAllDay(isAllDay);
             // todo: why does it not filter out non-available meetings?
             boolean isBusy = cursor.getInt(4) == CalendarContract.Instances.AVAILABILITY_BUSY;

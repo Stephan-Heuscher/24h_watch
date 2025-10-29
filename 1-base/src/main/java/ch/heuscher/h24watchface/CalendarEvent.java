@@ -1,6 +1,6 @@
 package ch.heuscher.h24watchface;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /*
  * Created by David Laundav and contributed by Christian Orthmann
@@ -23,7 +23,7 @@ import java.util.Date;
 public class CalendarEvent implements Comparable<CalendarEvent>{
 
     private String title;
-    private Date begin, end;
+    private ZonedDateTime begin, end;
     private boolean allDay;
 
     public CalendarEvent() {
@@ -38,19 +38,19 @@ public class CalendarEvent implements Comparable<CalendarEvent>{
         this.title = title;
     }
 
-    public Date getBegin() {
+    public ZonedDateTime getBegin() {
         return begin;
     }
 
-    public void setBegin(Date begin) {
+    public void setBegin(ZonedDateTime begin) {
         this.begin = begin;
     }
 
-    public Date getEnd() {
+    public ZonedDateTime getEnd() {
         return end;
     }
 
-    public void setEnd(Date end) {
+    public void setEnd(ZonedDateTime end) {
         this.end = end;
     }
 
@@ -70,7 +70,7 @@ public class CalendarEvent implements Comparable<CalendarEvent>{
     @Override
     public int compareTo(CalendarEvent other) {
         // -1 = less, 0 = equal, 1 = greater
-        return getBegin().compareTo(other.begin);
+        return getBegin().compareTo(other.getBegin());
     }
 
 }
