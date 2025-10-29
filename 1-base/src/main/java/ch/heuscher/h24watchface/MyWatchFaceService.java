@@ -303,7 +303,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             mWatchFaceDrawer.onDraw(canvas, bounds);
         }
 
-        public String getSpecials(Canvas canvas) {
+        public String getSpecials() {
             String specials = "" + (mDebug != null ? mDebug : "");
             try {
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
