@@ -115,7 +115,7 @@ public class WatchFaceDrawer {
 
         List<CalendarEvent> events = drawHourAndEvents(canvas, engine, zonedDateTime, colorFromHour, handPaintColor, lightFactor);
 
-        drawWatchHand(canvas, engine, hoursRotation, colorFromHour, handPaintColor);
+        drawWatchHand(canvas, engine, hoursRotation, colorFromHour, handPaintColor, lightFactor);
 
         String specials = engine.getSpecials();
         drawHourMarkers(canvas, engine, active, specials);
@@ -212,9 +212,10 @@ public class WatchFaceDrawer {
         return events;
     }
 
-    private void drawWatchHand(Canvas canvas, MyWatchFaceService.Engine engine, float hoursRotation, int colorFromHour, int handPaintColor) {
+    private void drawWatchHand(Canvas canvas, MyWatchFaceService.Engine engine, float hoursRotation, int colorFromHour, int handPaintColor, float lightFactor) {
         mHandPaint.setColor(colorFromHour);
-        mHandPaint.setAlpha((int) (255 * (engine.isDarkMode() ? 1f : 1f)));
+        int alphaHand = engine.isDarkMode() ? 218 - Math.min((int) (lightFactor * 200), 100) : 160;
+        mHandPaint.setAlpha(alphaHand);
         float hourDotCenter = mHourHandLength + 2 * RAND_RESERVE;
         float hourDotRadius = RAND_RESERVE * 2f;
         float hourDotOuterRadius = RAND_RESERVE * 3.5f;
