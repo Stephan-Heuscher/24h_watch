@@ -30,7 +30,7 @@ public final class WatchFaceConstants {
 
     // Time & Date
     public static final DateTimeFormatter MINUTES_FORMATTER = DateTimeFormatter.ofPattern("mm");
-    public static final DateTimeFormatter ISO_DATE_WITH_DAYOFWEEK = DateTimeFormatter.ofPattern("E yyyy-MM-dd");
+    public static final DateTimeFormatter ISO_DATE_WITH_DAYOFWEEK = DateTimeFormatter.ofPattern("E yyyy-MM-dd").withLocale(DE_CH_LOCALE);
     public static final float DEGREES_PER_HOUR = 15f;
     public static final float DEGREES_PER_MINUTE = 0.25f;
 
