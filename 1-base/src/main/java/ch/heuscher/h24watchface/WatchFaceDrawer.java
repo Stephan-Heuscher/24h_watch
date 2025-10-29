@@ -185,7 +185,7 @@ public class WatchFaceDrawer {
         float decenter = DECENTERING_CORRECTION;
         int alphaHour = engine.isDarkMode() ? 218 - Math.min((int) (lightFactor * 200), 100) : 160;
         mHourPaint.setColor(colorFromHour);
-        mHourPaint.setAlpha((int) (alphaHour * (engine.isDarkMode() ? lightFactor : 1f)));
+        mHourPaint.setAlpha(alphaHour);
         mHourPaint.setStyle(Paint.Style.FILL);
         Rect boundsText = new Rect();
         mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
