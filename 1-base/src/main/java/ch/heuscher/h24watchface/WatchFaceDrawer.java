@@ -360,6 +360,10 @@ public class WatchFaceDrawer {
                 mEngine.getBackgroundPaint());
     }
 
+    private void writeHour(Canvas canvas, float radiusCenter, int hour, boolean writeNumber, boolean writeMarker) {
+        writeHour(canvas, radiusCenter, hour, "" + hour, writeNumber, writeMarker, true);
+    }
+
     private void writeHour(Canvas canvas, float radiusCenter, int hour, String hourText,
                            boolean writeNumber, boolean writeMarker, boolean adjustColor) {
         float degreesFromNorth = hour * DEGREES_PER_HOUR;
