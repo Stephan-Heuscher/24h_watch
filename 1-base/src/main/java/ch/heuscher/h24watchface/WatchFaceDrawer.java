@@ -161,7 +161,7 @@ public class WatchFaceDrawer {
             drawTextUprightFromCenter(canvas, 180, mEngine.getCenterY() / 3 * (0.1f + showMinutesCorrection),
                     DE_CH_NUMBER.format(mEngine.getSteps()), mEngine.getHandPaint(), null);
             drawTextUprightFromCenter(canvas, 180, mEngine.getCenterY() / 3 * (0.65f + showMinutesCorrection),
-                    DE_CH_NUMBER.format(mEngine.getSteps() - mEngine.getStepsAtMidnight()), mEngine.getHandPaint(), null);
+                    DE_CH_NUMBER.format(mEngine.getStepsToday()), mEngine.getHandPaint(), null);
         }
 
         return events;
