@@ -19,17 +19,13 @@ package ch.heuscher.h24watchface;
 import static ch.heuscher.h24watchface.WatchFaceConstants.COMPLICATION_ID;
 import static ch.heuscher.h24watchface.WatchFaceConstants.PROJECTION;
 import static ch.heuscher.h24watchface.WatchFaceConstants.ROTATION_180_DEGREES;
-import static ch.heuscher.h24watchface.WatchFaceConstants.TEXT_SIZE;
 
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
@@ -68,26 +64,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private WatchFaceDrawer mWatchFaceDrawer;
         private StepCounterManager mStepCounterManager;
 
-        private boolean mRegisteredReceivers = false;
-        private Paint mBackgroundPaint;
-        private Paint mHandPaint;
-        private Paint mHourPaint;
-        private Paint mMinutesPaint;
-
-        private final Typeface mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
-        private final Typeface mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
-        private final Typeface mBold = Typeface.create("sans-serif", Typeface.BOLD);
-
         private boolean mAmbient;
         private boolean mDarkMode = true;
         private boolean mMinimalMode = false;
         private boolean mShowMinutesDateAndMeetings = true;
 
-        private float mHourHandLength;
-        private int mWidth;
-        private int mHeight;
-        private float mCenterX;
-        private float mCenterY;
         private DimmingController mDimmingController;
         private float mRotate = 0;
         private long mLastReadCountdownTime;
@@ -134,30 +115,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                     sensorManager);
             setDarkMode(true);
 
-            mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(Color.BLACK);
-            mBackgroundPaint.setAntiAlias(true);
-
-            mHandPaint = new Paint();
-            mHandPaint.setStrokeWidth(WatchFaceConstants.STROKE_WIDTH);
-            mHandPaint.setAntiAlias(true);
-            mHandPaint.setStrokeCap(Paint.Cap.ROUND);
-            mHandPaint.setTextSize(TEXT_SIZE);
-            mHandPaint.setTypeface(mNormal);
-            mHandPaint.setShadowLayer(8, 0, 0, Color.BLACK);
-
-            mHourPaint = new Paint();
-            mHourPaint.setAntiAlias(true);
-            mHourPaint.setLetterSpacing(-0.065f);
-
-            mMinutesPaint = new Paint();
-            mMinutesPaint.setAntiAlias(true);
-            mMinutesPaint.setShadowLayer(8, 0, 0, Color.BLACK);
-            mMinutesPaint.setStyle(Paint.Style.STROKE);
-            //mMinutesPaint.setLetterSpacing(1.4f);
-
             mZonedDateTime = ZonedDateTime.now();
-            mWatchFaceDrawer = new WatchFaceDrawer(this, getBaseContext());
+            mWatchFaceDrawer = new WatchFaceDrawer(getBaseContext());
 
             setDefaultComplicationProvider(COMPLICATION_ID, new ComponentName("com.google.android.deskclock",
                             "com.google.android.deskclock.complications.TimerProviderService"),
@@ -168,7 +127,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDestroy() {
             mDimmingController.selfUnregister();
-            unregisterReceiver();
+            mStepCounterManager.unregister();
             super.onDestroy();
         }
 
@@ -220,22 +179,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             super.onSurfaceChanged(holder, format, width, height);
-            mWidth = width;
-            mHeight = height;
-            /*
-             * Find the coordinates of the center point on the screen.
-             * Ignore the window insets so that, on round watches
-             * with a "chin", the watch face is centered on the entire screen,
-             * not just the usable portion.
-             */
-            mCenterX = mWidth / 2f;
-            mCenterY = mHeight / 2f;
-            /*
-             * Calculate the lengths of the watch hands and store them in member variables.
-             */
-            mHourHandLength = mCenterX - 2 * WatchFaceConstants.RAND_RESERVE;
-            mHourPaint.setTextSize(mHeight * 0.95f);
-            mMinutesPaint.setTextSize(mCenterY / 2);
+            mWatchFaceDrawer.onSurfaceChanged(width, height);
         }
 
         @Override
@@ -243,29 +187,48 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
                 @TapType int tapType, int x, int y, long eventTime) {
             switch (tapType) {
                 case WatchFaceService.TAP_TYPE_TAP:
-                    if (y <= mHeight / 3) { // top
-                        setDarkMode(!isDarkMode());
-                    } else if (x <= mWidth / 3) {
-                        // left
-                    } else if (x >= mWidth / 3 * 2) { // right
-                        mRotate = mRotate == 0 ? ROTATION_180_DEGREES : 0;
-                    } else if (y >= mHeight / 3 * 2) { // bottom
-                        mShowMinutesDateAndMeetings = !mShowMinutesDateAndMeetings;
-                    } else { // center
+                    int width = mWatchFaceDrawer.getWidth();
+                    int height = mWatchFaceDrawer.getHeight();
+
+                    // Define the boundaries for the center square (middle third of the screen)
+                    float oneThirdWidth = width / 3f;
+                    float twoThirdsWidth = width * 2 / 3f;
+                    float oneThirdHeight = height / 3f;
+                    float twoThirdsHeight = height * 2 / 3f;
+
+                    // Check for center tap first, in the middle third of the screen
+                    if (x > oneThirdWidth && x < twoThirdsWidth && y > oneThirdHeight && y < twoThirdsHeight) {
                         mMinimalMode = !mMinimalMode;
                     }
+                    // Then, check the outer regions
+                    else if (y <= oneThirdHeight) {
+                        setDarkMode(!isDarkMode());
+                    } else if (y >= twoThirdsHeight) {
+                        mShowMinutesDateAndMeetings = !mShowMinutesDateAndMeetings;
+                    } else if (x <= oneThirdWidth) {
+                        // Left region is currently unused but reserved
+                    } else if (x >= twoThirdsWidth) {
+                        mRotate = mRotate == 0 ? ROTATION_180_DEGREES : 0;
+                    }
+                    invalidate();
+                    break;
+
                 case WatchFaceService.TAP_TYPE_TOUCH_CANCEL:
                     invalidate();
+                    break;
+
                 case WatchFaceService.TAP_TYPE_TOUCH:
+                    // Let superclass handle touch events, which is important for complications
                 default:
                     super.onTapCommand(tapType, x, y, eventTime);
+                    break;
             }
         }
 
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             mZonedDateTime = ZonedDateTime.now();
-            mWatchFaceDrawer.onDraw(canvas, bounds);
+            mWatchFaceDrawer.onDraw(canvas, this, mZonedDateTime, mDimmingController);
         }
 
         public String getSpecials() {
@@ -310,28 +273,11 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             super.onVisibilityChanged(visible);
 
             if (visible) {
-                registerReceiver();
+                mStepCounterManager.register();
                 invalidate();
             } else {
-                unregisterReceiver();
+                mStepCounterManager.unregister();
             }
-        }
-
-        private void registerReceiver() {
-            if (mRegisteredReceivers) {
-                return;
-            }
-            mRegisteredReceivers = true;
-            mStepCounterManager.register();
-        }
-
-        private void unregisterReceiver() {
-            mDimmingController.selfUnregister();
-            if (!mRegisteredReceivers) {
-                return;
-            }
-            mRegisteredReceivers = false;
-            mStepCounterManager.unregister();
         }
 
         public long getLastDraw() {
@@ -384,38 +330,6 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             return mStepCounterManager.getStepsToday();
         }
 
-        public float getCenterX() {
-            return mCenterX;
-        }
-
-        public float getCenterY() {
-            return mCenterY;
-        }
-
-        public Paint getBackgroundPaint() {
-            return mBackgroundPaint;
-        }
-
-        public Paint getHandPaint() {
-            return mHandPaint;
-        }
-
-        public Paint getHourPaint() {
-            return mHourPaint;
-        }
-
-        public Paint getMinutesPaint() {
-            return mMinutesPaint;
-        }
-
-        public float getHourHandLength() {
-            return mHourHandLength;
-        }
-
-        public DimmingController getDimmingController() {
-            return mDimmingController;
-        }
-
         public boolean isMinimalMode() {
             return mMinimalMode;
         }
@@ -440,16 +354,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
             return mRotate;
         }
 
-        public Typeface getLightTypeface() {
-            return mLight;
-        }
-
-        public Typeface getNormalTypeface() {
-            return mNormal;
-        }
-
-        public Typeface getBoldTypeface() {
-            return mBold;
+        public DimmingController getDimmingController() {
+            return mDimmingController;
         }
     }
 }
