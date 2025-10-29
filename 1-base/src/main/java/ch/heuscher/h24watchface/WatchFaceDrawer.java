@@ -169,6 +169,10 @@ public class WatchFaceDrawer {
         mMinutesPaint.setStrokeWidth(Math.min(4f, strokeWidth));
     }
 
+    private int calculateAlpha(boolean isDarkMode, float lightFactor) {
+        return isDarkMode ? 218 - Math.min((int) (lightFactor * 200), 100) : 160;
+    }
+
     private List<CalendarEvent> drawHourAndEvents(Canvas canvas, MyWatchFaceService.Engine engine, ZonedDateTime mZonedDateTime, int colorFromHour, int handPaintColor, float lightFactor) {
         int hour = mZonedDateTime.getHour();
         int minutes = mZonedDateTime.getMinute();
@@ -183,9 +187,8 @@ public class WatchFaceDrawer {
         // Draw the hour text
         String hourText = "" + hour;
         float decenter = DECENTERING_CORRECTION;
-        int alphaHour = engine.isDarkMode() ? 218 - Math.min((int) (lightFactor * 200), 100) : 160;
         mHourPaint.setColor(colorFromHour);
-        mHourPaint.setAlpha(alphaHour);
+        mHourPaint.setAlpha(calculateAlpha(engine.isDarkMode(), lightFactor));
         mHourPaint.setStyle(Paint.Style.FILL);
         Rect boundsText = new Rect();
         mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
@@ -214,8 +217,7 @@ public class WatchFaceDrawer {
 
     private void drawWatchHand(Canvas canvas, MyWatchFaceService.Engine engine, float hoursRotation, int colorFromHour, int handPaintColor, float lightFactor) {
         mHandPaint.setColor(colorFromHour);
-        int alphaHand = engine.isDarkMode() ? 218 - Math.min((int) (lightFactor * 200), 100) : 160;
-        mHandPaint.setAlpha(alphaHand);
+        mHandPaint.setAlpha(calculateAlpha(engine.isDarkMode(), lightFactor));
         float hourDotCenter = mHourHandLength + 2 * RAND_RESERVE;
         float hourDotRadius = RAND_RESERVE * 2f;
         float hourDotOuterRadius = RAND_RESERVE * 3.5f;
