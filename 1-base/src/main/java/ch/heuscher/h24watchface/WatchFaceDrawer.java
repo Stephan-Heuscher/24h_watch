@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 public class WatchFaceDrawer {
 
     private final Context mContext;
+    private final ColorCalculator mColorCalculator;
 
     private Paint mBackgroundPaint;
     private Paint mHandPaint;
@@ -61,6 +62,7 @@ public class WatchFaceDrawer {
 
     public WatchFaceDrawer(Context context) {
         this.mContext = context;
+        this.mColorCalculator = new ColorCalculator();
 
         mLight = Typeface.create("sans-serif-thin", Typeface.NORMAL);
         mNormal = Typeface.create("sans-serif", Typeface.NORMAL);
@@ -106,8 +108,8 @@ public class WatchFaceDrawer {
 
         float lightFactor = updateAndGetLightFactor(engine, dimmingController);
         final float hoursRotation = getDegreesFromNorth(zonedDateTime);
-        int colorFromHour = getColorDegrees(hoursRotation);
-        int handPaintColor = getHandPaintColor(engine.isDarkMode(), lightFactor);
+        int colorFromHour = mColorCalculator.getColorDegrees(hoursRotation);
+        int handPaintColor = mColorCalculator.getHandPaintColor(engine.isDarkMode(), lightFactor);
 
         updatePaints(engine, lightFactor, handPaintColor);
 
@@ -140,14 +142,6 @@ public class WatchFaceDrawer {
         return lightFactor;
     }
 
-    private int getHandPaintColor(boolean isDarkMode, float lightFactor) {
-        if (isDarkMode) {
-            return Color.HSVToColor(new float[]{DARK_MODE_HUE, DARK_MODE_SATURATION, lightFactor});
-        } else {
-            return Color.WHITE;
-        }
-    }
-
     private void updatePaints(MyWatchFaceService.Engine engine, float lightFactor, int handPaintColor) {
         mHandPaint.setColor(handPaintColor);
         mHourPaint.setColor(handPaintColor);
@@ -169,10 +163,6 @@ public class WatchFaceDrawer {
         mMinutesPaint.setStrokeWidth(Math.min(4f, strokeWidth));
     }
 
-    private int calculateAlpha(boolean isDarkMode, float lightFactor) {
-        return isDarkMode ? 218 - Math.min((int) (lightFactor * 200), 100) : 160;
-    }
-
     private List<CalendarEvent> drawHourAndEvents(Canvas canvas, MyWatchFaceService.Engine engine, ZonedDateTime mZonedDateTime, int colorFromHour, int handPaintColor, float lightFactor) {
         int hour = mZonedDateTime.getHour();
         int minutes = mZonedDateTime.getMinute();
@@ -188,7 +178,7 @@ public class WatchFaceDrawer {
         String hourText = "" + hour;
         float decenter = DECENTERING_CORRECTION;
         mHourPaint.setColor(colorFromHour);
-        mHourPaint.setAlpha(calculateAlpha(engine.isDarkMode(), lightFactor));
+        mHourPaint.setAlpha(mColorCalculator.calculateAlpha(engine.isDarkMode(), lightFactor));
         mHourPaint.setStyle(Paint.Style.FILL);
         Rect boundsText = new Rect();
         mHourPaint.getTextBounds(hourText, 0, hourText.length(), boundsText);
@@ -217,7 +207,7 @@ public class WatchFaceDrawer {
 
     private void drawWatchHand(Canvas canvas, MyWatchFaceService.Engine engine, float hoursRotation, int colorFromHour, int handPaintColor, float lightFactor) {
         mHandPaint.setColor(colorFromHour);
-        mHandPaint.setAlpha(calculateAlpha(engine.isDarkMode(), lightFactor));
+        mHandPaint.setAlpha(mColorCalculator.calculateAlpha(engine.isDarkMode(), lightFactor));
         float hourDotCenter = mHourHandLength + 2 * RAND_RESERVE;
         float hourDotRadius = RAND_RESERVE * 2f;
         float hourDotOuterRadius = RAND_RESERVE * 3.5f;
@@ -442,7 +432,7 @@ public class WatchFaceDrawer {
 
         int handColor = mHandPaint.getColor();
         if (adjustColor) {
-            mHandPaint.setColor(getColorDegrees(degreesFromNorth));
+            mHandPaint.setColor(mColorCalculator.getColorDegrees(degreesFromNorth));
         }
 
         if (writeNumber) {
@@ -492,20 +482,6 @@ public class WatchFaceDrawer {
         } else {
             canvas.drawText(text, x, y, paint);
         }
-    }
-
-    private int getColorDegrees(float degreesFromNorth) {
-        degreesFromNorth = degreesFromNorth % 360;
-        float relativeAdvance = degreesFromNorth / 360 * (COLORS.length);
-        int firstColorIndex = (int) relativeAdvance;
-        float amountFirstColor = relativeAdvance - firstColorIndex;
-        int secondColorIndex = (firstColorIndex + 1) % (COLORS.length);
-        int colorForTime = ColorUtils.blendARGB(COLORS[firstColorIndex], COLORS[secondColorIndex], amountFirstColor);
-        float[] hsvVals = new float[3];
-        Color.colorToHSV(colorForTime, hsvVals);
-        // full luminance
-        hsvVals[2] = 1;
-        return Color.HSVToColor(hsvVals);
     }
 
     private float getNextLine(float currentY) {
