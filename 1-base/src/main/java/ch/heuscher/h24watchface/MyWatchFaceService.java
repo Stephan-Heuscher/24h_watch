@@ -63,6 +63,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         private ZonedDateTime mZonedDateTime;
         private WatchFaceDrawer mWatchFaceDrawer;
         private StepCounterManager mStepCounterManager;
+        private CalendarEventProvider mCalendarEventProvider;
+        private SystemStatusProvider mSystemStatusProvider;
 
         private boolean mAmbient;
         private boolean mDarkMode = true;
@@ -117,6 +119,8 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
 
             mZonedDateTime = ZonedDateTime.now();
             mWatchFaceDrawer = new WatchFaceDrawer(getBaseContext());
+            mCalendarEventProvider = new CalendarEventProvider(getContentResolver());
+            mSystemStatusProvider = new SystemStatusProvider(getBaseContext());
 
             setDefaultComplicationProvider(COMPLICATION_ID, new ComponentName("com.google.android.deskclock",
                             "com.google.android.deskclock.complications.TimerProviderService"),
@@ -232,40 +236,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         public String getSpecials() {
-            String specials = "" + (mDebug != null ? mDebug : "");
-            try {
-                WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-                if (wifiManager != null && wifiManager.isWifiEnabled()) {
-                    specials += "W";
-                }
-                if (getUnreadCount() > 0) { // entweder ungelesene
-                    specials += "i";
-                }
-                // 2022-07-03 Nur noch ungelesene anzeigen
-                //else if (getNotificationCount() > 0) { // oder noch andere
-                //    specials += "i";
-                //}
-                if (getInterruptionFilter() != INTERRUPTION_FILTER_PRIORITY) {
-                    specials += "<";
-                }
-                if (Settings.Global.getInt(getContentResolver(), Settings.Global.AIRPLANE_MODE_ON) == 1) {
-                    specials += ">";
-                } else {
-                    ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                    Network activeNetwork = connectivityManager.getActiveNetwork();
-                    if (activeNetwork == null) {
-                        specials += "X";
-                    }
-                }
-                LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                if (locationManager != null && locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    specials += "⌖";
-                }
-            } catch (Throwable t) {
-                // No longer able to draw on canvas from here, so logging the error is the best we can do
-                Log.e("MyWatchFaceService", "Error getting specials", t);
-            }
-            return specials;
+            return mSystemStatusProvider.getSystemStatus(mDebug, getUnreadCount(), getInterruptionFilter());
         }
 
         @Override
@@ -285,37 +256,7 @@ public class MyWatchFaceService extends CanvasWatchFaceService {
         }
 
         public List<CalendarEvent> getCalendarEvents() {
-            List<CalendarEvent> events = new ArrayList<>();
-            Uri.Builder builder = WearableCalendarContract.Instances.CONTENT_URI.buildUpon();
-            long begin = System.currentTimeMillis();
-            ContentUris.appendId(builder, begin);
-            long hourNoShow = TimeUnit.HOURS.toMillis(WatchFaceConstants.CALENDAR_QUERY_WINDOW_HOURS);
-            ContentUris.appendId(builder, begin + hourNoShow);
-            final Cursor cursor = getContentResolver().query(builder.build(), PROJECTION, null, null, null);
-            if (cursor == null) {
-                return events;
-            }
-            while (cursor.moveToNext()) {
-                long beginVal = cursor.getLong(0);
-                long endVal = cursor.getLong(1);
-                String title = cursor.getString(2);
-                boolean isAllDay = !cursor.getString(3).equals("0")
-                        || endVal - beginVal >= TimeUnit.HOURS.toMillis(24) - TimeUnit.MINUTES.toMillis(1);
-                CalendarEvent newEvent = new CalendarEvent();
-                newEvent.setTitle(title);
-                ZonedDateTime beginTime = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(beginVal), java.time.ZoneId.systemDefault());
-                newEvent.setBegin(beginTime);
-                ZonedDateTime endTime = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(endVal), java.time.ZoneId.systemDefault());
-                newEvent.setEnd(endTime);
-                newEvent.setAllDay(isAllDay);
-                // todo: why does it not filter out non-available meetings?
-                boolean isBusy = cursor.getInt(4) == CalendarContract.Instances.AVAILABILITY_BUSY;
-                if (isBusy && !isAllDay) {
-                    events.add(newEvent);
-                }
-            }
-            cursor.close();
-            return events;
+            return mCalendarEventProvider.getCalendarEvents(WatchFaceConstants.CALENDAR_QUERY_WINDOW_HOURS);
         }
 
         public ZonedDateTime getZonedDateTime() {
