@@ -45,7 +45,9 @@ public class ColorCalculator {
      */
     public int getHandPaintColor(boolean isDarkMode, float lightFactor) {
         if (isDarkMode) {
-            return Color.HSVToColor(new float[]{DARK_MODE_HUE, DARK_MODE_SATURATION, lightFactor});
+            // Ensure outline remains visible by maintaining minimum brightness of VERY_DARK threshold
+            float brightness = Math.max(lightFactor, DimmingController.VERY_DARK);
+            return Color.HSVToColor(new float[]{DARK_MODE_HUE, DARK_MODE_SATURATION, brightness});
         } else {
             return Color.WHITE;
         }
